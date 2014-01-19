@@ -3676,12 +3676,12 @@ class ChannelList:
                 TrailerLST = self.readCache(TrailerCachePath, TrailerInternetCache)
                 
             elif CacheExpired == True:
-                # try:
-                TrailerLST = self.Donor.InternetTrailer(TrailerCachePath)
-                self.writeCache(TrailerLST, TrailerCachePath, TrailerInternetCache)
-                # except:
-                    # self.log("Donor Code Unavailable")
-                    # pass
+                try:
+                    TrailerLST = self.Donor.InternetTrailer(TrailerCachePath)
+                    self.writeCache(TrailerLST, TrailerCachePath, TrailerInternetCache)
+                except:
+                    self.log("Donor Code Unavailable")
+                    pass
 
         
         #Youtube
