@@ -18,7 +18,11 @@ from urlparse import urlunparse
 from hashlib import sha1
 from os import environ
 from Overlay import *
-from Donor import Donor
+
+try:
+    from Donor import Donor
+except:
+    pass
 
 # Set your proprty id via the environment or simply type it
 # below
