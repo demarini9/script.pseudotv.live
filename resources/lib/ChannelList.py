@@ -343,15 +343,11 @@ class ChannelList:
         try:
             needsreset = ADDON_SETTINGS.getSetting('Channel_' + str(channel) + '_changed') == 'True'
             
-            #disable force rebuild for livetv channels w/ TVDB and TMDB, else force rebuild:
-            # if chtype == 8 and REAL_SETTINGS.getSetting('Live.art.enable') == 'false':
-                # self.log("Force LiveTV rebuild")
-                # needsreset = True
-                # makenewlist = True
-
-            # if chtype == 9:
-                # needsreset = True
-                # makenewlist = True
+            # disable force rebuild for livetv channels w/ TVDB and TMDB, else force rebuild:
+            if chtype == 8 and REAL_SETTINGS.getSetting('EnhancedLiveTV') == 'false':
+                self.log("Force LiveTV rebuild")
+                needsreset = True
+                makenewlist = True
             
             if needsreset:
                 self.channels[channel - 1].isSetup = False
@@ -707,7 +703,7 @@ class ChannelList:
                         
         elif chtype == 10: # Youtube
             self.log("Building Youtube Channel " + setting1 + " using type " + setting2 + "...")
-            fileList = self.createYoutubeFilelist(setting1, setting2, setting3, channel)
+            fileList = self.createYoutubeFilelist(setting1, setting2, setting3, setting4, channel)
             
         elif chtype == 11: # RSS/iTunes/feedburner/Podcast
             self.log("Building RSS Feed " + setting1 + " using type " + setting2 + "...")
@@ -1537,7 +1533,7 @@ class ChannelList:
         MovieType = False
         try:
             if type == 'TV':
-                json_query = uni('{"jsonrpc":"2.0","method":"VideoLibrary.GetTVShows","params":{"properties":["title","year","genre","imdbnumber"]}, "id": 1}')
+                json_query = ('{"jsonrpc":"2.0","method":"VideoLibrary.GetTVShows","params":{"properties":["title","year","genre","imdbnumber"]}, "id": 1}')
                 if not self.cached_json_detailed_TV:
                     self.logDebug('buildGenreLiveID, json_detail creating cache')
                     self.cached_json_detailed_TV = self.sendJSON(json_query)
@@ -1548,7 +1544,7 @@ class ChannelList:
                     self.logDebug('buildGenreLiveID, json_detail using cache')
                     TVtype = True
             else:
-                json_query = uni('{"jsonrpc":"2.0","method":"VideoLibrary.GetMovies","params":{"properties":["title","year","genre","imdbnumber"]}, "id": 1}')
+                json_query = ('{"jsonrpc":"2.0","method":"VideoLibrary.GetMovies","params":{"properties":["title","year","genre","imdbnumber"]}, "id": 1}')
                 if not self.cached_json_detailed_Movie:
                     self.logDebug('buildGenreLiveID, json_detail creating cache')
                     self.cached_json_detailed_Movie = self.sendJSON(json_query)
@@ -1573,9 +1569,15 @@ class ChannelList:
             self.logDebug("buildGenreLiveID.genre.2 = " + str(genre))
             genre = genre.split('","')[0]
             self.logDebug("buildGenreLiveID.genre.3 = " + str(genre))
+            
             if genre == '':
                 genre = 'Unknown'
             self.logDebug("buildGenreLiveID.genre.4 = " + str(genre))
+            
+            dbid = match.split('tvshowid":', 1)[-1]
+            self.logDebug("buildGenreLiveID.dbid.1 = " + str(dbid))
+            dbid = dbid.split(',"')[0]
+            self.logDebug("buildGenreLiveID.dbid.2 = " + str(dbid))
             
             if TVtype:
                 tvdbid = match.split('","label":')[0]
@@ -1586,7 +1588,8 @@ class ChannelList:
                 self.logDebug("buildGenreLiveID.tvdbid.3 = " + str(tvdbid))
                 tvdbid = (str(tvdbid))
                 self.logDebug("buildGenreLiveID.tvdbid.4 = " + str(tvdbid))
-                GenreLiveID = ( str(genre) + ',' + str(tvdbid))
+                GenreLiveID = ( str(genre) + ',' + str(tvdbid) + ',' + str(dbid))
+                
             elif MovieType:
                 imdbid = match.split('","label":')[0]
                 self.logDebug("buildGenreLiveID.imdbid.1 = " + str(imdbid))
@@ -1596,11 +1599,11 @@ class ChannelList:
                 self.logDebug("buildGenreLiveID.imdbid.3 = " + str(imdbid))
                 imdbid = (str(imdbid))
                 self.logDebug("buildGenreLiveID.imdbid.4 = " + str(imdbid))
-                GenreLiveID = ( str(genre) + ',' + str(imdbid))
+                GenreLiveID = (str(genre) + ',' + str(imdbid) + ',' + str(dbid))
             
             return GenreLiveID
         except:
-            return 'Unknown,0'
+            return 'Unknown,0,0'
             self.logDebug('buildGenreLiveID, GenreLiveID failed')
     
 
@@ -1612,10 +1615,9 @@ class ChannelList:
         imdbid = 0
         tvdbid = 0
         genre = ''
-        LiveID = ''
         cpManaged = False
         sbManaged = False
-        json_query = uni('{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s", "media": "video", "fields":["season","episode","playcount","duration","runtime","tagline","showtitle","album","artist","plot","plotoutline"]}, "id": 1}' % (self.escapeDirJSON(dir_name)))
+        json_query = ('{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s", "media": "video", "fields":["season","episode","playcount","duration","runtime","tagline","showtitle","album","artist","plot","plotoutline"]}, "id": 1}' % (self.escapeDirJSON(dir_name)))
 
         if self.background == False:
             self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "adding videos", "querying database")
@@ -1716,7 +1718,7 @@ class ChannelList:
                                 GenreLiveID = self.buildGenreLiveID(showtitle.group(1), 'TV')
                                 self.logDebug('buildFileList.GenreLiveID.TV = ' + uni(GenreLiveID))
 
-                                if GenreLiveID != 'Unknown,0':
+                                if GenreLiveID != 'Unknown,0,0':
                                     GenreLiveID = GenreLiveID.split(',')
                                     self.logDebug('buildFileList.GenreLiveID.2 = ' + str(GenreLiveID))
                                     genre = GenreLiveID[0]
@@ -1724,7 +1726,10 @@ class ChannelList:
                                     genre = str(genre)
                                     tvdbid = GenreLiveID[1]                     
                                     tvdbid = int(tvdbid)
-                                    self.logDebug('buildFileList.tvdbid = ' + str(tvdbid))   
+                                    self.logDebug('buildFileList.tvdbid = ' + str(tvdbid))  
+                                    dbid = GenreLiveID[2]                     
+                                    dbid = int(dbid) 
+                                    self.logDebug('buildFileList.dbid = ' + str(dbid))  
                                 
                                     # Lookup IMDBID, 1st with tvdb, then with tvdb_api
                                     if imdbid == 0:
@@ -1755,33 +1760,8 @@ class ChannelList:
                                         except:
                                             pass
                                     
-                                    #Build LiveID (imdb/tvdb/sickbeard or couchpoato/unaired or aired)
-                                    
-                                    if imdbid != 0:
-                                        IID = ('imdb_' + str(imdbid))
-                                        LiveID = (IID + '|')
-                                    else:
-                                        LiveID = ('NA' + '|')
-                                    
-                                    if tvdbid != 0:
-                                        TID = ('tvdb_' + str(tvdbid))
-                                        LiveID = (LiveID + '|' + TID + '|')
-                                    else:
-                                        LiveID = (LiveID + '|' + 'NA' + '|')
-                                                          
-                                    if sbManaged == True:
-                                        SB = ('SB')
-                                        LiveID = (LiveID + '|' + SB + '|')
-                                    elif cpManaged == True:
-                                        CP = ('CP')
-                                        LiveID = (LiveID + '|' + CP + '|')
-                                    else:
-                                        LiveID = (LiveID + '|' + 'NA' + '|')
-                                    
-                                    LiveID = (LiveID + '|' + 'NA' + '|')
-                                    LiveID = LiveID.replace('||','|')
-                                    LiveID = uni(LiveID)
-                                    self.logDebug('buildFileList.LiveID = ' + LiveID)
+                                    LiveID = self.LiveID(imdbid, tvdbid, sbManaged, 'cpManaged', dbid, 'tvshow', '')
+                                    self.logDebug('buildFileList.LiveID = ' + str(LiveID))
                                     
                                     genre = str(genre)
                                     tmpstr += showtitle.group(1) + "//" + swtitle + "//" + theplot + "//" + genre + "////" + LiveID
@@ -1806,7 +1786,7 @@ class ChannelList:
                                     GenreLiveID = self.buildGenreLiveID(title.group(1), 'Movie')
                                     self.logDebug('buildFileList.GenreLiveID.Movie = ' + uni(GenreLiveID))
                                     
-                                    if GenreLiveID != 'Unknown,0':
+                                    if GenreLiveID != 'Unknown,0,0':
                                         GenreLiveID = uni(GenreLiveID.split(','))
                                         self.logDebug('buildFileList.GenreLiveID.2 = ' + str(GenreLiveID))
                                         genre = GenreLiveID[0]
@@ -1844,32 +1824,7 @@ class ChannelList:
                                             except:
                                                 pass
                                         
-                                        #Build LiveID (imdb/tvdb/sickbeard or couchpoato/unaired or aired)
-                                        
-                                        if imdbid != 0:
-                                            IID = ('imdb_' + str(imdbid))
-                                            LiveID = (IID + '|')
-                                        else:
-                                            LiveID = ('NA' + '|')
-                                        
-                                        if tvdbid != 0:
-                                            TID = ('tvdb_' + str(tvdbid))
-                                            LiveID = (LiveID + '|' + TID + '|')
-                                        else:
-                                            LiveID = (LiveID + '|' + 'NA' + '|')
-                                                              
-                                        if sbManaged == True:
-                                            SB = ('SB')
-                                            LiveID = (LiveID + '|' + SB + '|')
-                                        elif cpManaged == True:
-                                            CP = ('CP')
-                                            LiveID = (LiveID + '|' + CP + '|')
-                                        else:
-                                            LiveID = (LiveID + '|' + 'NA' + '|')
-                                        
-                                        LiveID = (LiveID + '|' + 'NA' + '|')
-                                        LiveID = LiveID.replace('||','|')
-                                        LiveID = uni(LiveID)
+                                        LiveID = self.LiveID(imdbid, tvdbid, 'sbManaged', cpManaged, dbid, 'movie', '')
                                         self.logDebug('buildFileList.LiveID = ' + LiveID)
                                         
                                         genre = str(genre)
@@ -1963,11 +1918,11 @@ class ChannelList:
         sbAPI = SickBeard(REAL_SETTINGS.getSetting('sickbeard.baseurl'),REAL_SETTINGS.getSetting('sickbeard.apikey'))
         cpAPI = CouchPotato(REAL_SETTINGS.getSetting('couchpotato.baseurl'),REAL_SETTINGS.getSetting('couchpotato.apikey'))        
         
-        if REAL_SETTINGS.getSetting("tvdb.enabled") == "true" and REAL_SETTINGS.getSetting("tmdb.enabled") == "true" and REAL_SETTINGS.getSetting("fandb.enabled") == "true":
+        if REAL_SETTINGS.getSetting("tvdb.enabled") == "true" and REAL_SETTINGS.getSetting("tmdb.enabled") == "true":
             self.apis = True
         else:
             self.apis = False
-        
+
         if self.background == False:
             self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "Parsing LiveTV...")
             if REAL_SETTINGS.getSetting('Live.art.enable') == 'true' and self.apis == True:
@@ -2056,7 +2011,7 @@ class ChannelList:
                         episodeName = ''
                         episodeGenre = ''
                         
-                        if not movie and REAL_SETTINGS.getSetting('Live.art.enable') == 'true' and self.apis == True:
+                        if not movie and REAL_SETTINGS.getSetting('EnhancedLiveTV') == 'true' and self.apis == True:
                             episodeNumList = elem.findall("episode-num")
                             for epNum in episodeNumList:
                                 if epNum.attrib["system"] == 'dd_progid':
@@ -2173,13 +2128,13 @@ class ChannelList:
                                 except:
                                     pass
                                                                             
-                            ## Clean and reset Invalid values. 
-                            if seasonNumber == '[]':
-                                seasonNumber = 0             
-                            if episodeNumber == '[]':
-                                episodeNumber = 0         
-                            if episodeName == '[]':
-                                episodeName = ''
+                                ## Clean and reset Invalid values. 
+                                if seasonNumber == '[]':
+                                    seasonNumber = 0             
+                                if episodeNumber == '[]':
+                                    episodeNumber = 0         
+                                if episodeName == '[]':
+                                    episodeName = ''
                                     
                             ## Find missing information by using title and season/episode information.
                             if episodeDesc == '' and (seasonNumber != 0 and episodeNumber != 0):
@@ -2219,7 +2174,7 @@ class ChannelList:
                             if episodeName == '':
                                 episodeName = subtitle
 
-                        if movie and REAL_SETTINGS.getSetting('Live.art.enable') == 'true' and self.apis == True:
+                        elif movie and REAL_SETTINGS.getSetting('EnhancedLiveTV') == 'true' and self.apis == True:
                             try:
                                 #Date element holds the original air date of the program
                                 movieYear = elem.findtext('date')
@@ -2275,7 +2230,7 @@ class ChannelList:
                             self.logDebug('title.episodeNumber.3 = ' + title + ' - ' + str(episodeNumber))#debug  
                                                    
                         #filter unwanted ids by title
-                        if title == ('Paid Programming'):
+                        if title == ('Paid Programming') or subtitle == ('Paid Programming') or description == ('Paid Programming'):
                             tvdbid = 0
                             imdbid = 0
                             
@@ -2310,35 +2265,8 @@ class ChannelList:
                             
                         genre = uni(category)
                         
-                        #Build LiveID (imdb/tvdb/sickbeard or couchpoato/unaired or aired)
-                        if imdbid != 0:
-                            IID = ('imdb_' + str(imdbid))
-                            LiveID = (IID + '|')
-                        else:
-                            LiveID = ('NA' + '|')
-                        
-                        if tvdbid != 0:
-                            TID = ('tvdb_' + str(tvdbid))
-                            LiveID = (LiveID + '|' + TID + '|')
-                        else:
-                            LiveID = (LiveID + '|' + 'NA' + '|')
-                                              
-                        if sbManaged == True:
-                            LiveID = (LiveID + '|' + 'SB' + '|')
-                        elif cpManaged == True:
-                            LiveID = (LiveID + '|' + 'CP' + '|')
-                        else:
-                            LiveID = (LiveID + '|' + 'NA' + '|')
-                            
-                        if Unaired == True:
-                            LiveID = (LiveID + '|' + 'NEW' + '|')
-                        else:
-                            LiveID = (LiveID + '|' + 'OLD' + '|')
-
-                        
-                        LiveID = LiveID.replace('||','|')
-                        LiveID = uni(LiveID)
-                        self.logDebug('LiveID = ' + LiveID)##Debug
+                        LiveID = self.LiveID(imdbid, tvdbid, sbManaged, cpManaged, '', '', Unaired)
+                        self.logDebug('LiveID = ' + LiveID)
                         
                         #skip old shows that have already ended
                         if now > stopDate:
@@ -2401,7 +2329,7 @@ class ChannelList:
                             self.log("buildLiveTVFileList, CHANNEL: " + str(self.settingChannel) + "  DONE")
                             break
                     showcount += 1
-                    self.logDebug("buildLiveTVFileList, CHANNEL: " + str(self.settingChannel) + str(showcount) +" SHOWS FOUND")#Debug
+                    self.logDebug("buildLiveTVFileList, CHANNEL: " + str(self.settingChannel) + str(showcount) +" SHOWS FOUND")
                     
             root.clear()
                 
@@ -2475,7 +2403,7 @@ class ChannelList:
         return showList
 
         
-    def createYoutubeFilelist(self, setting1, setting2, setting3, channel):
+    def createYoutubeFilelist(self, setting1, setting2, setting3, setting4, channel):
         showList = []
         seasoneplist = []
         showcount = 0   
@@ -2607,10 +2535,6 @@ class ChannelList:
                     # duration = round(duration*60.0)
                     self.logDebug('createYoutubeFilelist, duration = ' + str(duration))
                     duration = int(duration)
-
-
-
-
                     url = feed.entries[i].media_player['url']
                     self.logDebug('createYoutubeFilelist, url.1 = ' + str(url))
                     
@@ -2631,6 +2555,10 @@ class ChannelList:
                         tmpstr = tmpstr.replace("\\n", " ").replace("\\r", " ").replace("\\\"", "\"")
                         self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", " + eptitle + "  DUR: " + str(duration))
                         showList.append(tmpstr)
+                        
+                        if setting4 == '1': #Not needed, filelist random should take care of random mix.
+                            random.shuffle(showList)
+                   
                     else:
                         if inSet == True:
                             self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", DONE")
@@ -2784,10 +2712,15 @@ class ChannelList:
                             
                         duration = round(duration*60.0)
                         duration = int(duration)
+                        
                         # Build M3U
                         if setting2 == '1':
                             inSet = True
                             istvshow = True
+                            
+                            if 'http://www.youtube.com' in url:
+                                url = url.replace("http://www.youtube.com/watch?v=", "").replace("&amp;amp;feature=youtube_gdata", "")
+                            
                             tmpstr = str(duration) + ',' + eptitle + "//" + "RSS - " + showtitle + "//" + epdesc + "//" + genre + "////" + 'LiveID|' + '\n' + url + '\n'
                             tmpstr = tmpstr.replace("\\n", " ").replace("\\r", " ").replace("\\\"", "\"")
                             self.log("createRSSFileList, CHANNEL: " + str(self.settingChannel) + ", " + eptitle + "  DUR: " + str(duration))
@@ -3162,7 +3095,7 @@ class ChannelList:
                 return self.Pluginvalid
             elif REAL_SETTINGS.getSetting("plugin_ok_level") == "1":#High Check todo
                 try:
-                    json_query = uni('{"jsonrpc": "2.0", "method": "Files.GetDirectory","params":{"directory":"%s"}, "id": 1}' % (self.escapeDirJSON(stream)))
+                    json_query = ('{"jsonrpc": "2.0", "method": "Files.GetDirectory","params":{"directory":"%s"}, "id": 1}' % (self.escapeDirJSON(stream)))
                     json_folder_detail = self.sendJSON(json_query)
                     file_detail = re.compile( "{(.*?)}", re.DOTALL ).findall(json_folder_detail)
                     self.log('json_folder_detail = ' + str(json_folder_detail))
@@ -3591,7 +3524,7 @@ class ChannelList:
         
         #XBMC Library - Local Json
         if (REAL_SETTINGS.getSetting('trailers') == '2'):
-            json_query = uni('{"jsonrpc":"2.0","method":"VideoLibrary.GetMovies","params":{"properties":["genre","trailer","runtime"]}, "id": 1}')
+            json_query = ('{"jsonrpc":"2.0","method":"VideoLibrary.GetMovies","params":{"properties":["genre","trailer","runtime"]}, "id": 1}')
             genre = chname
             
             if REAL_SETTINGS.getSetting('trailersgenre') == 'true' and GenreChtype == True:
@@ -3794,3 +3727,40 @@ class ChannelList:
         return CacheExpired
 
     
+    def LiveID(self, imdbid, tvdbid, sbManaged, cpManaged, dbid, type, aired):
+        self.log("LiveID")   
+        #Build LiveID (imdb/tvdb/sickbeard or couchpoato/unaired or aired)
+        LiveID = ''
+        
+        if imdbid != 0:
+            IID = ('imdb_' + str(imdbid))
+            LiveID = (IID + '|')
+        else:
+            LiveID = ('NA' + '|')
+
+        if tvdbid != 0:
+            TID = ('tvdb_' + str(tvdbid))
+            LiveID = (LiveID + '|' + TID + '|')
+        else:
+            LiveID = (LiveID + '|' + 'NA' + '|')
+                              
+        if sbManaged == True:
+            LiveID = (LiveID + '|' + 'SB' + '|')
+        elif cpManaged == True:
+            LiveID = (LiveID + '|' + 'CP' + '|')
+        else:
+            LiveID = (LiveID + '|' + 'NA' + '|')
+        
+        if dbid != 0:
+            DID = ('dbid_' + str(dbid) + ',' + str(type))
+            LiveID = (LiveID + '|' + DID + '|')
+        elif Unaired == True:
+            LiveID = (LiveID + '|' + 'NEW' + '|')
+        else:
+            LiveID = (LiveID + '|' + 'OLD' + '|')
+
+        LiveID = LiveID.replace('||','|')
+        LiveID = uni(LiveID)
+        self.logDebug('buildFileList.LiveID = ' + LiveID)
+        
+        return LiveID

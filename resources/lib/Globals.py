@@ -1,4 +1,4 @@
-#   Copyright (C) 2011 Jason Anderson
+#   Copyright (C) 2013 Lunatixz
 #
 #
 # This file is part of PseudoTV.
@@ -30,12 +30,14 @@ def log(msg, level = xbmc.LOGDEBUG):
     except:
         pass
 
+        
 def uni(string, encoding = 'utf-8'):
     if isinstance(string, basestring):
         if not isinstance(string, unicode):
            string = unicode(string, encoding)
 
     return string
+
 
 def ascii(string):
     if isinstance(string, basestring):
@@ -47,9 +49,7 @@ def ascii(string):
 ADDON_ID = 'script.pseudotv.live'
 REAL_SETTINGS = xbmcaddon.Addon(id=ADDON_ID)
 ADDON_INFO = REAL_SETTINGS.getAddonInfo('path')
-##
 VERSION = "0.3.1"
-##
 TIMEOUT = 15 * 1000
 TOTAL_FILL_CHANNELS = 20
 PREP_CHANNEL_TIME = 60 * 60 * 24 * 5
@@ -66,19 +66,16 @@ MODE_REALTIME = 16
 MODE_SERIAL = MODE_RESUME | MODE_ALWAYSPAUSE | MODE_ORDERAIRDATE
 MODE_STARTMODES = MODE_RANDOM | MODE_REALTIME | MODE_RESUME
 
-SETTINGS_LOC = 'special://profile/addon_data/' + ADDON_ID
 CHANNEL_SHARING = False
-LOCK_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache')) + '/'   
-META_LOC = os.path.join(LOCK_LOC, 'meta') + '/' 
-ART_LOC = os.path.join(LOCK_LOC, 'artwork') + '/'
-BCT_LOC = os.path.join(LOCK_LOC, 'bct') + '/'
-   
+SETTINGS_LOC = 'special://profile/addon_data/' + ADDON_ID
+LOCK_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache')) + '/'      
 
 if REAL_SETTINGS.getSetting('ChannelSharing') == "true":
     CHANNEL_SHARING = True
     LOCK_LOC = xbmc.translatePath(os.path.join(REAL_SETTINGS.getSetting('SettingsFolder'), 'cache')) + '/'
 
 ######################################################
+
 if int(REAL_SETTINGS.getSetting('SkinSelector')) == 0:
     Skin_Select = 'default'
     if REAL_SETTINGS.getSetting("SkinLogos") == "true":
@@ -106,8 +103,11 @@ PRESETS_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'presets'
 CHANNELS_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache')) + '/'
 GEN_CHAN_LOC = os.path.join(CHANNELS_LOC, 'generated') + '/'
 MADE_CHAN_LOC = os.path.join(CHANNELS_LOC, 'stored') + '/'
+ART_LOC = os.path.join(CHANNELS_LOC, 'artwork') + '/'
+BCT_LOC = os.path.join(CHANNELS_LOC, 'bct') + '/'
 
 SHORT_CLIP_ENUM = [15,30,60,90,120,180,240,300,360,420,460]
+INFOBAR_TIMER = [3,5,10,15,20,25]
 
 GlobalFileLock = FileLock()
 ADDON_SETTINGS = Settings.Settings()

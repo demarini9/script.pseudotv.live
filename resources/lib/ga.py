@@ -33,16 +33,19 @@ PROPERTY_ID = environ.get("GA_PROPERTY_ID", "UA-45979766-1")
 # to base 10 and get first 10 digits of this number.
 
 bcts = ''
-if Globals.REAL_SETTINGS.getSetting('bumpers') == '':
+if Globals.REAL_SETTINGS.getSetting('bumpers') == 'false':
     bcts = 'B/'
 if Globals.REAL_SETTINGS.getSetting('commercials') != '0':
     bcts = bcts + 'C/'
 if Globals.REAL_SETTINGS.getSetting('trailers') != '0':
     bcts = bcts + 'T'
 
-if Globals.REAL_SETTINGS.getSetting('Donor_Enabled') == 'true' and Globals.REAL_SETTINGS.getSetting('Donor_UP') != 'User:Password':
-    donor = Globals.REAL_SETTINGS.getSetting('Donor_UP')
-    donor = donor.split(':')[0]
+if Globals.REAL_SETTINGS.getSetting('Donor_Enabled') == 'true':
+    try:
+        donor = Globals.REAL_SETTINGS.getSetting('Donor_UP')
+        donor = donor.split(':')[0]
+    except:
+        donor = ''
 else:
     donor = ''
 
@@ -50,15 +53,10 @@ if Globals.REAL_SETTINGS.getSetting('Visitor_GA') == '':
     from random import randint
     Globals.REAL_SETTINGS.setSetting('Visitor_GA', str(randint(0, 0x7fffffff)))
 
-# VISITOR = environ.get("GA_VISITOR", "xxxxx")
-# VISITOR = str(int("0x%s" % sha1(VISITOR).hexdigest(), 0))[:10]
 VISITOR = str(Globals.REAL_SETTINGS.getSetting("Visitor_GA"))
+
 # The path to visit
 PATH = ("PTVL/[" + str(VISITOR) + '][' + str(donor) + '][' + str(VERSION) + '][' + str(Skin_Select) + '][' + bcts + ']')
-## PATH = "PTVL/"+Vistor"/"+CHTYPE+"/"+SOURCE+"/"+SKIN"
-##Chtype = Current Chtype being used
-##Source = rtmp/http/pvr/hdhomerun/etc
-##Skin = Skin being used
  
 # Collect everything in a dictionary
 DATA = {"utmwv": "5.2.2d",

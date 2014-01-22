@@ -3,7 +3,7 @@
     <category label="30000">
     	<setting label="300001" type="lsep"/>
     	<setting type="action" label="30002" action="RunScript($CWD/config.py)"/>
-    	<setting label="30003" type="lsep"/>
+
         <setting id="Auto_Start" type="bool" label="30044" default="false"/>
         <setting id="timer_amount" type="enum" values="0|5|10|15|20" label="30045" subsetting="true" visible="eq(-1,true)" default="0"/>
         <setting id="notify" type="bool" label="30046" subsetting="true" visible="eq(-2,true)" default="true"/>
@@ -21,11 +21,10 @@
     	<setting id="EnableComingUp" type="bool" label="30208" default="true"/>
     	<setting id="ComingUpArtwork" subsetting="true" visible="eq(-1,true)" type="enum" label="30216" values="Poster|Fanart|Landscape|Logo|Clearart" default="2" />
         <setting id="InfoOnChange" type="bool" label="30201" default="true"/>
-        <setting id="InfoTimer" subsetting="true" visible="eq(-1,true)" type="enum" label="30202" values="5|10|15|20|25" default="1"/>
+        <setting id="InfoTimer" subsetting="true" visible="eq(-1,true)" type="enum" label="30202" values="3|5|10|15|20|25" default="1"/>
         <setting id="EPGcolor_enabled" label="30213" type="enum" values="Disabled|Genre Type|Channel Type" default="0" />
         <setting id="EPGcolor_MovieGenre" subsetting="true" type="bool" label="30215" default="false" visible="eq(-1,1)" />
         <setting id="art.enable" label="30214" type="bool" default="true" /> 
-        <setting id="Live.art.enable" subsetting="true" visible="eq(-1,true)" label="30219" type="bool" default="false" /> 
         <setting id="ShowChannelBug" type="bool" label="30204" default="true"/>
     	<setting id="ChannelLogoFolder" type="folder" source="auto" label="30206" default="special://home/addons/script.pseudotv.live/resources/skins/default/images/"/>
     	<setting id="SkinSelector" type="enum"  label="30211" values="Default|PTVL|Aurora" default="0"/>
@@ -40,16 +39,19 @@
         <setting id="ShowSeEp" type="bool" label="30203" default="true"/>
         <setting id="ColorEPG" type="bool" label="30217" default="true"/>
     	<setting id="ColorOverlay" type="bool" label="30205" default="false"/>
-        <setting id="SUPchannel" type="enum"  label="30052" values="Last Channel|Preferred Channel" default="0"/>
-        <setting id="CurrentChannel" type="text" label="30053" subsetting="true" visible="eq(-1,1)" default="1"/>
-    	<setting id="EnableDown" type="bool" label="30049" default="false"/>
-        <setting id="TVFileSys" type="enum" subsetting="true" label="30050" visible="eq(-1,true)" values="\Title\Season\Media.ext|\Title\Media.ext" default="0"/>
-    	<setting id="MovieFileSys" type="enum" subsetting="true" label="30051" visible="eq(-2,true)" values="\Movies\Title\Media.ext|\Movies\Media.ext" default="0"/>
+        <setting id="SUPchannel" type="enum"  label="30053" values="Last Channel|Preferred Channel" default="0"/>
+        <setting id="CurrentChannel" type="text" label="30054" subsetting="true" visible="eq(-1,1)" default="1"/>
+    	<setting id="EnableDown" type="enum" label="30049" values="Disabled|Direct Download (Coming Soon)|script.artwork.downloader" default="0" /> 
+        <setting id="TVFileSys" type="enum" subsetting="true" label="30050" visible="eq(-1,1)" values="\Title\Season\Media.ext|\Title\Media.ext" default="0"/>
+    	<setting id="MovieFileSys" type="enum" subsetting="true" label="30051" visible="eq(-2,1)" values="\Movies\Title\Media.ext|\Movies\Media.ext" default="0"/>
+    	<setting id="EnableDownSilent" type="bool" label="30052" subsetting="true" visible="eq(-3,2)" default="true"/>
     </category>
 <!--Live Features-->
    <category label="30400">
         <setting id="os" type="enum" values="Android Arm|Android x86|ATV1 Linux|ATV1 Stock|ATV2|IOS|Linux 32bit|Linux 64bit|Mac 32bit|Mac 64bit|Rasberry Pi|Windows|TLBB" label="30401" default="11" />
         <setting id="xmltvLOC" type="folder" source="auto" label="30404" default="" />
+        <setting id="EnhancedLiveTV" type="bool" label="30405" default="false" />
+        <setting id="Live.art.enable" subsetting="true" visible="eq(-1,true)" label="30219" type="bool" default="false" /> 
         <setting id="PVR_Enabled" label="30801" type="bool" default="false"/>
         <setting id="PVR_Folder" subsetting="true" label="30802" visible="eq(-1,true)" type="text" default="" />
         <setting id="IncludeIceLib" type="bool" label="30402" visible="eq(-1,!true)" default="true"/>

@@ -10,9 +10,10 @@
         <import addon="script.common.plugin.cache" version="0.9.1"/>
         <import addon="script.module.beautifulsoup" version="3.2.1"/>
         <import addon="plugin.video.youtube" optional="true"/>
-        <!-- <import addon="plugin.video.tgun" optional="true"/>
-        <import addon="plugin.video.jtv" optional="true"/>
-        <import addon="plugin.video.ustvnow" optional="true"/> -->
+        <import addon="script.artwork.downloader" optional="true"/>
+        <import addon="script.module.simple.downloader" optional="true"/>
+        <import addon="script.module.simplejson" version="0.9.1"/>
+        
     </requires>
     <extension point="xbmc.python.script"
         defaultresolution="720p"
