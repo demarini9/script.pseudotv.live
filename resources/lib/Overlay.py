@@ -776,7 +776,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         if REAL_SETTINGS.getSetting("art.enable") == "true":
             self.log('setShowInfo.Dynamic artwork enabled')
         
-            if chtype <= 7:
+            if chtype <= 6:
                 mediapathSeason, filename = os.path.split(mediapath)
                 self.logDebug('setShowInfo.mediapathSeason = ' + uni(mediapathSeason))  
                 
