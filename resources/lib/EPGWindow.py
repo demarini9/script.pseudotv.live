@@ -973,7 +973,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         if REAL_SETTINGS.getSetting("art.enable") == "true":
             self.log('setShowInfo.Dynamic artwork enabled')
         
-            if chtype <= 6:
+            if chtype <= 7:
                 mediapathSeason, filename = os.path.split(mediapath)
                 self.logDebug('setShowInfo.mediapathSeason = ' + uni(mediapathSeason))  
                 
@@ -996,10 +996,10 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     # elif REAL_SETTINGS.getSetting("EnableDown") == "1" and (REAL_SETTINGS.getSetting("TVFileSys") == "1" or REAL_SETTINGS.getSetting("MovieFileSys") == "1") and self.apis == True:
                         # self.Downloader.ArtDownloader(type, id, type2, type2EXT, Mpath1, Ipath1)
                     
-                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "false":
+                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "false" and chtype != 7:
                         xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, mode=gui, mediatype='+type+', dbid='+dbid+', '+arttype1+')')
                     
-                    elif REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "true":
+                    elif REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "true" and chtype != 7:
                         xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype1+')')
             
                 mediapathSeries2 = uni(mediapathSeries + '/' + type2EXT) 
@@ -1018,10 +1018,10 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     # elif REAL_SETTINGS.getSetting("EnableDown") == "1" and (REAL_SETTINGS.getSetting("TVFileSys") == "1" or REAL_SETTINGS.getSetting("MovieFileSys") == "1") and self.apis == True:
                         # self.Downloader.ArtDownloader(type, id, type2, type2EXT, Mpath2, Ipath2)
                     
-                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "false":
+                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "false" and chtype != 7:
                         xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, mode=gui, mediatype='+type+', dbid='+dbid+', '+arttype2+')')
                     
-                    elif REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "true":
+                    elif REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "true" and chtype != 7:
                         xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype2+')')
                 
             #LiveTV w/ TVDBID via Fanart.TV        
