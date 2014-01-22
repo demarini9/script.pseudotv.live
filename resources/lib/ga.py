@@ -33,7 +33,7 @@ PROPERTY_ID = environ.get("GA_PROPERTY_ID", "UA-45979766-1")
 # to base 10 and get first 10 digits of this number.
 
 bcts = ''
-if Globals.REAL_SETTINGS.getSetting('bumpers') == 'false':
+if Globals.REAL_SETTINGS.getSetting('bumpers') == 'true':
     bcts = 'B/'
 if Globals.REAL_SETTINGS.getSetting('commercials') != '0':
     bcts = bcts + 'C/'
