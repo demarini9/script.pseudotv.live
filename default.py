@@ -60,6 +60,7 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
 #                shouldrestart = True
 
     if shouldrestart == False:
+    
         if REAL_SETTINGS.getSetting("ClearBCT") == "true":
             Path1 = (xbmc.translatePath(os.path.join(BCT_LOC)))
             
@@ -68,6 +69,15 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
                 REAL_SETTINGS.setSetting('ClearBCT', "false")
             else:
                 REAL_SETTINGS.setSetting('ClearBCT', "false")
+    
+        if REAL_SETTINGS.getSetting("ClearLiveArt") == "true":
+            Path1 = (xbmc.translatePath(os.path.join(ART_LOC)))
+            
+            if os.path.exists(Path1):
+                shutil.rmtree(ART_LOC)
+                REAL_SETTINGS.setSetting('ClearLiveArt', "false")
+            else:
+                REAL_SETTINGS.setSetting('ClearLiveArt', "false")
 
                 
         if REAL_SETTINGS.getSetting("Donor_Enabled") == "true" and REAL_SETTINGS.getSetting("Donor_Update") == "true":   

@@ -783,8 +783,8 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                 mediapathSeries = os.path.dirname(mediapathSeason)
                 self.logDebug('setShowInfo.mediapathSeries = ' + uni(mediapathSeries))
                 
-                mediapathSeries1 = uni(mediapathSeries + '/' + type1EXT)
-                mediapathSeason1 = uni(mediapathSeason + '/' + type1EXT)  
+                mediapathSeries1 = ascii(mediapathSeries + '/' + type1EXT)
+                mediapathSeason1 = ascii(mediapathSeason + '/' + type1EXT)  
 
                 if FileAccess.exists(mediapathSeries1):
                     self.getControl(508).setImage(mediapathSeries1)
@@ -805,8 +805,8 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                     elif REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "true" and chtype != 7:
                         xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype1+')')
             
-                mediapathSeries2 = uni(mediapathSeries + '/' + type2EXT) 
-                mediapathSeason2 = uni(mediapathSeason + '/' + type2EXT)
+                mediapathSeries2 = ascii(mediapathSeries + '/' + type2EXT) 
+                mediapathSeason2 = ascii(mediapathSeason + '/' + type2EXT)
                 
                 if FileAccess.exists(mediapathSeries2):
                     self.getControl(510).setImage(mediapathSeries2)

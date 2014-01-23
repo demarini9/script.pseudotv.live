@@ -3,7 +3,7 @@
     <category label="30000">
     	<setting label="300001" type="lsep"/>
     	<setting type="action" label="30002" action="RunScript($CWD/config.py)"/>
-
+        <setting type="lsep"/>
         <setting id="Auto_Start" type="bool" label="30044" default="false"/>
         <setting id="timer_amount" type="enum" values="0|5|10|15|20" label="30045" subsetting="true" visible="eq(-1,true)" default="0"/>
         <setting id="notify" type="bool" label="30046" subsetting="true" visible="eq(-2,true)" default="true"/>
@@ -138,6 +138,7 @@
         <setting id="ga_disable" type="bool" label="30992" default="false"/>
         <setting id="enable_Debug" type="bool" label="30993" default="false"/>
         <setting id="ClearBCT" type="bool" label="30995" default="false"/>
+        <setting id="ClearLiveArt" type="bool" label="30996" default="false"/>
         <setting type="action" label="30999" action="RunScript($CWD/defrag.py)"/>
     </category>
 </settings>

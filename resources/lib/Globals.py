@@ -108,6 +108,7 @@ BCT_LOC = os.path.join(CHANNELS_LOC, 'bct') + '/'
 
 SHORT_CLIP_ENUM = [15,30,60,90,120,180,240,300,360,420,460]
 INFOBAR_TIMER = [3,5,10,15,20,25]
+AT_Limit = [25,50,100,250,500,1000, 0]
 
 GlobalFileLock = FileLock()
 ADDON_SETTINGS = Settings.Settings()
@@ -131,7 +132,12 @@ if USING_EDEN:
         log("Globals - Frodo")
     except:
         pass
-
+        
+if REAL_SETTINGS.getSetting("Autotune") == "true" and REAL_SETTINGS.getSetting("Warning1") == "true":
+    autoTune = True
+else:
+    autoTune = False
+    
 TIME_BAR = 'pstvlTimeBar.png'
 BUTTON_FOCUS = 'pstvlButtonFocus.png'
 BUTTON_NO_FOCUS = 'pstvlButtonNoFocus.png'
