@@ -45,6 +45,7 @@
         <setting id="TVFileSys" type="enum" subsetting="true" label="30050" visible="eq(-1,1)" values="\Title\Season\Media.ext|\Title\Media.ext" default="0"/>
     	<setting id="MovieFileSys" type="enum" subsetting="true" label="30051" visible="eq(-2,1)" values="\Movies\Title\Media.ext|\Movies\Media.ext" default="0"/>
     	<setting id="EnableDownSilent" type="bool" label="30052" subsetting="true" visible="eq(-3,2)" default="true"/>
+        <setting id="ATLimit" label="30098" subsetting="true" type="enum" values="25|50|100|250|500|1000|Unlimited" default="0"/>
     </category>
 <!--Live Features-->
    <category label="30400">
@@ -79,7 +80,6 @@
       	<setting type="lsep" label="30090" visible="eq(-17,true)"/>
         <setting id="autoFindInternetStrms" type="bool" label="30091" subsetting="true" visible="eq(-18,true)" default="false"/>
       	<setting type="lsep" label="30097" visible="eq(-21,true)"/>
-        <setting id="ATLimit" label="30098" subsetting="true" type="enum" values="25|50|100|250|500|1000|Unlimited" visible="eq(-21,true)" default="0"/>
         <setting id="ATRestore" type="bool" label="30099" visible="eq(-24,false) "default="false"/>
       	<setting id="Warning2" type="bool" subsetting="true" label="30100" visible="eq(-1,true)" default="false" action="RunScript($CWD/restore.py)"/>
         <setting label="30903" type="lsep" visible="eq(-23,true)"/>
