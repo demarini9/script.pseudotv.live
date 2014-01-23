@@ -132,12 +132,7 @@ if USING_EDEN:
         log("Globals - Frodo")
     except:
         pass
-        
-if REAL_SETTINGS.getSetting("Autotune") == "true" and REAL_SETTINGS.getSetting("Warning1") == "true":
-    autoTune = True
-else:
-    autoTune = False
-    
+
 TIME_BAR = 'pstvlTimeBar.png'
 BUTTON_FOCUS = 'pstvlButtonFocus.png'
 BUTTON_NO_FOCUS = 'pstvlButtonNoFocus.png'

@@ -874,11 +874,7 @@ class ChannelList:
     def createNetworkPlaylist(self, network):
         flename = xbmc.makeLegalFilename(GEN_CHAN_LOC + 'Network_' + network + '.xsp')
 
-        if autoTune:  
-            limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
-        else:
-            limit = 0
-        
+        limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
         self.log('limit = ' + str(limit))
         
         try:
@@ -913,11 +909,7 @@ class ChannelList:
     def createShowPlaylist(self, show, setting2):
         order = 'random'
 
-        if autoTune:  
-            limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
-        else:
-            limit = 0
-
+        limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
         self.log('limit = ' + str(limit))  
             
         try:
@@ -973,11 +965,7 @@ class ChannelList:
     def createGenreMixedPlaylist(self, genre):
         flename = xbmc.makeLegalFilename(GEN_CHAN_LOC + 'Mixed_' + genre + '.xsp')
 
-        if autoTune:   
-            limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
-        else:
-            limit = 0
-        
+        limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
         self.log('limit = ' + str(limit))
 
         try:
@@ -999,11 +987,7 @@ class ChannelList:
     def createGenrePlaylist(self, pltype, chtype, genre):
         flename = xbmc.makeLegalFilename(GEN_CHAN_LOC + pltype + '_' + genre + '.xsp')
 
-        if autoTune:   
-            limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
-        else:
-            limit = 0
-        
+        limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
         self.log('limit = ' + str(limit))
 
         try:
@@ -1022,11 +1006,9 @@ class ChannelList:
 
     def createStudioPlaylist(self, studio):
         flename = xbmc.makeLegalFilename(GEN_CHAN_LOC + 'Studio_' + studio + '.xsp')
-
-        if autoTune:    
-            limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
-        else:
-            limit = 0
+ 
+        limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
+        self.log('limit = ' + str(limit))
 
         try:
             fle = FileAccess.open(flename, "w")
