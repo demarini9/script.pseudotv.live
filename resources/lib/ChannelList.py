@@ -2227,7 +2227,7 @@ class ChannelList:
                             
                         genre = uni(category)
                         
-                        LiveID = self.LiveID(imdbid, tvdbid, sbManaged, cpManaged, '', '', Unaired)
+                        LiveID = self.buildLiveID(imdbid, tvdbid, sbManaged, cpManaged, '', '', Unaired)
                         self.logDebug('LiveID = ' + LiveID)
                         
                         #skip old shows that have already ended
