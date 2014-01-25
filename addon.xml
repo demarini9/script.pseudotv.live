@@ -10,6 +10,7 @@
         <import addon="script.common.plugin.cache" version="0.9.1"/>
         <import addon="script.module.beautifulsoup" version="3.2.1"/>
         <import addon="script.module.simplejson" version="0.9.1"/>
+        <import addon="script.module.feedparser" version="0.9.1"/>
         <import addon="plugin.video.youtube" optional="true"/>
         <import addon="script.artwork.downloader" optional="true"/>
         <import addon="script.module.simple.downloader" optional="true"/>

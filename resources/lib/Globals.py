@@ -98,6 +98,12 @@ if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skin
 else:
     IMAGES_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'images')) + '/'
 log("IMAGES_LOC = " + IMAGES_LOC)
+
+if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media', 'epg-genres')) + '/'):   
+    EPGGENRE_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media', 'epg-genres')) + '/'
+else:
+    EPGGENRE_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media', 'epg-genres')) + '/'
+log("EPGGENRE_LOC = " + EPGGENRE_LOC)
    
 PRESETS_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'presets')) + '/'
 CHANNELS_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache')) + '/'

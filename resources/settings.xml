@@ -5,8 +5,8 @@
     	<setting type="action" label="30002" action="RunScript($CWD/config.py)"/>
         <setting type="lsep"/>
         <setting id="Auto_Start" type="bool" label="30044" default="false"/>
-        <setting id="timer_amount" type="enum" values="0|5|10|15|20" label="30045" subsetting="true" visible="eq(-1,true)" default="0"/>
-        <setting id="notify" type="bool" label="30046" subsetting="true" visible="eq(-2,true)" default="true"/>
+        <setting id="notify" type="bool" label="30046" subsetting="true" visible="eq(-1,true)" default="true"/>
+        <setting id="timer_amount" type="enum" values="0|5|10|15|20" label="30045" subsetting="true" visible="eq(-2,true)" default="0"/>
         <setting id="AutoOff" type="enum" label="30004" values="Disable|30|60|90|120|150|180|210|240" default="0"/>
         <setting id="ForceChannelReset" type="bool" label="30005" default="false"/>
         <setting id="ChannelResetSetting" type="enum" label="30006" values="Automatic|Daily|Weekly|Monthly|Never|Every Time" default="0"/>
@@ -45,7 +45,7 @@
         <setting id="TVFileSys" type="enum" subsetting="true" label="30050" visible="eq(-1,1)" values="\Title\Season\Media.ext|\Title\Media.ext" default="0"/>
     	<setting id="MovieFileSys" type="enum" subsetting="true" label="30051" visible="eq(-2,1)" values="\Movies\Title\Media.ext|\Movies\Media.ext" default="0"/>
     	<setting id="EnableDownSilent" type="bool" label="30052" subsetting="true" visible="eq(-3,2)" default="true"/>
-        <setting id="ATLimit" label="30098" subsetting="true" type="enum" values="25|50|100|250|500|1000|Unlimited" default="0"/>
+        <setting id="ATLimit" label="30098" type="enum" values="25|50|100|250|500|1000|Unlimited" default="6"/>
     </category>
 <!--Live Features-->
    <category label="30400">
@@ -139,6 +139,7 @@
         <setting id="enable_Debug" type="bool" label="30993" default="false"/>
         <setting id="ClearBCT" type="bool" label="30995" default="false"/>
         <setting id="ClearLiveArt" type="bool" label="30996" default="false"/>
+        <setting id="IncludeIceLib" type="bool" label="30997" default="true"/>
         <setting type="action" label="30999" action="RunScript($CWD/defrag.py)"/>
     </category>
 </settings>

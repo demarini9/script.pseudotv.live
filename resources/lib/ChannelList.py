@@ -24,18 +24,18 @@ import base64, shutil, random
 import Globals
 import tvdb_api, tmdbsimple
 
-# Use json instead of simplejson when python v2.7 or greater
-if sys.version_info < (2, 7):
-    import simplejson
-else:
-    import json as simplejson
+# # Use json instead of simplejson when python v2.7 or greater
+# if sys.version_info < (2, 7):
+    # import simplejson
+# else:
+    # import json as simplejson
     
-try:
-    import StorageServer
-except:
-   import storageserverdummy as StorageServer
+# try:
+    # import StorageServer
+# except:
+   # import storageserverdummy as StorageServer
 
-  # cache = StorageServer.StorageServer("script.pseudotv.live", 24) # (Your plugin name, Cache time in hours)
+# # cache = StorageServer.StorageServer("script.pseudotv.live", 24) # (Your plugin name, Cache time in hours)
 
 from urllib import unquote
 from urllib import urlopen
@@ -96,7 +96,6 @@ class ChannelList:
         self.startMode = int(REAL_SETTINGS.getSetting("StartMode"))
         self.log('Start Mode is ' + str(self.startMode))
         self.backgroundUpdating = int(REAL_SETTINGS.getSetting("ThreadMode"))
-        self.incIceLibrary = REAL_SETTINGS.setSetting('IncludeIceLib', "true")
         self.incIceLibrary = REAL_SETTINGS.getSetting('IncludeIceLib') == "true"
         self.log("IceLibrary is " + str(self.incIceLibrary))
         self.showSeasonEpisode = REAL_SETTINGS.getSetting("ShowSeEp") == "true"
@@ -590,6 +589,7 @@ class ChannelList:
     def makeChannelList(self, channel, chtype, setting1, setting2, setting3, setting4, append = False):
         self.log('makeChannelList, CHANNEL: ' + str(channel))
         israndom = False
+        reverseOrder = False
         fileList = []
 
         if chtype == 7:
@@ -706,11 +706,21 @@ class ChannelList:
                         
         elif chtype == 10: # Youtube
             self.log("Building Youtube Channel " + setting1 + " using type " + setting2 + "...")
-            fileList = self.createYoutubeFilelist(setting1, setting2, setting3, setting4, channel)
+            fileList = self.createYoutubeFilelist(setting1, setting2, setting3, setting4, channel)                            
+            
+            if setting4 == '1':#RANDOM
+                israndom = True  
+            elif setting4 == '2':#REVERSE ORDER
+                reverseOrder = True
             
         elif chtype == 11: # RSS/iTunes/feedburner/Podcast
             self.log("Building RSS Feed " + setting1 + " using type " + setting2 + "...")
-            fileList = self.createRSSFileList(setting1, setting2, setting3, setting4, channel)   
+            fileList = self.createRSSFileList(setting1, setting2, setting3, setting4, channel)                       
+            
+            if setting4 == '1':#RANDOM
+                israndom = True  
+            elif setting4 == '2':#REVERSE ORDER
+                reverseOrder = True
         
         elif chtype == 13: # LastFM
             self.log("Last.FM " + setting1 + " using type " + setting2 + "...")
@@ -803,6 +813,9 @@ class ChannelList:
 
         if israndom:
             random.shuffle(fileList)
+            
+        if reverseOrder:
+            fileList.reverse()
 
         if len(fileList) > 4096:
             fileList = fileList[:4096]
@@ -1465,7 +1478,7 @@ class ChannelList:
         return newlist
 
     
-    def buildLiveID(self, imdbid, tvdbid, sbManaged, cpManaged, dbid, type, aired):
+    def buildLiveID(self, imdbid, tvdbid, sbManaged, cpManaged, dbid, type, Unaired):
         self.log("buildLiveID")
         LiveID = ''
         
@@ -1655,6 +1668,11 @@ class ChannelList:
                     if dur == 0:
                         dur = self.videoParser.getVideoLength(uni(match.group(1)).replace("\\\\", "\\"))
                         
+                    # Remove any file types that we don't want (ex. IceLibrary)
+                    if self.incIceLibrary == False:
+                        if match.group(1).replace("\\\\", "\\")[-4:].lower() == 'strm':
+                            dur = 0
+ 
                     try:
                         if dur > 0:
                             filecount += 1
@@ -2227,7 +2245,7 @@ class ChannelList:
                             
                         genre = uni(category)
                         
-                        LiveID = self.buildLiveID(imdbid, tvdbid, sbManaged, cpManaged, '', '', Unaired)
+                        LiveID = self.buildLiveID(imdbid, tvdbid, sbManaged, cpManaged, 0, '', Unaired)
                         self.logDebug('LiveID = ' + LiveID)
                         
                         #skip old shows that have already ended
@@ -2517,10 +2535,7 @@ class ChannelList:
                         tmpstr = tmpstr.replace("\\n", " ").replace("\\r", " ").replace("\\\"", "\"")
                         self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", " + eptitle + "  DUR: " + str(duration))
                         showList.append(tmpstr)
-                        
-                        if setting4 == '1':#RANDOM
-                            random.shuffle(showList)
-                   
+
                     else:
                         if inSet == True:
                             self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", DONE")
@@ -2687,9 +2702,7 @@ class ChannelList:
                             tmpstr = tmpstr.replace("\\n", " ").replace("\\r", " ").replace("\\\"", "\"")
                             self.log("createRSSFileList, CHANNEL: " + str(self.settingChannel) + ", " + eptitle + "  DUR: " + str(duration))
                             showList.append(tmpstr)
-                            
-                            if setting4 == '1':#RANDOM
-                                random.shuffle(showList)
+
                         else:
                             if inSet == True:
                                 self.log("createRSSFileList, CHANNEL: " + str(self.settingChannel) + ", DONE")

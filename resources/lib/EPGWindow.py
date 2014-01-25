@@ -454,17 +454,17 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                         self.logDebug('setButtons.mygenre = ' + str(mygenre))
                                 
                         if REAL_SETTINGS.getSetting('EPGcolor_enabled') == '1':
-                            if FileAccess.exists(self.mediaPath + '/epg-genres/' + mygenre + '.png'):
-                                self.textureButtonNoFocusGenre = (self.mediaPath + 'epg-genres/' + mygenre + '.png')
+                            if FileAccess.exists(EPGGENRE_LOC + mygenre + '.png'):
+                                self.textureButtonNoFocusGenre = (EPGGENRE_LOC + mygenre + '.png')
                             else:
-                                self.textureButtonNoFocusGenre = (self.mediaPath + 'epg-genres/' + 'Unknown' + '.png')    
+                                self.textureButtonNoFocusGenre = (EPGGENRE_LOC + 'Unknown' + '.png')    
                             self.channelButtons[row].append(xbmcgui.ControlButton(xpos, basey, width, baseh, mylabel, focusTexture=self.textureButtonFocus, noFocusTexture=self.textureButtonNoFocusGenre, alignment=4, font=self.textfont, textColor=self.textcolor, focusedColor=self.focusedcolor))
                         
                         elif REAL_SETTINGS.getSetting('EPGcolor_enabled') == '2':
-                            if FileAccess.exists(self.mediaPath + '/epg-genres/' + str(chtype) + '.png'):
-                                self.textureButtonNoFocusChtype = (self.mediaPath + 'epg-genres/' + str(chtype) + '.png')
+                            if FileAccess.exists(EPGGENRE_LOC + str(chtype) + '.png'):
+                                self.textureButtonNoFocusChtype = (EPGGENRE_LOC + str(chtype) + '.png')
                             else:
-                                self.textureButtonNoFocusGenre = (self.mediaPath + 'epg-genres/' + 'Unknown' + '.png') 
+                                self.textureButtonNoFocusGenre = (EPGGENRE_LOC + 'Unknown' + '.png') 
                             self.channelButtons[row].append(xbmcgui.ControlButton(xpos, basey, width, baseh, mylabel, focusTexture=self.textureButtonFocus, noFocusTexture=self.textureButtonNoFocusChtype, alignment=4, font=self.textfont, textColor=self.textcolor, focusedColor=self.focusedcolor))
                         
                         else:            
