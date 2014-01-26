@@ -1250,7 +1250,12 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                     chtype = int(ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
                     title = 'Coming Up Next'   
                     thumb = (self.mediaPath + 'guide.png')
-                    
+                
+                    if REAL_SETTINGS.getSetting("ColorOverlay") == "true":
+                        ChannelLogo = (self.channelLogos + ascii(self.channels[self.currentChannel - 1].name) + '_c.png')
+                    else:
+                        ChannelLogo = (self.channelLogos + ascii(self.channels[self.currentChannel - 1].name) + '.png')
+                
                     if chtype <= 7:
                         type = {}
                         type['0'] = 'poster'
@@ -1281,34 +1286,38 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                             thumb = mediapathSeries1
                         elif FileAccess.exists(mediapathSeason1):
                             thumb = mediapathSeason1
+                        elif FileAccess.exists(ChannelLogo):
+                            thumb = ChannelLogo
                         else: 
                             thumb = (self.mediaPath + 'guide.png')
 
                     elif chtype >= 8:
-                        if REAL_SETTINGS.getSetting("ColorOverlay") == "true":
-                            thumb = (self.channelLogos + ascii(self.channels[self.currentChannel - 1].name) + '_c.png')
-                        else:
-                            thumb = (self.channelLogos + ascii(self.channels[self.currentChannel - 1].name) + '.png')
                     
-                    elif mediapathSeason[0:6] == 'plugin':
-                        id = mediapathSeason
-                        id = id.replace("/?path=/root", "")
-                        id = id.split('plugin://', 1)[-1]
-                        id = 'special://home/addons/'+ id + '/icon.png'
-                        self.log("notification.plugin.id = " + id)
-                        thumb = id
+                        if FileAccess.exists(ChannelLogo):
+                            thumb = ChannelLogo
+                        elif filename[0:6] == 'plugin':
+                            id = mediapathSeason
+                            id = id.replace("/?path=/root", "")
+                            id = id.split('plugin://', 1)[-1]
+                            id = 'special://home/addons/'+ id + '/icon.png'
+                            self.log("notification.plugin.id = " + id)
+                            thumb = id
+                        else: 
+                            thumb = (self.mediaPath + 'guide.png')          
                     else: 
                         thumb = (self.mediaPath + 'guide.png')
                     
                     xbmc.executebuiltin('XBMC.Notification(%s, %s, %s, %s)' % (title, self.channels[self.currentChannel - 1].getItemTitle(nextshow).replace(',', ''), str(NOTIFICATION_DISPLAY_TIME * 1000), thumb))
+                    self.logDebug("thumb = " + str(thumb))
                     self.notificationShowedNotif = True
 
         self.startNotificationTimer()
 
 
     def playerTimerAction(self):
-        self.playerTimer = threading.Timer(2.0, self.playerTimerAction)
-
+        self.playerTimer = threading.Timer(2.0, self.playerTimerAction)    
+        chtype = int(ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
+        
         if self.Player.isPlaying():
             self.lastPlayTime = int(self.Player.getTime())
             self.lastPlaylistPosition = xbmc.PlayList(xbmc.PLAYLIST_MUSIC).getposition()
@@ -1316,8 +1325,8 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         else:
             self.notPlayingCount += 1
             self.log("Adding to notPlayingCount")
-
-        if self.channels[self.currentChannel - 1].getCurrentFilename()[-4:].lower() != 'strm' or self.channels[self.currentChannel - 1].getCurrentFilename()[0:9].lower() != 'hdhomerun' or self.channels[self.currentChannel - 1].getCurrentFilename()[0:6].lower() != 'plugin' or self.channels[self.currentChannel - 1].getCurrentFilename()[0:4].lower() != 'rtmp' or self.channels[self.currentChannel - 1].getCurrentFilename()[0:4].lower() != 'http' or self.channels[self.currentChannel - 1].getCurrentFilename()[0:3].lower() != 'pvr':
+        
+        if self.channels[self.currentChannel - 1].getCurrentFilename()[-4:].lower() != 'strm' or chtype <= 7:
             if self.notPlayingCount >= 3:
                 self.end()
                 return

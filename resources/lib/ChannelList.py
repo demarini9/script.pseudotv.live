@@ -3418,7 +3418,7 @@ class ChannelList:
             setting2 = YoutubeCommercial[1]
             setting3 = YoutubeCommercial[2]
             
-            YoutubeLST = self.createYoutubeFilelist(setting1, setting2, setting3, channel)
+            YoutubeLST = self.createYoutubeFilelist(setting1, setting2, setting3, setting4, channel)
             for i in range(len(YoutubeLST)):
                 Youtube = YoutubeLST[i]
                 duration = Youtube.split(',')[0]
@@ -3600,7 +3600,7 @@ class ChannelList:
             setting2 = YoutubeTrailers[1]
             setting3 = YoutubeTrailers[2]
             
-            YoutubeLST = self.createYoutubeFilelist(setting1, setting2, setting3, channel)
+            YoutubeLST = self.createYoutubeFilelist(setting1, setting2, setting3, setting4, channel)
             for i in range(len(YoutubeLST)):
                 Youtube = YoutubeLST[i]
                 duration = Youtube.split(',')[0]
