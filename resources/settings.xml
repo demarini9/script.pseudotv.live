@@ -56,6 +56,9 @@
         <setting id="PVR_Enabled" label="30801" type="bool" default="false"/>
         <setting id="PVR_Folder" subsetting="true" label="30802" visible="eq(-1,true)" type="text" default="" />
         <setting id="IncludeIceLib" type="bool" label="30402" visible="eq(-1,!true)" default="true"/>
+        <setting id="Offair" type="enum" label="30407" values="Local|Plugin" default="1" />
+        <setting id="Offair_Local" subsetting="true" visible="eq(-1,0)" label="30408" type="file" default="Select Video" /> 
+        <setting id="Offair_Youtube" subsetting="true" visible="eq(-2,1)" label="30409" type="text" default="plugin://plugin.video.youtube/?path=/root/video&action=play_video&videoid=-2GXT8bLe04"/>
     </category>
 <!--Autotune-->
     <category label="30070">
@@ -140,6 +143,8 @@
         <setting id="ClearBCT" type="bool" label="30995" default="false"/>
         <setting id="ClearLiveArt" type="bool" label="30996" default="false"/>
         <setting id="IncludeIceLib" type="bool" label="30997" default="true"/>
+        <setting id="EnableSettop" type="bool" label="30998" default="true"/>
+        <setting id="Refresh_Int" subsetting="true"  visible="eq(-1,true)" type="enum" label="31000" values="6|12|24" default="0"/>
         <setting type="action" label="30999" action="RunScript($CWD/defrag.py)"/>
     </category>
 </settings>

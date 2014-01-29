@@ -20,10 +20,7 @@
 import urllib
 import urllib2
 import re
-import ChannelList
 
-from Channel import Channel
-from Globals import *
 from xml.etree import ElementTree as ET
 
 
@@ -54,9 +51,10 @@ class TVDB(object):
 
     def getIdByIMDB(self, imdb_id):
         try:
-            response = urllib2.urlopen(self._buildUrl('GetSeriesByRemoteID.php', {'imdb' : imdb_id})).read()
+            response = urllib2.urlopen(self._buildUrl('GetSeriesByRemoteID.php', {'apikey' : self.apikey, 'imdbid' : imdb_id})).read()
             imdbidRE = re.compile('<id>(.+?)</id>', re.DOTALL)
             match = imdbidRE.search(response)
+
             if match:
                 return match.group(1)
             else:
@@ -70,7 +68,7 @@ class TVDB(object):
             return response
         except:
             return ''
-      
+
     def getEpisodeByID(self, tvdbid):
         try:
             response = urllib2.urlopen(self._buildUrl(self.apikey + '/series/' + tvdbid + '/all/en.xml')).read()
@@ -89,8 +87,8 @@ class TVDB(object):
             else:
                 return 0
         except:
-            return 0    
-    
+            return 0
+
     def getBannerByID(self, tvdbid, type):
         try:
             response = urllib2.urlopen(self._buildUrl(self.apikey + '/series/' + tvdbid + '/banners.xml'))
@@ -114,9 +112,9 @@ class TVDB(object):
                     # images.append((banner_url, banner_type, banner_type2, banner_season))
             return images
         except:
-            return 0    
-       
-            
+            return 0
+
+
     def getIMDBbyShowName(self, showName):
         try:
             #NOTE: This assumes an exact match. It is possible to get multiple results though. This could be smarter

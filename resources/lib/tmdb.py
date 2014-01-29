@@ -20,10 +20,6 @@
 import urllib
 import urllib2
 import json
-import ChannelList
-
-from Channel import Channel
-from Globals import *
 
 class TMDB(object):
     def __init__(self, api_key='c974c461a9767defec862674bf6c704e'):
@@ -61,8 +57,21 @@ class TMDB(object):
         else:
             #self.log('No matches found for %s' % movieName)
             response = json.loads('{"imdb_id":"", "poster_path":""}')
+        #print response
         return response
 
     def getIMDBId(self, movieName, year):
         response = self.getMovie(movieName, year)
         return response['imdb_id']
+
+    def getPlot(self, movieName, year):
+        response = self.getMovie(movieName, year)
+        return response['overview']
+
+    def getTagline(self, movieName, year):
+        response = self.getMovie(movieName, year)
+        return response['tagline']
+
+    def getGenre(self, movieName, year):
+        response = self.getMovie(movieName, year)
+        return response['genres']

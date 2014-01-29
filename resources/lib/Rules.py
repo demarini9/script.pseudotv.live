@@ -944,8 +944,8 @@ class DontAddChannel(BaseRule):
 class InterleaveChannel(BaseRule):
     def __init__(self):
         self.name = "Interleave Another Channel"
-        self.optionLabels = ['Channel Number', 'Min Interleave Count', 'Max Interleave Count', 'Starting Episode']
-        self.optionValues = ['0', '1', '1', '1']
+        self.optionLabels = ['Channel Number', 'Min Interleave Count', 'Max Interleave Count', 'Starting Episode', 'Play # Episodes', 'Start Position']
+        self.optionValues = ['0', '1', '1', '1', '1', '1']
         self.myId = 6
         self.actions = RULES_ACTION_LIST
 
@@ -972,6 +972,8 @@ class InterleaveChannel(BaseRule):
         self.validateDigitBox(1, 1, 100, 1)
         self.validateDigitBox(2, 1, 100, 1)
         self.validateDigitBox(3, 1, 10000, 1)
+        self.validateDigitBox(4, 1, 10000, 1)
+        self.validateDigitBox(5, 1, 1, 1)
 
 
     def runAction(self, actionid, channelList, filelist):
@@ -981,6 +983,8 @@ class InterleaveChannel(BaseRule):
             minint = 0
             maxint = 0
             startingep = 0
+            numbereps = 0
+            startfrom = 1
             curchan = channelList.runningActionChannel
             curruleid = channelList.runningActionId
             self.validate()
@@ -990,10 +994,12 @@ class InterleaveChannel(BaseRule):
                 minint = int(self.optionValues[1])
                 maxint = int(self.optionValues[2])
                 startingep = int(self.optionValues[3])
+                numbereps = int(self.optionValues[4])
+                startfrom = int(self.optionValues[5])
             except:
                 self.log("Except when reading params")
 
-            if chan > channelList.maxChannels or chan < 1 or minint < 1 or maxint < 1 or startingep < 1:
+            if chan > channelList.maxChannels or chan < 1 or minint < 1 or maxint < 1 or startingep < 1 or numbereps < 1:
                 return filelist
 
             if minint > maxint:
@@ -1011,11 +1017,20 @@ class InterleaveChannel(BaseRule):
                 self.log("The target channel is empty")
                 return filelist
 
+            if startfrom > 0:
+                startfrom = 1
+            else:
+                startfrom = 0
+
+            startfrom -= 1
+            
             realindex = random.randint(minint, maxint)
             startindex = 0
             # Use more memory, but greatly speed up the process by just putting everything into a new list
             newfilelist = []
             self.log("Length of original list: " + str(len(filelist)))
+
+            realindex += startfrom
 
             while realindex < len(filelist):
                 if channelList.threadPause() == False:
@@ -1025,13 +1040,18 @@ class InterleaveChannel(BaseRule):
                     newfilelist.append(filelist[startindex])
                     startindex += 1
 
-                newstr = str(channelList.channels[chan - 1].getItemDuration(startingep - 1)) + ',' + channelList.channels[chan - 1].getItemTitle(startingep - 1)
-                newstr += "//" + channelList.channels[chan - 1].getItemEpisodeTitle(startingep - 1)
-                newstr += "//" + channelList.channels[chan - 1].getItemDescription(startingep - 1) + '\n' + channelList.channels[chan - 1].getItemFilename(startingep - 1)
-                newfilelist.append(newstr)
+                # Added FOR loop to iterate interleaving multiple-continuous episodes from chosen channel
+                for i in range(numbereps):
+                    newstr = str(channelList.channels[chan - 1].getItemDuration(startingep - 1)) + ',' + channelList.channels[chan - 1].getItemTitle(startingep - 1)
+                    newstr += "//" + channelList.channels[chan - 1].getItemEpisodeTitle(startingep - 1)
+                    newstr += "//" + channelList.channels[chan - 1].getItemDescription(startingep - 1) + '\n' + channelList.channels[chan - 1].getItemFilename(startingep - 1)
+                    newfilelist.append(newstr)
+                    # Moved startingep to FOR loop - otherwise it just adds the same file multiple times
+                    startingep += 1
+                    
                 realindex += random.randint(minint, maxint)
-                startingep += 1
-
+                
+    
             while startindex < len(filelist):
                 newfilelist.append(filelist[startindex])
                 startindex += 1

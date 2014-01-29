@@ -569,10 +569,9 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         self.channels[channel - 1].isValid = False
         self.invalidatedChannelCount += 1
 
-        # if self.invalidatedChannelCount > 3:
-            # self.Error("Exceeded 3 invalidated channels. Exiting.")
-            # # REAL_SETTINGS.setSetting("CurrentChannel","1") # Force Set to channel 1
-            # return
+        if self.invalidatedChannelCount > 3:
+            self.Error("Exceeded 3 invalidated channels. Exiting.")
+            return
 
         remaining = 0
 
@@ -1031,7 +1030,8 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         # during certain times we just want to discard all input
         if lastaction < 2:
             self.log('Not allowing actions')
-            action = ACTION_INVALID
+            if chtype >= 7:
+                action = ACTION_INVALID
 
         self.startSleepTimer()
 
@@ -1295,7 +1295,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                     
                         if FileAccess.exists(ChannelLogo):
                             thumb = ChannelLogo
-                        elif filename[0:6] == 'plugin':
+                        elif mediapathSeason[0:6] == 'plugin':
                             id = mediapathSeason
                             id = id.replace("/?path=/root", "")
                             id = id.split('plugin://', 1)[-1]
@@ -1316,8 +1316,8 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
 
     def playerTimerAction(self):
         self.playerTimer = threading.Timer(2.0, self.playerTimerAction)    
-        chtype = int(ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
-        
+        chtype = (ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
+        chtype = int(chtype)
         if self.Player.isPlaying():
             self.lastPlayTime = int(self.Player.getTime())
             self.lastPlaylistPosition = xbmc.PlayList(xbmc.PLAYLIST_MUSIC).getposition()
@@ -1328,8 +1328,9 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         
         if self.channels[self.currentChannel - 1].getCurrentFilename()[-4:].lower() != 'strm' or chtype <= 7:
             if self.notPlayingCount >= 3:
+                self.log("exiting after three peat error")
                 self.end()
-                return
+                return            
                 
         if self.Player.stopped == False:
             self.playerTimer.name = "PlayerTimer"
@@ -1417,7 +1418,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                 self.log("Problem joining channel thread", xbmc.LOGERROR)
 
         if self.isMaster:
-            try:
+            try:#Startup Channel
                 SUPchannel = int(REAL_SETTINGS.getSetting('SUPchannel'))                
                 if SUPchannel == 0:
                     REAL_SETTINGS.setSetting('CurrentChannel', str(self.currentChannel))    

@@ -20,7 +20,6 @@
 import urllib
 import urllib2
 import json
-from Globals import *
 
 class CouchPotato(object):
     def __init__(self, base_url='http://localhost:5050', api_key='71e9ea6a3e16430389450eb88e93a8a1'):
@@ -39,9 +38,8 @@ class CouchPotato(object):
         response = json.load(urllib.urlopen(self._buildUrl('movie.add', {'identifier' : imdbid})))
         #self.log('imdbid=%s, result=%s' % (imdbid, response['added']))
         return response['added'] == 'true'
-    
+
     def getMoviebyTitle(self, title):
         response = json.load(urllib.urlopen(self._buildUrl('movie.list', {'search' : title})))
-        self.log('imdbid=%s, result=%s' % (imdbid, response['added']))
-        return response['added'] == 'true'
-        return self._api_call('movie.list', params).get('movies', [])
+        return response
+        #return self._api_call('movie.list', params).get('movies', [])
