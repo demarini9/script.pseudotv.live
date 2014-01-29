@@ -143,7 +143,7 @@
         <setting id="ClearBCT" type="bool" label="30995" default="false"/>
         <setting id="ClearLiveArt" type="bool" label="30996" default="false"/>
         <setting id="IncludeIceLib" type="bool" label="30997" default="true"/>
-        <setting id="EnableSettop" type="bool" label="30998" default="true"/>
+        <setting id="EnableSettop" type="bool" label="30998" default="false"/>
         <setting id="Refresh_Int" subsetting="true"  visible="eq(-1,true)" type="enum" label="31000" values="6|12|24" default="0"/>
         <setting type="action" label="30999" action="RunScript($CWD/defrag.py)"/>
     </category>
