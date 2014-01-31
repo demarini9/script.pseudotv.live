@@ -1760,10 +1760,10 @@ class ChannelList:
 
                                 else:                               
                                            
-                                    tmpstr = (tmpstr)
-                                    swtitle = (swtitle)
-                                    theplot = (theplot)
-                                    genre = (genre)
+                                    tmpstr = uni(tmpstr)
+                                    swtitle = uni(swtitle)
+                                    theplot = uni(theplot)
+                                    genre = uni(genre)
                                     
                                     tmpstr += showtitle.group(1) + "//" + swtitle + "//" + theplot + "//" + 'Unknown' + "////" + 'LiveID|'
                                     istvshow = True
