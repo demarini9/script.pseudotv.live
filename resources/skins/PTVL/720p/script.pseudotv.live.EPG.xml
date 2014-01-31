@@ -63,9 +63,9 @@
         <!-- Today Nextaired -->
         <control type="label">
             <posx>0</posx>
-            <posy>5</posy>
+            <posy>10</posy>
             <align>center</align>
-            <width>310</width>
+            <width min="55" max="300">auto</width>
             <height>10</height>
             <animation effect="slide" end="285,0" time="500">WindowOpen</animation>
             <label>$INFO[Window(Home).Property(NextAired.1.Label)]</label>
@@ -74,9 +74,9 @@
         </control> 
         <control type="label">
             <posx>0</posx>
-            <posy>156</posy>
+            <posy>160</posy>
             <align>center</align>
-            <width>310</width>
+            <width min="55" max="300">auto</width>
             <height>10</height>
             <animation effect="slide" end="285,0" time="500">WindowOpen</animation>
             <label>$INFO[Window(Home).Property(NextAired.1.Airtime)]</label>
@@ -97,10 +97,10 @@
         <!-- ######### -->
         <control type="label">
             <posx>0</posx>
-            <posy>5</posy>
+            <posy>10</posy>
             <height>10</height>
-            <width>250</width>
             <align>center</align>
+            <width min="55" max="300">auto</width>
             <animation effect="slide" end="655,0" time="1000">WindowOpen</animation>
             <label>$INFO[Window(Home).Property(NextAired.2.Label)]</label>
             <textcolor>C0C0C0C0</textcolor>
@@ -108,9 +108,9 @@
         </control> 
         <control type="label">
             <posx>0</posx>
-            <posy>155</posy>
+            <posy>160</posy>
             <height>10</height>
-            <width>250</width>
+            <width min="55" max="300">auto</width>
             <align>center</align>
             <animation effect="slide" end="655,0" time="1000">WindowOpen</animation>
             <label>$INFO[Window(Home).Property(NextAired.2.Airtime)]</label>
@@ -131,9 +131,9 @@
         <!-- ######### -->
         <control type="label">
             <posx>0</posx>
-            <posy>5</posy>
+            <posy>10</posy>
             <align>center</align>
-            <width>310</width>
+            <width min="55" max="300">auto</width>
             <height>10</height>
             <animation effect="slide" end="955,0" time="1500">WindowOpen</animation>
             <label>$INFO[Window(Home).Property(NextAired.3.Label)]</label>
@@ -143,11 +143,11 @@
         </control> 
         <control type="label">
             <posx>0</posx>
-            <posy>155</posy>
+            <posy>160</posy>
             <height>10</height>
-            <width>250</width>
-            <fadetime>1500</fadetime>
             <align>center</align>
+            <width min="55" max="300">auto</width>
+            <fadetime>1500</fadetime>
             <animation effect="slide" end="990,0" time="1500">WindowOpen</animation>
             <!-- <shadowcolor>7fffffff</shadowcolor> -->
             <label>$INFO[Window(Home).Property(NextAired.3.Airtime)]</label>
@@ -177,9 +177,9 @@
             <control type="label">
                 <posx>-15</posx>
                 <posy>5</posy>
-                <width>300</width>
-                <height>10</height>
                 <align>center</align>
+                <width min="55" max="300">auto</width>
+                <height>10</height>
                 <textcolor>C0C0C0C0</textcolor>
                 <label>$INFO[Window(Home).Property(TrendingShows.1.Title)]</label>            
                 <animation type="Visible" reversible="false">
@@ -350,11 +350,11 @@
             </control>   -->
             <control type="label">
                 <posx>-15</posx>
-                <posy>156</posy>
-                <width>300</width>
+                <posy>160</posy>
+                <align>center</align>
+                <width min="55" max="300">auto</width>
                 <height>10</height>
                 <fadetime>250</fadetime>
-                <align>center</align>
                 <textcolor>C0C0C0C0</textcolor>
                 <label>Trending Now</label>
             </control>
@@ -482,7 +482,7 @@
             <align>center</align>
             <aspectratio>keep</aspectratio>
             <visible>false</visible>
-        </control>
+        </control>            
         <control type="grouplist">
             <posx>285</posx>
             <posy>525</posy>
@@ -515,7 +515,7 @@
             </control>
             <control type="label" id="501">
                 <description>Show Title Label</description>
-                <width min="55" max="600">auto</width>
+                <width min="55" max="800">auto</width>
                 <height>30</height>
                 <label>Show Title</label>
                 <font>font12</font>
@@ -524,12 +524,6 @@
                 <wrapmultiline>false</wrapmultiline>
                 <scrollspeed>50</scrollspeed>
                 <scrollsuffix> - </scrollsuffix>
-            </control> 
-            <control type="image" id="511">
-                <description>Sickbeard/Couchpotato Icon</description>            
-                <width>15</width>
-                <height>15</height>
-                <aspectratio>scale</aspectratio>
             </control>    
         </control>       
         <control type="label" id="502">
@@ -888,7 +882,15 @@
                 <align>center</align>
                 <aspectratio>keep</aspectratio>
             </control>
-        </control>       
+        </control>        
+        <control type="image" id="511">
+            <description>Sickbeard/Couchpotato Icon</description>   
+            <posx>221</posx>
+            <posy>630</posy>         
+            <width>20</width>
+            <height>20</height>
+            <aspectratio>scale</aspectratio>
+        </control> 
         <control type="image" id="512">
             <description>Unaired NEW Icon</description>         
             <posx>21</posx>

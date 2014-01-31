@@ -660,9 +660,6 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         imdbid = 0
         dbid = 0
         
-        Artpath = xbmc.translatePath(os.path.join(ART_LOC))
-        self.logDebug('setShowInfo.Artpath.1 = ' + uni(Artpath))
-        
         mediapath = uni(self.channels[self.currentChannel - 1].getItemFilename(position))
         self.logDebug('setShowInfo.mediapath.1 = ' + uni(mediapath))
         
@@ -740,8 +737,14 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                         id = imdbid
                     
                 else:
-                    Unaired = LiveLST[3]
+                    UnairedTYPE = LiveLST[3]
+                    self.logDebug('setShowInfo.LiveLST.UnairedTYPE = ' + str(UnairedTYPE))
+                    UnairedTYPE = UnairedTYPE.split('dbid_', 1)[-1]
+                    self.logDebug('setShowInfo.LiveLST.UnairedTYPE.2 = ' + str(UnairedTYPE))
+                    Unaired = UnairedTYPE.split(',')[0]
                     self.logDebug('setShowInfo.LiveLST.Unaired = ' + str(Unaired))
+                    type = UnairedTYPE.split(',', 1)[-1]
+                    self.logDebug('setShowInfo.LiveLST.type = ' + str(type))
             except:
                 self.log('setShowInfo.LiveLST Failed')
                 pass     
@@ -829,21 +832,13 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
             #LiveTV w/ TVDBID via Fanart.TV        
             elif chtype == 8:
                 if REAL_SETTINGS.getSetting('Live.art.enable') == 'true' and self.apis == True:
-                    try:
-                        print '1'
-                        # if tvdbid != 0 and genre != 'Movie': #TV                        
-                        # elif imdbid != 0 and genre == 'Movie':#Movie
-                    
-                    except:
-                        self.getControl(508).setImage(self.mediaPath + type1 + '.png')
-                        self.getControl(510).setImage(self.mediaPath + type2 + '.png')
-                        pass
-                                
+                    self.log('LiveTV Art Enabled')
+                    self.LiveTVArtDownloader(imdbid, tvdbid, type, type1, type1EXT, type2, type2EXT)       
                 else:#fallback all artwork because live art disabled
                     self.getControl(508).setImage(self.mediaPath + type1 + '.png')
                     self.getControl(510).setImage(self.mediaPath + type2 + '.png')
 
-            if chtype == 9:
+            elif chtype == 9:
                 self.getControl(508).setImage(self.mediaPath + 'Overlay.Internet.508.png')
                 self.getControl(510).setImage(self.mediaPath + 'Overlay.Internet.510.png')
             
@@ -1317,7 +1312,11 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
     def playerTimerAction(self):
         self.playerTimer = threading.Timer(2.0, self.playerTimerAction)    
         chtype = (ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
-        chtype = int(chtype)
+        try:
+            chtype = int(chtype)
+        except:
+            self.log("chtype interger failed")
+            pass
         if self.Player.isPlaying():
             self.lastPlayTime = int(self.Player.getTime())
             self.lastPlaylistPosition = xbmc.PlayList(xbmc.PLAYLIST_MUSIC).getposition()
@@ -1337,6 +1336,146 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
             self.playerTimer.start()
 
 
+    def LiveTVArtDownloader(self, imdbid, tvdbid, type, type1, type1EXT, type2, type2EXT):
+        self.log('LiveTVArtDownloader')
+        tvdb = True
+        imdb = True
+        Artpath = xbmc.translatePath(os.path.join(ART_LOC))
+        self.logDebug('LiveTVArtDownloader.Artpath = ' + uni(Artpath))
+        
+        if tvdbid == 'NA' or tvdbid == 0:
+            tvdb = False
+        
+        if imdbid == 'NA' or imdbid == 0:
+            imdb = False
+        
+        if tvdb and type == 'tvshow':  
+            self.log('LiveTVArtDownloader.TV')
+            print tvdbid
+            fanartTV = fanarttv.FTV_TVProvider()
+            URLLST = fanartTV.get_image_list(tvdbid)
+            print URLLST
+            if URLLST:
+                URLLST = str(URLLST)
+                URLLST = URLLST.split("{'art_type': ")
+                print URLLST
+                try:
+                    Art1 = [s for s in URLLST if type1 in s]
+                    Art1 = Art1[0]
+                    Art1 = Art1[Art1.find("'url': '")+len("'url': '"):Art1.rfind("',")]
+                    Art1 = Art1.split("',")[0]
+                    fle1 = tvdbid + '-' + type1EXT
+                    flename1 = xbmc.translatePath(os.path.join(ART_LOC) + fle1)
+                    
+                    if FileAccess.exists(flename1):
+                        self.getControl(508).setImage(flename1)
+                    else:
+                        if not os.path.exists(os.path.join(Artpath)):
+                            os.makedirs(os.path.join(Artpath))
+                        
+                        resource = urllib.urlopen(Art1)
+                        output = open(flename1,"wb")
+                        output.write(resource.read())
+                        output.close()
+                        self.getControl(508).setImage(flename1)
+                except:
+                    self.getControl(508).setImage(self.mediaPath + type1 + '.png')
+                    pass
+                
+                try:
+                    Art2 = [s for s in URLLST if type2 in s]
+                    Art2 = Art2[0]
+                    Art2 = Art2[Art2.find("'url': '")+len("'url': '"):Art2.rfind("',")]
+                    Art2 = Art2.split("',")[0]
+                    fle2 = tvdbid + '-' + type2EXT
+                    flename2 = xbmc.translatePath(os.path.join(ART_LOC) + fle2)
+                    
+                    if FileAccess.exists(flename2):
+                        self.getControl(510).setImage(flename2)
+                    else:
+                        if not os.path.exists(os.path.join(Artpath)):
+                            os.makedirs(os.path.join(Artpath))
+                        
+                        resource = urllib.urlopen(Art2)
+                        output = open(flename2,"wb")
+                        output.write(resource.read())
+                        output.close()
+                        self.getControl(510).setImage(flename2)
+                except:
+                    self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                    pass
+
+            else:#fallback all artwork because there is no id
+                self.getControl(508).setImage(self.mediaPath + type1 + '.png')
+                self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                
+        elif imdb and type == 'movie':
+            self.log('LiveTVArtDownloader.Movie')    
+            fanartTV = fanarttv.FTV_MovieProvider()
+            URLLST = fanartTV.get_image_list(imdbid)
+            print URLLST
+            if URLLST:
+                URLLST = str(URLLST)
+                URLLST = URLLST.split("{'art_type': ")
+                try:#Type1 Art
+                    Art1 = [s for s in URLLST if type1 in s]
+                    print Art1
+                    Art1 = Art1[0]
+                    print Art1
+                    Art1 = Art1[Art1.find("'url': '")+len("'url': '"):Art1.rfind("',")]
+                    print Art1
+                    Art1 = Art1.split("',")[0]      
+                    print Art1          
+                    fle1 = imdbid + '-' + type1EXT
+                    flename1 = xbmc.translatePath(os.path.join(ART_LOC) + fle1) 
+                    if FileAccess.exists(flename1):
+                        self.getControl(508).setImage(flename1)
+                    else:
+                        if not os.path.exists(os.path.join(Artpath)):
+                            os.makedirs(os.path.join(Artpath))
+                    
+                        resource = urllib.urlopen(Art1)# Replace with urlretrieve todo
+                        output = open(flename1,"wb")
+                        output.write(resource.read())
+                        output.close()
+                        self.getControl(508).setImage(flename1)
+                except:
+                    self.getControl(508).setImage(self.mediaPath + type1 + '.png')
+                    pass
+                
+                try:#Type2 Art
+                    Art2 = [s for s in URLLST if type2 in s]
+                    print Art2
+                    Art2 = Art2[0]
+                    print Art2
+                    Art2 = Art2[Art2.find("'url': '")+len("'url': '"):Art2.rfind("',")]
+                    print Art2
+                    Art2 = Art2.split("',")[0]
+                    print Art2
+                    fle2 = imdbid + '-' + type2EXT
+                    flename2 = xbmc.translatePath(os.path.join(ART_LOC) + fle2)
+                    
+                    if FileAccess.exists(flename2):
+                        self.getControl(510).setImage(flename2)
+                    else:
+                        if not os.path.exists(os.path.join(Artpath)):
+                            os.makedirs(os.path.join(Artpath))
+                        
+                        resource = urllib.urlopen(Art2)# Replace with urlretrieve todo
+                        output = open(flename2,"wb")
+                        output.write(resource.read())
+                        output.close()
+                        self.getControl(510).setImage(flename2)  
+                except:
+                    self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                    pass
+            else:
+                self.getControl(508).setImage(self.mediaPath + type1 + '.png')
+                self.getControl(510).setImage(self.mediaPath + type2 + '.png')         
+        else:
+            self.getControl(508).setImage(self.mediaPath + type1 + '.png')
+            self.getControl(510).setImage(self.mediaPath + type2 + '.png')            
+            
     # cleanup and end
     def end(self):
         self.log('end')

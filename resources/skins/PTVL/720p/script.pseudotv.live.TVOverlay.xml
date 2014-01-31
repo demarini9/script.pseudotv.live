@@ -85,7 +85,15 @@
                     <align>center</align>
                     <aspectratio>keep</aspectratio>
                 </control> 
-            </control>
+            </control>        
+            <control type="image" id="511">
+                <description>Sickbeard/Couchpotato Icon</description>   
+                <posx>221</posx>
+                <posy>630</posy>         
+                <width>20</width>
+                <height>20</height>
+                <aspectratio>scale</aspectratio>
+            </control> 
             <control type="image" id="512">
                 <description>Unaired NEW Icon</description>         
                 <posx>21</posx>
@@ -147,12 +155,6 @@
                     <wrapmultiline>false</wrapmultiline>
                     <scrollspeed>50</scrollspeed>
                     <scrollsuffix> - </scrollsuffix>
-                </control>
-                <control type="image" id="511">
-                    <description>Sickbeard/Couchpotato Icon</description>            
-                    <width>15</width>
-                    <height>15</height>
-                    <aspectratio>scale</aspectratio>
                 </control>
     <!--chan bug?-->				
                 <control type="label">
