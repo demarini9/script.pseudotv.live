@@ -49,7 +49,7 @@ def ascii(string):
 ADDON_ID = 'script.pseudotv.live'
 REAL_SETTINGS = xbmcaddon.Addon(id=ADDON_ID)
 ADDON_INFO = REAL_SETTINGS.getAddonInfo('path')
-VERSION = "0.3.2"
+VERSION = "0.3.3"
 TIMEOUT = 15 * 1000
 TOTAL_FILL_CHANNELS = 20
 PREP_CHANNEL_TIME = 60 * 60 * 24 * 5
@@ -68,7 +68,8 @@ MODE_STARTMODES = MODE_RANDOM | MODE_REALTIME | MODE_RESUME
 
 CHANNEL_SHARING = False
 SETTINGS_LOC = 'special://profile/addon_data/' + ADDON_ID
-LOCK_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache')) + '/'
+#LOCK_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache')) + '/'
+LOCK_LOC = os.path.join(SETTINGS_LOC, 'cache') + '/'
 
 if REAL_SETTINGS.getSetting('ChannelSharing') == "true":
     CHANNEL_SHARING = True
@@ -109,7 +110,8 @@ else:
 log("EPGGENRE_LOC = " + EPGGENRE_LOC)
 
 PRESETS_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'presets')) + '/'
-CHANNELS_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache')) + '/'
+#CHANNELS_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache')) + '/'
+CHANNELS_LOC = os.path.join(SETTINGS_LOC, 'cache') + '/'
 GEN_CHAN_LOC = os.path.join(CHANNELS_LOC, 'generated') + '/'
 MADE_CHAN_LOC = os.path.join(CHANNELS_LOC, 'stored') + '/'
 ART_LOC = os.path.join(CHANNELS_LOC, 'artwork') + '/'
@@ -135,14 +137,8 @@ except:
 
 if USING_EDEN:
     try:
-        log("Trying Gotham")
-        if xbmcvfs.exists(SETTINGS_LOC):
-            log("Globals - Gotham")
-            USING_FRODO = True
-            USING_GOTHAM = True
-        else:
-            log("Trying Frodo")
-            xbmcgui.Window(10000).addControls(0)
+        log("Trying Frodo")
+        xbmcgui.Window(10000).addControls(0)
     except TypeError:
         USING_FRODO = True
         log("Globals - Frodo")

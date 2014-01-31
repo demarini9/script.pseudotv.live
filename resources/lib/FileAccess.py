@@ -26,10 +26,8 @@ import xbmcvfs
 VFS_AVAILABLE = True
 
 
-
 FILE_LOCK_MAX_FILE_TIMEOUT = 13
 FILE_LOCK_NAME = "FileLock.dat"
-
 
 
 class FileAccess:
@@ -247,7 +245,7 @@ class FileLock:
 
 
     def refreshLocks(self):
-        self.log("refreshLocks")
+        # self.log("refreshLocks")
 
         for item in self.lockedList:
             if self.isExiting:
@@ -530,3 +528,73 @@ class FileLock:
         self.releaseLockFile()
         self.grabSemaphore.release()
         return retval
+
+    
+    def finish(self):
+        if self.mountedFS == True:
+            pipe = os.popen("umount \"" + xbmc.translatePath('special://profile/addon_data/script.pseudotv.live/mountpnt') + "\"")
+            self.mountedFS = False
+
+
+    def handleSMB(self, filename):
+        self.log("handleSMB")
+        # On Windows, replace smb:// with \\ so that python can access it
+        if os.name.lower() == 'nt':
+            filename = '\\\\' + filename[6:]
+        elif os.name.lower() == 'posix':
+            newfilename = '//' + filename[6:]
+            return self.mountPosixSMB(newfilename)
+
+        return filename
+
+
+    def mountPosixSMB(self, filename):
+        if not os.path.exists(xbmc.translatePath('special://profile/addon_data/script.pseudotv.live/mountpnt/')):
+            os.makedirs(xbmc.translatePath('special://profile/addon_data/script.pseudotv.live/mountpnt/'))
+
+        if self.mountedFS == True:
+            newfilename = xbmc.translatePath('special://profile/addon_data/script.pseudotv.live/mountpnt/') + os.path.split(filename)[1]
+
+            if os.path.exists(newfilename):
+                return newfilename
+
+            pipe = os.popen("umount \"" + xbmc.translatePath('special://profile/addon_data/script.pseudotv.live/mountpnt') + "\"")
+            self.mountedFS = False
+
+        newfilename = self.mountFs(filename, 'cifs')
+
+        if os.path.exists(newfilename):
+            self.mountedFS = True
+            return newfilename
+
+        newfilename = self.mountFs(filename, 'smbfs')
+
+        if os.path.exists(newfilename):
+            self.mountedFS = True
+            return newfilename
+
+        return filename
+
+
+    def mountFs(self, filename, fstype):
+        dirpart, filename = os.path.split(filename)
+        pipe = os.popen("mount -t " + fstype + " \"" + dirpart + "\" \"" + xbmc.translatePath('special://profile/addon_data/script.pseudotv.live/mountpnt') + "\"")
+        newfilename = xbmc.translatePath('special://profile/addon_data/script.pseudotv.live/mountpnt/') + filename
+
+        if os.path.exists(newfilename):
+            return newfilename
+
+        # Only try adding "Guest" if there is no username already there
+        if dirpart.find('@') == -1:
+            dirpart = "//Guest:@" + dirpart[2:]
+            pipe = os.popen("mount -t " + fstype + " \"" + dirpart + "\" \"" + xbmc.translatePath('special://profile/addon_data/script.pseudotv.live/mountpnt') + "\"")
+
+            if os.path.exists(newfilename):
+                return newfilename
+
+        # Seperate the username and password and try that
+        username = dirpart[2:dirpart.find(':')]
+        password = dirpart[dirpart.find(':') + 1:dirpart.find('@')]
+        dirpart = '//' + dirpart[dirpart.find('@') + 1:]
+        pipe = os.popen("mount -t cifs \"" + dirpart + "\" \"" + xbmc.translatePath('special://profile/addon_data/script.pseudotv.live/mountpnt') + "\" -o username=" + username + ",password=" + password)
+        return newfilename
