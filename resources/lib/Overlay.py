@@ -253,7 +253,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                 REAL_SETTINGS.setSetting("Autotune","false")
                 REAL_SETTINGS.setSetting("Warning1","false")
                 self.Error('Unable to find any channels. \nPlease go to the Addon Settings to configure PseudoTV Live.')
-                # self.end()
+                self.end()
                 return
                 
             del dlg
@@ -1311,12 +1311,9 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
 
     def playerTimerAction(self):
         self.playerTimer = threading.Timer(2.0, self.playerTimerAction)    
-        chtype = (ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
-        try:
-            chtype = int(chtype)
-        except:
-            self.log("chtype interger failed")
-            pass
+        chtypes = (ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
+        chtype = int(chtypes)
+
         if self.Player.isPlaying():
             self.lastPlayTime = int(self.Player.getTime())
             self.lastPlaylistPosition = xbmc.PlayList(xbmc.PLAYLIST_MUSIC).getposition()

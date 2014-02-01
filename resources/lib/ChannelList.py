@@ -1750,20 +1750,20 @@ class ChannelList:
                                     LiveID = self.buildLiveID(imdbid, tvdbid, sbManaged, cpManaged, dbid, 'tvshow', '')
                                     self.logDebug('buildFileList.LiveID = ' + str(LiveID))
                                            
-                                    tmpstr = uni(tmpstr)
-                                    swtitle = uni(swtitle)
-                                    theplot = uni(theplot)
-                                    genre = uni(genre)
+                                    # tmpstr = uni(tmpstr)
+                                    # swtitle = uni(swtitle)
+                                    # theplot = uni(theplot)
+                                    # genre = uni(genre)
                                     
                                     tmpstr += showtitle.group(1) + "//" + swtitle + "//" + theplot + "//" + genre + "////" + LiveID
                                     istvshow = True
 
                                 else:                               
                                            
-                                    tmpstr = uni(tmpstr)
-                                    swtitle = uni(swtitle)
-                                    theplot = uni(theplot)
-                                    genre = uni(genre)
+                                    # tmpstr = uni(tmpstr)
+                                    # swtitle = uni(swtitle)
+                                    # theplot = uni(theplot)
+                                    # genre = uni(genre)
                                     
                                     tmpstr += showtitle.group(1) + "//" + swtitle + "//" + theplot + "//" + 'Unknown' + "////" + 'LiveID|'
                                     istvshow = True
@@ -1812,9 +1812,9 @@ class ChannelList:
                                         LiveID = self.buildLiveID(imdbid, tvdbid, sbManaged, cpManaged, dbid, 'movie', '')
                                         self.logDebug('buildFileList.LiveID = ' + str(LiveID))
                                                                             
-                                        tmpstr = uni(tmpstr)
-                                        theplot = uni(theplot)
-                                        genre = uni(genre)
+                                        # tmpstr = uni(tmpstr)
+                                        # theplot = uni(theplot)
+                                        # genre = uni(genre)
                                         
                                         if (REAL_SETTINGS.getSetting('EPGcolor_MovieGenre') == "true" and REAL_SETTINGS.getSetting('EPGcolor_enabled') == "1"):
                                             tmpstr += "//" + theplot + "//" + genre + "////" + LiveID
@@ -2161,9 +2161,9 @@ class ChannelList:
                                         
                                 cpManaged = self.cpManaged(movieTitle, imdbid)
                             
-                            title = ascii(title)
-                            subtitle = ascii(subtitle)
-                            description = ascii(description)
+                            # title = ascii(title)
+                            # subtitle = ascii(subtitle)
+                            # description = ascii(description)
 
                             self.logDebug("buildLiveTVFileList.PostEnhancedParse = " + title + ' - ' + subtitle + ' - ' + category)
                             self.logDebug("buildLiveTVFileList.PostEnhancedParse = " + description)
