@@ -1310,7 +1310,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
 
 
     def playerTimerAction(self):
-        self.playerTimer = threading.Timer(2.0, self.playerTimerAction)    
+        self.playerTimer = threading.Timer(5.0, self.playerTimerAction)    
         chtypes = (ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
         chtype = int(chtypes)
 
@@ -1326,7 +1326,12 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
             if self.notPlayingCount >= 3:
                 self.log("exiting after three peat error")
                 self.end()
-                return            
+                return
+        else:
+            if self.notPlayingCount >= 3:
+                self.log("switching after three peat error")
+                #Change channel todo
+                return          
                 
         if self.Player.stopped == False:
             self.playerTimer.name = "PlayerTimer"

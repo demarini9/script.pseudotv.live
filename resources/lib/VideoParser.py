@@ -36,6 +36,7 @@ from Globals import *
 from FileAccess import FileAccess
 
 
+
 class VideoParser:
     def __init__(self):
         self.AVIExts = ['.avi']

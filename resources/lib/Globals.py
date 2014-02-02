@@ -114,8 +114,8 @@ PRESETS_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'presets'
 CHANNELS_LOC = os.path.join(SETTINGS_LOC, 'cache') + '/'
 GEN_CHAN_LOC = os.path.join(CHANNELS_LOC, 'generated') + '/'
 MADE_CHAN_LOC = os.path.join(CHANNELS_LOC, 'stored') + '/'
-ART_LOC = os.path.join(CHANNELS_LOC, 'artwork') + '/'
-BCT_LOC = os.path.join(CHANNELS_LOC, 'bct') + '/'
+ART_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'artwork')) + '/'
+BCT_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'bct')) + '/'
 
 SHORT_CLIP_ENUM = [15,30,60,90,120,180,240,300,360,420,460]
 INFOBAR_TIMER = [3,5,10,15,20,25]

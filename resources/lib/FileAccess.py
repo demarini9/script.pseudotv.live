@@ -26,8 +26,10 @@ import xbmcvfs
 VFS_AVAILABLE = True
 
 
+
 FILE_LOCK_MAX_FILE_TIMEOUT = 13
 FILE_LOCK_NAME = "FileLock.dat"
+
 
 
 class FileAccess:
@@ -155,6 +157,7 @@ class FileAccess:
         return xbmcvfs.exists(path)
 
 
+
 class VFSFile:
     def __init__(self, filename, mode):
         # Globals.log("VFSFile: trying to open " + filename)
@@ -206,6 +209,8 @@ class VFSFile:
         loc = self.currentFile.seek(0, 1)
         return loc
         
+
+
 
 class FileLock:
     def __init__(self):
