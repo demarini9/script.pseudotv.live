@@ -1,6 +1,5 @@
 """""
 Simple proof of concept code to push data to Google Analytics.
- 
 Related blog posts:
  * http://www.canb.net/2012/01/push-data-to-google-analytics-with.html
  * https://medium.com/python-programming-language/80eb9691d61f
@@ -74,5 +73,9 @@ URL = urlunparse(("http",
                   ""))
  
 # Make the request
-print "Requesting", URL
-print urlopen(URL).info()
+if Globals.REAL_SETTINGS.getSetting('ga_disable') == 'false':
+    print "Requesting", URL
+    try:
+        print urlopen(URL).info()
+    except:
+        pass

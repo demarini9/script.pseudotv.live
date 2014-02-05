@@ -16,14 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with PseudoTV.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-import xbmc, xbmcgui
-import xbmcaddon
-import httplib
-import urllib
-import urllib2 
-import sys, re
-import shutil
+import os, sys, re, shutil
+import xbmc, xbmcgui, xbmcvfs, xbmcaddon
+import httplib, urllib, urllib2 
 
 from resources.lib.Globals import *
 from urllib import urlopen
@@ -62,20 +57,28 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
     if shouldrestart == False:
     
         if REAL_SETTINGS.getSetting("ClearBCT") == "true":
-            Path1 = (xbmc.translatePath(os.path.join(BCT_LOC)))
+            BCTPath = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'bct')) + '/'
             
-            if os.path.exists(Path1):
-                shutil.rmtree(BCT_LOC)
-                REAL_SETTINGS.setSetting('ClearBCT', "false")
+            if os.path.exists(BCTPath):
+                try:
+                    shutil.rmtree(BCTPath)
+                    REAL_SETTINGS.setSetting('ClearBCT', "false")
+                except:
+                    REAL_SETTINGS.setSetting('ClearBCT', "false")
+                    pass
             else:
                 REAL_SETTINGS.setSetting('ClearBCT', "false")
     
         if REAL_SETTINGS.getSetting("ClearLiveArt") == "true":
-            Path1 = (xbmc.translatePath(os.path.join(ART_LOC)))
+            ARTPath = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'artwork')) + '/'
             
-            if os.path.exists(Path1):
-                shutil.rmtree(ART_LOC)
-                REAL_SETTINGS.setSetting('ClearLiveArt', "false")
+            if os.path.exists(ARTPath):
+                try:
+                    shutil.rmtree(ARTPath)
+                    REAL_SETTINGS.setSetting('ClearLiveArt', "false")
+                except:
+                    REAL_SETTINGS.setSetting('ClearLiveArt', "false")
+                    pass
             else:
                 REAL_SETTINGS.setSetting('ClearLiveArt', "false")
 

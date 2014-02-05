@@ -95,8 +95,8 @@
         <setting label="30519" id="Advertolog" visible="eq(-2,2)" type="bool" default="false"/>
         <setting label="30506" id="commercialsconfig" type="text" visible="eq(-1,true)" default="United States,All"/>
         <setting label="30517" id="commercialsResolution" type="enum" visible="eq(-2,true)" values="360p|480p|720p" default="0"/>
-        <setting label="30518" id="iSpot" visible="eq(-5,2)" type="enum" values="Disabled|Recent Ads|Superbowl 2013 Ads" default="0"/>
-        <setting label="30507" id="commercialschannel" type="text" visible="eq(-6,3)" default="PLlwhS0wsCzbRNwJ4Epac4rHJJ_6m1JaBm,2,50"/>
+        <setting label="30518" id="iSpot" visible="eq(-5,2)" type="enum" values="Disabled|Recent Ads|Superbowl '13 Ads|Superbowl '14 Ads" default="0"/>
+        <setting label="30507" id="commercialschannel" type="text" visible="eq(-6,3)" default="PLlwhS0wsCzbRNwJ4Epac4rHJJ_6m1JaBm,2,50,1"/>
         <setting label="30508" id="numcommercials" type="enum" visible="!eq(-7,0), (!eg(-5,false) | !eg(-2,0))" values="Auto|1|2|3|4|5" default="0"/>
         <setting type="lsep"/>
         <setting label="30509" id="trailers" type="enum" values="Disabled|Local|XBMC Library|Internet*|Youtube" default="0"/>
@@ -104,7 +104,7 @@
         <setting label="30511" id="trailersgenre" type="bool" visible="eq(-2,2)" default="false" />
         <setting label="30520" id="trailersHDnet" visible="eq(-3,3)" type="bool" default="false"/>
         <setting label="30521" id="trailersResolution" type="enum" visible="eq(-4,3) | eg(-1,true)" values="480p|720p" default="0"/>
-        <setting label="30507" id="trailerschannel" type="text" visible="eq(-5,4)" default="MovieclipsCOMINGSOON,1,50" /> 
+        <setting label="30507" id="trailerschannel" type="text" visible="eq(-5,4)" default="MovieclipsCOMINGSOON,1,50,1" /> 
         <setting label="30513" id="Movietrailers" type="bool" visible="!eq(-6,0)" default="false" />
         <setting label="30514" id="numtrailers" type="enum" visible="!eq(-7,0)" values="Auto|1|2|3|4|5" default="0"/>
         <setting label="30712" type="lsep"/>

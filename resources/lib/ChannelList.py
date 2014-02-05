@@ -1,7 +1,7 @@
 #   Copyright (C) 2013 Lunatixz
 #
 #
-# This file is part of PseudoTV.
+# This file is part of PseudoTV Live.
 #
 # PseudoTV is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,8 +18,7 @@
 
 import xbmc, xbmcgui, xbmcaddon
 import subprocess, os, sys, re
-import time, threading
-import datetime
+import time, datetime, threading
 import httplib, urllib, urllib2, feedparser
 import base64, shutil, random
 import Globals
@@ -88,6 +87,7 @@ class ChannelList:
         except:
             pass
 
+            
     def readConfig(self):
         self.channelResetSetting = int(REAL_SETTINGS.getSetting("ChannelResetSetting"))
         self.log('Channel Reset Setting is ' + str(self.channelResetSetting))
@@ -1796,7 +1796,7 @@ class ChannelList:
                                         # Lookup IMDBID, 1st with tvdb, then with tvdb_api
                                         if self.apis == True and imdbid == 0:
                                             try:
-                                                movieInfo = tmdbAPI.getMovie(movieTitle, movieYear)
+                                                movieInfo = tmdbAPI.getMovie(title.group(1), '')
                                                 imdbid = movieInfo['imdb_id']
                                                 if imdbid == None:
                                                     imdbid = 0
@@ -2736,12 +2736,10 @@ class ChannelList:
                 xmlrating = dom.getElementsByTagName('rating')[0].toxml()
                 rating = xmlrating.replace('<rating>','').replace('</rating>','')
                 rating = rating.rsplit('>', -1)
-                rating = rating[1]
-                rating = '%02d' % int(rating)
-                
+                rating = rating[1]            
                 eptitle = uni(artist + ' - ' + track)
                 epdesc = uni('Rated ' + rating + '/5.0')
-                
+                    
             except:
                 self.log("User hasn't listened to enough artists on Last.fm yet. Using Default User...")
                 api = 'http://api.tv.timbormans.com/user/por/topartists.xml'
@@ -3354,6 +3352,7 @@ class ChannelList:
             setting1 = YoutubeCommercial[0]
             setting2 = YoutubeCommercial[1]
             setting3 = YoutubeCommercial[2]
+            setting4 = YoutubeCommercial[3]
             
             YoutubeLST = self.createYoutubeFilelist(setting1, setting2, setting3, setting4, channel)
             for i in range(len(YoutubeLST)):
@@ -3516,6 +3515,7 @@ class ChannelList:
             setting1 = YoutubeTrailers[0]
             setting2 = YoutubeTrailers[1]
             setting3 = YoutubeTrailers[2]
+            setting4 = YoutubeTrailers[3]
             
             YoutubeLST = self.createYoutubeFilelist(setting1, setting2, setting3, setting4, channel)
             for i in range(len(YoutubeLST)):
@@ -3635,10 +3635,10 @@ class ChannelList:
         cpManaged = False
         cpAPI = CouchPotato(REAL_SETTINGS.getSetting('couchpotato.baseurl'),REAL_SETTINGS.getSetting('couchpotato.apikey'))        
         if REAL_SETTINGS.getSetting('couchpotato.enabled') == 'true':
-            r = cpAPI.getMoviebyTitle(title)
-            r = str(r)
-            r = r.split("u'")
             try:
+                r = cpAPI.getMoviebyTitle(title)
+                r = str(r)
+                r = r.split("u'")
                 match = [s for s in r if imdbid in s][1]
                 if imdbid in match:    
                     cpManaged = True

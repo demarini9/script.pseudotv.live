@@ -1,5 +1,5 @@
 #
-#      Copyright (C) 2013 Tommy Winther
+#      Copyright (C) 2013 Lunatixz
 #      http://tommy.winther.nu
 #
 #  This Program is free software; you can redistribute it and/or modify
@@ -17,8 +17,7 @@
 #  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 #  http://www.gnu.org/copyleft/gpl.html
 #
-import urllib
-import urllib2
+import urllib, urllib2
 import json
 
 class CouchPotato(object):
@@ -26,19 +25,19 @@ class CouchPotato(object):
         self.apikey = api_key
         self.baseurl = base_url
 
-    def __repr__(self):
-        return '[script.tvguide.CouchPotato] CouchPotato(baseurl=%s, apikey=%s)' % (self.baseurl, self.apikey)
-
+        
     def _buildUrl(self, cmd, parms={}):
         url = '%s/api/%s/%s/?%s' % (self.baseurl, self.apikey, cmd, urllib.urlencode(parms))
         #self.log(url)
         return url
 
+    
     def addMovie(self, imdbid):
         response = json.load(urllib.urlopen(self._buildUrl('movie.add', {'identifier' : imdbid})))
         #self.log('imdbid=%s, result=%s' % (imdbid, response['added']))
         return response['added'] == 'true'
 
+    
     def getMoviebyTitle(self, title):
         response = json.load(urllib.urlopen(self._buildUrl('movie.list', {'search' : title})))
         return response
