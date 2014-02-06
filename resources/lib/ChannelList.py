@@ -1910,7 +1910,7 @@ class ChannelList:
             self.apis = False
                         
         if self.background == False:
-            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "Parsing LiveTV...")
+            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "Parsing LiveTV")
             if REAL_SETTINGS.getSetting('Live.art.enable') == 'true' and self.apis == True:
                 self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "Parsing LiveTV & Enhancing Guide Data")
   
@@ -3110,8 +3110,9 @@ class ChannelList:
                 File = uni(File + '\n')
                 
                 if BumperNum > 0:
-                    for n in range(numbumpers):
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Bumpers", '')
+                    for n in range(numbumpers):    
+                        if self.background == False:
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Bumpers", '')
                         Bumper = random.choice(BumperLST)#random fill Bumper per show by user selected amount
                         self.logDebug("insertFiles, Bumpers.Bumper = " + uni(Bumper))
                         BumperDur = int(Bumper.split(',')[0]) #duration of Bumper
@@ -3120,8 +3121,9 @@ class ChannelList:
                         BumperMediaLST.append(BumperMedia)
                 
                 if CommercialNum > 0:
-                    for n in range(numcommercials):
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Commercials", '')
+                    for n in range(numcommercials):    
+                        if self.background == False:
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Commercials", '')
                         Commercial = random.choice(CommercialLST)#random fill Commercial per show by user selected amount
                         self.logDebug("insertFiles, Commercials.Commercial = " + uni(Commercial))
                         CommercialDur = int(Commercial.split(',')[0]) #duration of Commercial
@@ -3130,8 +3132,9 @@ class ChannelList:
                         CommercialMediaLST.append(CommercialMedia)
 
                 if TrailerNum > 0:
-                    for n in range(numTrailers):
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Trailers", '')
+                    for n in range(numTrailers):    
+                        if self.background == False:
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Trailers", '')
                         trailer = random.choice(TrailerLST)#random fill trailers per show by user selected amount
                         self.logDebug("insertFiles, trailers.trailer = " + uni(trailer))
                         trailerDur = int(trailer.split(',')[0]) #duration of trailer
@@ -3176,8 +3179,9 @@ class ChannelList:
                     File = uni(File + '\n')
                     
                     if BumperNum > 0:
-                        for n in range(1):
-                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Bumpers", '')
+                        for n in range(1):    
+                            if self.background == False:
+                                self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Bumpers", '')
                             Bumper = random.choice(BumperLST)#random fill Bumper per show by user selected amount
                             self.logDebug("insertFiles, Bumpers.Bumper = " + uni(Bumper))
                             BumperDur = int(Bumper.split(',')[0]) #duration of Bumper
@@ -3193,8 +3197,9 @@ class ChannelList:
                             break
                             
                         if CommercialNum > 0:
-                            for n in range(1):
-                                self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Commercials", '')
+                            for n in range(1):    
+                                if self.background == False:
+                                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Commercials", '')
                                 Commercial = random.choice(CommercialLST)#random fill Commercial per show by user selected amount
                                 self.logDebug("insertFiles, Commercials.Commercial = " + uni(Commercial))
                                 CommercialDur = int(Commercial.split(',')[0]) #duration of Commercial
@@ -3206,8 +3211,9 @@ class ChannelList:
                         self.logDebug("insertFiles.BCTtotal.CommercialDur = " + str(BCTtotal))
                     
                         if TrailerNum > 0:
-                            for n in range(1):
-                                self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Trailers", '')
+                            for n in range(1):    
+                                if self.background == False:
+                                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Trailers", '')
                                 trailer = random.choice(TrailerLST)#random fill trailers per show by user selected amount
                                 self.logDebug("insertFiles, trailers.trailer = " + uni(trailer))
                                 trailerDur = int(trailer.split(',')[0]) #duration of trailer
@@ -3264,8 +3270,9 @@ class ChannelList:
                 LocalFLE = ''
                 LocalBumper = ''
                 LocalLST = xbmcvfs.listdir(PATH)[1]
-                for i in range(len(LocalLST)):
-                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Bumpers...", '')
+                for i in range(len(LocalLST)):    
+                    if self.background == False:
+                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Local Bumpers", '')
                     LocalFLE = (LocalLST[i])
                     filename = uni(PATH + '/' + LocalFLE)
                     duration = self.videoParser.getVideoLength(filename)
@@ -3284,7 +3291,6 @@ class ChannelList:
         self.log("GetCommercialList")
         CommercialCachePath = xbmc.translatePath(os.path.join(BCT_LOC, 'commercials')) + '/'   
         chtype = ADDON_SETTINGS.getSetting('Channel_' + str(channel) + '_type')
-        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Commercials...", '')
         
         if chtype == '0':
             setting1 = str(ADDON_SETTINGS.getSetting('Channel_' + str(channel) + '_1'))
@@ -3313,8 +3319,9 @@ class ChannelList:
                 LocalFLE = ''
                 LocalCommercial = ''
                 LocalLST = xbmcvfs.listdir(PATH)[1]
-                for i in range(len(LocalLST)):
-                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Local Commercials...", '')
+                for i in range(len(LocalLST)):    
+                    if self.background == False:
+                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Local Commercials", '')
                     LocalFLE = (LocalLST[i])
                     filename = uni(PATH + LocalFLE)
                     duration = self.videoParser.getVideoLength(filename)
@@ -3336,8 +3343,9 @@ class ChannelList:
                 CommercialLST = self.readCache(CommercialCachePath, CommercialInternetCache)
                 
             elif CacheExpired == True:
-                try:
-                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Commercials...", '')
+                try:    
+                    if self.background == False:
+                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Commercials", '')
                     CommercialLST = self.Donor.InternetCommercial(CommercialCachePath)
                     self.writeCache(CommercialLST, CommercialCachePath, CommercialInternetCache)
                 except:
@@ -3355,8 +3363,9 @@ class ChannelList:
             setting4 = YoutubeCommercial[3]
             
             YoutubeLST = self.createYoutubeFilelist(setting1, setting2, setting3, setting4, channel)
-            for i in range(len(YoutubeLST)):
-                self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Youtube Commercials...", '')
+            for i in range(len(YoutubeLST)):    
+                if self.background == False:
+                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Youtube Commercials", '')
                 Youtube = YoutubeLST[i]
                 duration = Youtube.split(',')[0]
                 Commercial = Youtube.split('\n', 1)[-1]
@@ -3409,8 +3418,9 @@ class ChannelList:
                 LocalLST = self.walk(PATH)
                 LocalLST = str(LocalLST)
                 LocalLST = LocalLST.split("', ''], ['")
-                for i in range(len(LocalLST)):
-                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Local Trailers...", '')
+                for i in range(len(LocalLST)):    
+                    if self.background == False:
+                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Local Trailers", '')
                     LocalFLE = LocalLST[i]
                     if '-trailer' in LocalFLE:
                         LocalFLE = LocalFLE.replace("', '']]", "")
@@ -3452,8 +3462,9 @@ class ChannelList:
                 if REAL_SETTINGS.getSetting('trailersgenre') == 'true' and GenreChtype == True:
                     JsonLST = uni(json_detail.split("},{"))
                     match = [s for s in JsonLST if genre in s]
-                    for i in range(len(match)): 
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Library Trailers, Matching Genres...", '')
+                    for i in range(len(match)):    
+                        if self.background == False:
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Library Trailers, Matching Genres", '')
                         duration = 120
                         json = uni(match[i])
                         trailer = json.split(',"trailer":"',1)[-1]
@@ -3472,8 +3483,9 @@ class ChannelList:
                 else:
                     JsonLST = uni(json_detail.split("},{"))
                     match = [s for s in JsonLST if 'trailer' in s]
-                    for i in range(len(match)):
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Library Trailers...", '')
+                    for i in range(len(match)):    
+                        if self.background == False:
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Library Trailers", '')
                         duration = 120
                         json = uni(match[i])
                         trailer = json.split(',"trailer":"',1)[-1]
@@ -3499,8 +3511,9 @@ class ChannelList:
                 TrailerLST = self.readCache(TrailerCachePath, TrailerInternetCache)
                 
             elif CacheExpired == True:
-                try:
-                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Trailers...", '')
+                try:    
+                    if self.background == False:
+                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Trailers", '')
                     TrailerLST = self.Donor.InternetTrailer(TrailerCachePath)
                     self.writeCache(TrailerLST, TrailerCachePath, TrailerInternetCache)
                 except:
@@ -3518,8 +3531,9 @@ class ChannelList:
             setting4 = YoutubeTrailers[3]
             
             YoutubeLST = self.createYoutubeFilelist(setting1, setting2, setting3, setting4, channel)
-            for i in range(len(YoutubeLST)):
-                self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Youtube Trailers...", '')
+            for i in range(len(YoutubeLST)):    
+                if self.background == False:
+                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Youtube Trailers", '')
                 Youtube = YoutubeLST[i]
                 duration = Youtube.split(',')[0]
                 trailer = Youtube.split('\n', 1)[-1]
