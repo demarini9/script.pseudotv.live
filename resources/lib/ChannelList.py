@@ -2874,6 +2874,13 @@ class ChannelList:
                     self.logDebug("strm_ok.Lines hdhomerun = " + str(lines))
                     self.strmValid = True
                     return
+                elif lines[0:3] == 'udp':#udp check 
+                    self.logDebug("strm_ok.Lines udp = " + str(lines))
+                    self.strmValid = True
+                    return
+                else:
+                    self.logDebug("strm_ok.Lines defaulting no type found! = " + str(lines))
+                    self.strmFailed = True
                 
                 if rtmpOK == False or urlOK == False or pluginOK == False:
                     self.strmFailed = True
@@ -3036,7 +3043,7 @@ class ChannelList:
                 return self.Pluginvalid
             elif REAL_SETTINGS.getSetting("plugin_ok_level") == "1":#High Check todo
                 try:
-                    json_query = uni('{"jsonrpc": "2.0", "method": "Files.GetDirectory","params":{"directory":"%s"}, "id": 1}' % (self.escapeDirJSON(stream)))
+                    json_query = ('{"jsonrpc": "2.0", "method": "Files.GetDirectory","params":{"directory":"%s"}, "id": 1}' % (self.escapeDirJSON(stream)))
                     json_folder_detail = self.sendJSON(json_query)
                     file_detail = re.compile( "{(.*?)}", re.DOTALL ).findall(json_folder_detail)
                     self.log('json_folder_detail = ' + str(json_folder_detail))
