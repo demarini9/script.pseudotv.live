@@ -67,9 +67,8 @@ class ChannelListThread(threading.Thread):
         # Don't load invalid channels if minimum threading mode is on
         if self.fullUpdating and self.myOverlay.isMaster:
             if validchannels < self.chanlist.enteredChannelCount:
-                title = "Notification(PseudoTV Live, Background Loading..."
-                xbmc.executebuiltin('XBMC.Notification(%s, %s, %s)' % (title, 4000, thumb))
-
+                title = 'PseudoTV, Background Loading...'
+                xbmc.executebuiltin('XBMC.Notification(%s, %s, %s)' % (title, 4000 , thumb))
             for i in range(self.myOverlay.maxChannels):
                 if self.myOverlay.channels[i].isValid == False:
                     while True:

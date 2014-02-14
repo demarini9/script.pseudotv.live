@@ -42,7 +42,6 @@ from urllib import urlopen
 from xml.etree import ElementTree as ET
 from xml.dom.minidom import parse, parseString
 from subprocess import Popen, PIPE, STDOUT
-from BeautifulSoup import BeautifulSoup
 from Playlist import Playlist
 from Globals import *
 from Channel import Channel
@@ -1044,7 +1043,7 @@ class ChannelList:
         self.log("createDirectoryPlaylist " + setting1)
         fileList = []
         filecount = 0
-        json_query = uni('{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s", "media": "files"}, "id": 1}' % ( self.escapeDirJSON(setting1),))
+        json_query = '{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s", "media": "files"}, "id": 1}' % ( self.escapeDirJSON(setting1),)
 
         if self.background == False:
             self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "adding videos", "getting file list")
@@ -1054,9 +1053,9 @@ class ChannelList:
         thedir = ''
 
         if setting1[-1:1] == '/' or setting1[-1:1] == '\\':
-            thedir = uni(os.path.split(setting1[:-1])[1])
+            thedir = os.path.split(setting1[:-1])[1]
         else:
-            thedir = uni(os.path.split(setting1)[1])
+            thedir = os.path.split(setting1)[1]
 
         for f in file_detail:
             if self.threadPause() == False:
@@ -1082,7 +1081,6 @@ class ChannelList:
 
                         afile = uni(os.path.split(match.group(1).replace("\\\\", "\\"))[1])
                         afile, ext = os.path.splitext(afile)
-                        afile = uni(unquote(afile))
                         tmpstr = uni(str(duration) + ',')
                         tmpstr += afile + "//" + thedir + "//" + 'Directory' + "////" + 'LiveID|'
                         tmpstr = uni(tmpstr[:500])
@@ -1751,20 +1749,20 @@ class ChannelList:
                                     LiveID = self.buildLiveID(imdbid, tvdbid, sbManaged, cpManaged, dbid, 'tvshow', '')
                                     self.logDebug('buildFileList.LiveID = ' + str(LiveID))
                                            
-                                    tmpstr = ascii(tmpstr)
-                                    swtitle = ascii(swtitle)
-                                    theplot = ascii(theplot)
-                                    genre = ascii(genre)
+                                    # tmpstr = ascii(tmpstr)
+                                    # swtitle = ascii(swtitle)
+                                    # theplot = ascii(theplot)
+                                    # genre = ascii(genre)
                                     
                                     tmpstr += showtitle.group(1) + "//" + swtitle + "//" + theplot + "//" + genre + "////" + LiveID
                                     istvshow = True
 
                                 else:                               
                                            
-                                    tmpstr = ascii(tmpstr)
-                                    swtitle = ascii(swtitle)
-                                    theplot = ascii(theplot)
-                                    genre = ascii(genre)
+                                    # tmpstr = ascii(tmpstr)
+                                    # swtitle = ascii(swtitle)
+                                    # theplot = ascii(theplot)
+                                    # genre = ascii(genre)
                                     
                                     tmpstr += showtitle.group(1) + "//" + swtitle + "//" + theplot + "//" + 'Unknown' + "////" + 'LiveID|'
                                     istvshow = True
@@ -1813,9 +1811,9 @@ class ChannelList:
                                         LiveID = self.buildLiveID(imdbid, tvdbid, sbManaged, cpManaged, dbid, 'movie', '')
                                         self.logDebug('buildFileList.LiveID = ' + str(LiveID))
                                                                             
-                                        tmpstr = ascii(tmpstr)
-                                        theplot = ascii(theplot)
-                                        genre = ascii(genre)
+                                        # tmpstr = ascii(tmpstr)
+                                        # theplot = ascii(theplot)
+                                        # genre = ascii(genre)
                                         
                                         if (REAL_SETTINGS.getSetting('EPGcolor_MovieGenre') == "true" and REAL_SETTINGS.getSetting('EPGcolor_enabled') == "1"):
                                             tmpstr += "//" + theplot + "//" + genre + "////" + LiveID
@@ -2162,12 +2160,23 @@ class ChannelList:
                                         
                                 cpManaged = self.cpManaged(movieTitle, imdbid)
                             
-                            title = ascii(title)
-                            subtitle = ascii(subtitle)
-                            description = ascii(description)
+                            # title = ascii(title)
+                            # subtitle = ascii(subtitle)
+                            # description = ascii(description)
 
                             self.logDebug("buildLiveTVFileList.PostEnhancedParse = " + title + ' - ' + subtitle + ' - ' + category)
                             self.logDebug("buildLiveTVFileList.PostEnhancedParse = " + description)
+
+
+
+
+
+
+
+
+
+
+
 
                         if seasonNumber > 0:
                             seasonNumber = '%02d' % int(seasonNumber)
@@ -2190,11 +2199,13 @@ class ChannelList:
                         try:
                             description = uni(self.trim(description, 200, '...'))
                         except:
+                            self.log("description Trim failed")
                             description = uni(description[:200])
                             
                         try:
                             subtitle = uni(self.trim(subtitle, 100, ''))
                         except:
+                            self.log("subtitle Trim failed")
                             subtitle = uni(subtitle[:100])
                             
                         genre = category
@@ -2300,15 +2311,8 @@ class ChannelList:
                     title = setting3
                     url = unquote(setting2)
                     description = setting4
-                    iconElement = elem.find("icon")
-                    icon = None
-                    if iconElement is not None:
-                        icon = iconElement.get("src")
                     if not description:
-                        if not subtitle:
-                            description = title
-                        else:
-                            description = subtitle 
+                        description = title
                     istvshow = True
 
                     if setting1 >= 1:
@@ -2424,11 +2428,13 @@ class ChannelList:
                     try:
                         showtitle = uni(self.trim(showtitle, 100, ''))
                     except:
+                        self.log("showtitle Trim failed")
                         showtitle = uni(showtitle[:100])
                    
                     try:
                         eptitle = uni(self.trim(eptitle, 100, ''))
                     except:
+                        self.log("eptitle Trim failed")
                         eptitle = uni(eptitle[:100])  
                         
                     summary = feed.entries[i].summary
@@ -2438,6 +2444,7 @@ class ChannelList:
                     try:
                         summary = uni(self.trim(summary, 300, '...'))
                     except:
+                        self.log("summary Trim failed")
                         summary = uni(summary[:300])
                         
                     # try:
@@ -2545,11 +2552,13 @@ class ChannelList:
                         try:
                             showtitle = uni(self.trim(showtitle, 100, ''))
                         except:
+                            self.log("showtitle Trim failed")
                             showtitle = uni(showtitle[:100])
                        
                         try:
                             eptitle = uni(self.trim(eptitle, 100, ''))
                         except:
+                            self.log("eptitle Trim failed")
                             eptitle = uni(eptitle[:100])
                             
                         if 'author_detail' in feed.entries[i]:
@@ -2575,6 +2584,7 @@ class ChannelList:
                         try:
                             epdesc = uni(self.trim(epdesc, 300, '...'))
                         except:
+                            self.log("epdesc Trim failed")
                             epdesc = uni(epdesc[:300])
                         
                         if 'media_content' in feed.entries[i]:
@@ -2736,9 +2746,10 @@ class ChannelList:
                 xmlrating = dom.getElementsByTagName('rating')[0].toxml()
                 rating = xmlrating.replace('<rating>','').replace('</rating>','')
                 rating = rating.rsplit('>', -1)
-                rating = rating[1]            
+                rating = rating[1]
+                rating = ("%.2f" % rating)
                 eptitle = uni(artist + ' - ' + track)
-                epdesc = uni('Rated ' + rating + '/5.0')
+                epdesc = uni('Rated ' + rating + '/5.00')
                     
             except:
                 self.log("User hasn't listened to enough artists on Last.fm yet. Using Default User...")
@@ -3112,7 +3123,7 @@ class ChannelList:
                 if BumperNum > 0:
                     for n in range(numbumpers):    
                         if self.background == False:
-                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Bumpers", '')
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Bumpers")
                         Bumper = random.choice(BumperLST)#random fill Bumper per show by user selected amount
                         self.logDebug("insertFiles, Bumpers.Bumper = " + uni(Bumper))
                         BumperDur = int(Bumper.split(',')[0]) #duration of Bumper
@@ -3123,7 +3134,7 @@ class ChannelList:
                 if CommercialNum > 0:
                     for n in range(numcommercials):    
                         if self.background == False:
-                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Commercials", '')
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Commercials")
                         Commercial = random.choice(CommercialLST)#random fill Commercial per show by user selected amount
                         self.logDebug("insertFiles, Commercials.Commercial = " + uni(Commercial))
                         CommercialDur = int(Commercial.split(',')[0]) #duration of Commercial
@@ -3134,7 +3145,7 @@ class ChannelList:
                 if TrailerNum > 0:
                     for n in range(numTrailers):    
                         if self.background == False:
-                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Trailers", '')
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Trailers")
                         trailer = random.choice(TrailerLST)#random fill trailers per show by user selected amount
                         self.logDebug("insertFiles, trailers.trailer = " + uni(trailer))
                         trailerDur = int(trailer.split(',')[0]) #duration of trailer
@@ -3181,7 +3192,7 @@ class ChannelList:
                     if BumperNum > 0:
                         for n in range(1):    
                             if self.background == False:
-                                self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Bumpers", '')
+                                self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Bumpers")
                             Bumper = random.choice(BumperLST)#random fill Bumper per show by user selected amount
                             self.logDebug("insertFiles, Bumpers.Bumper = " + uni(Bumper))
                             BumperDur = int(Bumper.split(',')[0]) #duration of Bumper
@@ -3199,7 +3210,7 @@ class ChannelList:
                         if CommercialNum > 0:
                             for n in range(1):    
                                 if self.background == False:
-                                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Commercials", '')
+                                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Commercials")
                                 Commercial = random.choice(CommercialLST)#random fill Commercial per show by user selected amount
                                 self.logDebug("insertFiles, Commercials.Commercial = " + uni(Commercial))
                                 CommercialDur = int(Commercial.split(',')[0]) #duration of Commercial
@@ -3213,7 +3224,7 @@ class ChannelList:
                         if TrailerNum > 0:
                             for n in range(1):    
                                 if self.background == False:
-                                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Trailers", '')
+                                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "adding Trailers")
                                 trailer = random.choice(TrailerLST)#random fill trailers per show by user selected amount
                                 self.logDebug("insertFiles, trailers.trailer = " + uni(trailer))
                                 trailerDur = int(trailer.split(',')[0]) #duration of trailer
@@ -3272,7 +3283,7 @@ class ChannelList:
                 LocalLST = xbmcvfs.listdir(PATH)[1]
                 for i in range(len(LocalLST)):    
                     if self.background == False:
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Local Bumpers", '')
+                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Local Bumpers")
                     LocalFLE = (LocalLST[i])
                     filename = uni(PATH + '/' + LocalFLE)
                     duration = self.videoParser.getVideoLength(filename)
@@ -3321,7 +3332,7 @@ class ChannelList:
                 LocalLST = xbmcvfs.listdir(PATH)[1]
                 for i in range(len(LocalLST)):    
                     if self.background == False:
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Local Commercials", '')
+                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Local Commercials")
                     LocalFLE = (LocalLST[i])
                     filename = uni(PATH + LocalFLE)
                     duration = self.videoParser.getVideoLength(filename)
@@ -3345,7 +3356,7 @@ class ChannelList:
             elif CacheExpired == True:
                 try:    
                     if self.background == False:
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Commercials", '')
+                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Commercials")
                     CommercialLST = self.Donor.InternetCommercial(CommercialCachePath)
                     self.writeCache(CommercialLST, CommercialCachePath, CommercialInternetCache)
                 except:
@@ -3365,7 +3376,7 @@ class ChannelList:
             YoutubeLST = self.createYoutubeFilelist(setting1, setting2, setting3, setting4, channel)
             for i in range(len(YoutubeLST)):    
                 if self.background == False:
-                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Youtube Commercials", '')
+                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Youtube Commercials")
                 Youtube = YoutubeLST[i]
                 duration = Youtube.split(',')[0]
                 Commercial = Youtube.split('\n', 1)[-1]
@@ -3420,7 +3431,7 @@ class ChannelList:
                 LocalLST = LocalLST.split("', ''], ['")
                 for i in range(len(LocalLST)):    
                     if self.background == False:
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Local Trailers", '')
+                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Local Trailers")
                     LocalFLE = LocalLST[i]
                     if '-trailer' in LocalFLE:
                         LocalFLE = LocalFLE.replace("', '']]", "")
@@ -3464,7 +3475,7 @@ class ChannelList:
                     match = [s for s in JsonLST if genre in s]
                     for i in range(len(match)):    
                         if self.background == False:
-                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Library Trailers, Matching Genres", '')
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Library Trailers, Matching Genres")
                         duration = 120
                         json = uni(match[i])
                         trailer = json.split(',"trailer":"',1)[-1]
@@ -3485,7 +3496,7 @@ class ChannelList:
                     match = [s for s in JsonLST if 'trailer' in s]
                     for i in range(len(match)):    
                         if self.background == False:
-                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Library Trailers", '')
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Library Trailers")
                         duration = 120
                         json = uni(match[i])
                         trailer = json.split(',"trailer":"',1)[-1]
@@ -3513,7 +3524,7 @@ class ChannelList:
             elif CacheExpired == True:
                 try:    
                     if self.background == False:
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Trailers", '')
+                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Trailers")
                     TrailerLST = self.Donor.InternetTrailer(TrailerCachePath)
                     self.writeCache(TrailerLST, TrailerCachePath, TrailerInternetCache)
                 except:
@@ -3533,7 +3544,7 @@ class ChannelList:
             YoutubeLST = self.createYoutubeFilelist(setting1, setting2, setting3, setting4, channel)
             for i in range(len(YoutubeLST)):    
                 if self.background == False:
-                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Youtube Trailers", '')
+                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Youtube Trailers")
                 Youtube = YoutubeLST[i]
                 duration = Youtube.split(',')[0]
                 trailer = Youtube.split('\n', 1)[-1]
@@ -3588,6 +3599,7 @@ class ChannelList:
         except:
             pass
         
+    
     def readCache(self, thepath, thefile):
         self.log("readCache") 
         thelist = []  

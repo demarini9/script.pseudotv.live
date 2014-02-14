@@ -208,9 +208,6 @@ class VFSFile:
     def tell(self):
         loc = self.currentFile.seek(0, 1)
         return loc
-        
-
-
 
 class FileLock:
     def __init__(self):

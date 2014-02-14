@@ -17,11 +17,11 @@
 # along with PseudoTV.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, sys, re, shutil
-import xbmc, xbmcgui, xbmcvfs, xbmcaddon
-import httplib, urllib, urllib2 
+import xbmc, xbmcgui, xbmcaddon
+import urllib 
 
 from resources.lib.Globals import *
-from urllib import urlopen
+from resources.lib.unzip import *
 
 # Script constants
 __scriptname__ = "PseudoTV Live"
@@ -35,27 +35,27 @@ __cwd__        = __settings__.getAddonInfo('path')
 if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
     xbmcgui.Window(10000).setProperty("PseudoTVRunning", "True")
     shouldrestart = False
-
-#    if xbmc.executehttpapi("GetGuiSetting(1, services.webserver)")[4:] == "False":
-#        try:
-#            forcedserver = __settings__.getSetting("ForcedWebServer") == "True"
-#        except:
-#            forcedserver = False
-
-#        if forcedserver == False:
-#            dlg = xbmcgui.Dialog()
-#            retval = dlg.yesno('PseudoTV', 'PseudoTV will run more efficiently with the web', 'server enabled.  Would you like to turn it on?')
-#            __settings__.setSetting("ForcedWebServer", "True")
-
-#            if retval:
-#                xbmc.executehttpapi("SetGUISetting(3, services.webserverport, 8152)")
-#                xbmc.executehttpapi("SetGUISetting(1, services.webserver, true)")
-#                dlg.ok('PseudoTV', 'XBMC needs to shutdown in order to apply the', 'changes.')
-#                xbmc.executebuiltin("RestartApp()")
-#                shouldrestart = True
-
-    if shouldrestart == False:
     
+    # Not Compatible with Frodo+, No json alternative.
+    # if xbmc.executehttpapi("GetGuiSetting(1, services.webserver)")[4:] == "False":
+        # try:
+            # forcedserver = __settings__.getSetting("ForcedWebServer") == "True"
+        # except:
+            # forcedserver = False
+
+        # if forcedserver == False:
+            # dlg = xbmcgui.Dialog()
+            # retval = dlg.yesno('PseudoTV', 'PseudoTV will run more efficiently with the web', 'server enabled.  Would you like to turn it on?')
+            # __settings__.setSetting("ForcedWebServer", "True")
+    
+            # if retval:
+                # xbmc.executehttpapi("SetGUISetting(3, services.webserverport, 8152)")
+                # xbmc.executehttpapi("SetGUISetting(1, services.webserver, true)")
+                # dlg.ok('PseudoTV', 'XBMC needs to shutdown in order to apply the', 'changes.')
+                # xbmc.executebuiltin("RestartApp()")
+                # shouldrestart = True
+    
+    if shouldrestart == False:
         if REAL_SETTINGS.getSetting("ClearBCT") == "true":
             BCTPath = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'bct')) + '/'
             
@@ -83,16 +83,36 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
                 REAL_SETTINGS.setSetting('ClearLiveArt', "false")
 
                 
-        if REAL_SETTINGS.getSetting("Donor_Enabled") == "true" and REAL_SETTINGS.getSetting("Donor_Update") == "true":   
+        if REAL_SETTINGS.getSetting("Donor_Enabled") == "true" and REAL_SETTINGS.getSetting("Donor_Update") == "true":  
+            un = unzip()
+            UserPass = REAL_SETTINGS.getSetting('Donor_UP')
+            #UserPass = base64.encodestring('%s' % (UserPass)) # Crypt UserPass
+            flename1 = 'Donor.py'
+            flename2 = 'Donor.pyo'
+            flename3 = 'Generic.zip'
+            Path1 = (xbmc.translatePath(os.path.join('special://home/addons/script.pseudotv.live/resources/lib/')))
+            Path2 = (xbmc.translatePath(os.path.join('special://home/addons/script.pseudotv.live-master/resources/lib/')))
+            Path3 = (xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache')) + '/')
+            URL = ('http://'+UserPass+'@ptvl.comeze.com/strms/')
+            urlPath = (URL + flename2)   
+            urlGen = (URL + flename3) 
+            fleGen = (Path3 + flename3) 
+            
             try:
-                UserPass = REAL_SETTINGS.getSetting('Donor_UP')
-                flename1 = 'Donor.py'
-                flename2 = 'Donor.pyo'
-                URL = ('http://'+UserPass+'@ptvl.comeze.com/strms/')
-                Path1 = (xbmc.translatePath(os.path.join('special://home/addons/script.pseudotv.live/resources/lib/')))
-                Path2 = (xbmc.translatePath(os.path.join('special://home/addons/script.pseudotv.live-master/resources/lib/')))
-                urlPath = (URL + flename2)
-                
+                if os.path.exists(Path3 + 'Generic'):
+                    xbmc.log('script.pseudotv.live - Removing Old Generic Folder')
+                    shutil.rmtree(Path3 + 'Generic')
+                xbmc.log('script.pseudotv.live - Downloading Generic.zip')
+                urllib.urlretrieve(urlGen, fleGen)
+                xbmc.log('script.pseudotv.live - Extracting Generic.zip')
+                un.extract(fleGen, Path3)
+                xbmc.log('script.pseudotv.live - Removing Generic.zip')
+                os.remove(fleGen)
+            except:
+                xbmc.log('script.pseudotv.live - Updating Generic.zip - ::EXCEPTION::', xbmc.LOGERROR)
+                pass
+
+            try:
                 if os.path.exists(Path1):
                     flePath1 = (Path1 + flename1)
                 else:
@@ -114,6 +134,7 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
             except:
                 xbmc.executebuiltin('RunScript("' + __cwd__ + '/pseudotv.py' + '")')
                 xbmc.log('script.pseudotv.live - Updating Donor.py - ::EXCEPTION::', xbmc.LOGERROR)
+                pass
         else:
             xbmc.executebuiltin('RunScript("' + __cwd__ + '/pseudotv.py' + '")')
     else:
