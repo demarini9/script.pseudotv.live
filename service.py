@@ -3,14 +3,11 @@ from time import sleep
 import xbmc, xbmcgui, os
 import xbmcaddon
 
-from resources.lib.Globals import *
-
 # get addon info
 REAL_SETTINGS = xbmcaddon.Addon(id='script.pseudotv.live')
 ADDON_INFO = REAL_SETTINGS.getAddonInfo('path')
 __language__  = REAL_SETTINGS.getLocalizedString
-
-image = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'images')) + '/' + 'icon.png'
+image = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'images')) + '/' + 'icon.png'
 
 timer_amounts = {}
 timer_amounts['0'] = 0            

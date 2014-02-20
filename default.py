@@ -123,7 +123,6 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
                 else:
                     flePath2 = (Path2 + flename2)
                 try:
-                    os.remove(flePath1)
                     os.remove(flePath2)
                 except:
                     pass

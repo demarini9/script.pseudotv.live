@@ -117,7 +117,7 @@ BCT_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'bct')) + '/'
 
 SHORT_CLIP_ENUM = [15,30,60,90,120,180,240,300,360,420,460]
 INFOBAR_TIMER = [3,5,10,15,20,25]
-AT_Limit = [25,50,100,250,500,1000, 0]
+AT_Limit = [25,50,100,250,500,1000,0]
 
 GlobalFileLock = FileLock()
 ADDON_SETTINGS = Settings.Settings()

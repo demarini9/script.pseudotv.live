@@ -1637,7 +1637,7 @@ class ChannelList:
                     try:
                         dur = int(duration.group(1))
                     except:
-                        self.log("Json Duration Failed, defaulting to 0")
+                        self.log("Json Duration Failed, Trying Runtime")
                         dur = 0
 
                     # As a last resort (since it's not as accurate), use runtime
@@ -1647,7 +1647,7 @@ class ChannelList:
                         try:
                             dur = int(duration.group(1))
                         except:
-                            self.log("Json Duration Failed, defaulting to 0")
+                            self.log("Json Runtime Failed, defaulting to 0")
                             dur = 0
 
                     # If duration doesn't exist, try to figure it out

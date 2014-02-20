@@ -193,6 +193,7 @@ def log(msg):
 
 
 def get_playable_url(source, raw_url):
+    print source
     if source == 'apple.com':
         raw_url = '%s' % raw_url
     elif source == 'youtube.com':
@@ -202,8 +203,8 @@ def get_playable_url(source, raw_url):
             'plugin://plugin.video.youtube/'
             '?action=play_video&videoid=%s' % video_id
         )
-    elif source == 'yahoo-redir':
-        import re
-        vid, res = re.search('id=(.+)&resolution=(.+)', raw_url).groups()
-        raw_url = get_yahoo_url(vid, res)
+##    elif source == 'yahoo-redir':
+##        import re
+##        vid, res = re.search('id=(.+)&resolution=(.+)', raw_url).groups()
+##        raw_url = get_yahoo_url(vid, res)
     return raw_url

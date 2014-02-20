@@ -1311,8 +1311,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
 
     def playerTimerAction(self):
         self.playerTimer = threading.Timer(2.0, self.playerTimerAction)    
-        chtypes = (ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
-        chtype = int(chtypes)
+        chtype = (ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
 
         if self.Player.isPlaying():
             self.lastPlayTime = int(self.Player.getTime())
