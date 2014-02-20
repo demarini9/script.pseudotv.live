@@ -35,26 +35,25 @@ __cwd__        = __settings__.getAddonInfo('path')
 if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
     xbmcgui.Window(10000).setProperty("PseudoTVRunning", "True")
     shouldrestart = False
-    
-    # Not Compatible with Frodo+, No json alternative.
-    # if xbmc.executehttpapi("GetGuiSetting(1, services.webserver)")[4:] == "False":
-        # try:
-            # forcedserver = __settings__.getSetting("ForcedWebServer") == "True"
-        # except:
-            # forcedserver = False
 
-        # if forcedserver == False:
-            # dlg = xbmcgui.Dialog()
-            # retval = dlg.yesno('PseudoTV', 'PseudoTV will run more efficiently with the web', 'server enabled.  Would you like to turn it on?')
-            # __settings__.setSetting("ForcedWebServer", "True")
-    
-            # if retval:
-                # xbmc.executehttpapi("SetGUISetting(3, services.webserverport, 8152)")
-                # xbmc.executehttpapi("SetGUISetting(1, services.webserver, true)")
-                # dlg.ok('PseudoTV', 'XBMC needs to shutdown in order to apply the', 'changes.')
-                # xbmc.executebuiltin("RestartApp()")
-                # shouldrestart = True
-    
+#    if xbmc.executehttpapi("GetGuiSetting(1, services.webserver)")[4:] == "False":
+#        try:
+#            forcedserver = __settings__.getSetting("ForcedWebServer") == "True"
+#        except:
+#            forcedserver = False
+
+#        if forcedserver == False:
+#            dlg = xbmcgui.Dialog()
+#            retval = dlg.yesno('PseudoTV', 'PseudoTV will run more efficiently with the web', 'server enabled.  Would you like to turn it on?')
+#            __settings__.setSetting("ForcedWebServer", "True")
+
+#            if retval:
+#                xbmc.executehttpapi("SetGUISetting(3, services.webserverport, 8152)")
+#                xbmc.executehttpapi("SetGUISetting(1, services.webserver, true)")
+#                dlg.ok('PseudoTV', 'XBMC needs to shutdown in order to apply the', 'changes.')
+#                xbmc.executebuiltin("RestartApp()")
+#                shouldrestart = True
+
     if shouldrestart == False:
         if REAL_SETTINGS.getSetting("ClearBCT") == "true":
             BCTPath = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'bct')) + '/'
@@ -136,5 +135,5 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
                 pass
         else:
             xbmc.executebuiltin('RunScript("' + __cwd__ + '/pseudotv.py' + '")')
-    else:
-        xbmc.log('script.pseudotv.live - Already running, exiting', xbmc.LOGERROR)
+else:
+    xbmc.log('script.pseudotv.live - Already running, exiting', xbmc.LOGERROR)
