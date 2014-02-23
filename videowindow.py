@@ -108,7 +108,7 @@ if install:
     
     if copy:
         xbmc.log('script.pseudotv.live-VideoWindow, Copied')
-        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patched!", 4000, thumb) )
+        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patched!\nXBMC Restart Required"", 4000, thumb) )
     else:
         xbmc.log('script.pseudotv.live-VideoWindow, Copy Failed')
         xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patch Error!", 4000, thumb) )
