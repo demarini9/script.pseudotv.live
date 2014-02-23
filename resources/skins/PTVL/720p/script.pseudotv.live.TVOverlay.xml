@@ -45,14 +45,14 @@
                 <posx>-15</posx>
                 <posy>530</posy>
                 <control type="image">
-                    <texture fallback="fanart.png">$INFO[Player.Art(fanart)]</texture>
+                    <texture fallback="landscape.png">$INFO[Player.Art(landscape)]</texture>
                     <width>300</width>
                     <height>125</height>
                     <align>center</align>
                     <aspectratio>keep</aspectratio>
                 </control>
                 <control type="image">
-                    <texture>$INFO[Player.Art(tvshow.fanart)]</texture>
+                    <texture>$INFO[Player.Art(tvshow.landscape)]</texture>
                     <width>300</width>
                     <height>125</height>
                     <align>center</align>
@@ -60,7 +60,7 @@
                 </control>
                 <control type="button" id="507">
                     <description>Dynamic art</description>
-                    <label>fanart</label>
+                    <label>landscape</label>
                     <visible>false</visible>
                 </control>
                 <control type="image" id="508">
@@ -84,6 +84,7 @@
                 <height>62</height>
                 <align>center</align>
                 <aspectratio>keep</aspectratio>
+                <visible>false</visible>
             </control>              
             <control type="image" id="511">
                 <description>Sickbeard/Couchpotato Icon</description>   
