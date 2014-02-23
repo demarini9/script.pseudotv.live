@@ -1,6 +1,8 @@
 <window>
     <allowoverlay>no</allowoverlay>   
-    <onload condition="System.HasAddon(script.tv.show.next.aired)">RunScript(script.tv.show.next.aired,backend=True)</onload>
+    <onload>ActivateWindow(9506)</onload>
+    <onunload>ActivateWindow(12005)</onunload>
+    <!-- <onload condition="System.HasAddon(script.tv.show.next.aired)">RunScript(script.tv.show.next.aired,backend=True)</onload> -->
     <onload condition="System.HasAddon(script.extendedinfo)">RunScript(script.extendedinfo,info=trendingshows)</onload>
     <coordinates>
         <system>1</system>
@@ -45,14 +47,6 @@
             <texture>pstvlBackground1.png</texture>
             <colordiffuse>FFFFFFFF</colordiffuse>
         </control>       
-<!--         <control type="videowindow">
-            <description>video</description>
-            <posx>50</posx>
-            <posy>85</posy>
-            <width>516</width>
-            <height>290</height>
-            <aspectratio>stretch</aspectratio>
-        </control> -->
 <!--         <control type="image">
             <description>Channel Background</description>
             <posx>0</posx>
@@ -61,29 +55,7 @@
             <height>720</height>
         </control> -->
         <!-- Today Nextaired -->
-        <control type="label">
-            <posx>0</posx>
-            <posy>10</posy>
-            <align>center</align>
-            <width min="55" max="300">auto</width>
-            <height>10</height>
-            <animation effect="slide" end="285,0" time="500">WindowOpen</animation>
-            <label>$INFO[Window(Home).Property(NextAired.1.Label)]</label>
-            <textcolor>C0C0C0C0</textcolor>
-            <fadetime>500</fadetime>
-        </control> 
-        <control type="label">
-            <posx>0</posx>
-            <posy>160</posy>
-            <align>center</align>
-            <width min="55" max="300">auto</width>
-            <height>10</height>
-            <animation effect="slide" end="285,0" time="500">WindowOpen</animation>
-            <label>$INFO[Window(Home).Property(NextAired.1.Airtime)]</label>
-            <textcolor>C0C0C0C0</textcolor>
-            <fadetime>500</fadetime>
-        </control> 
-        <control type="image">
+        <!-- <control type="image">
             <posx>0</posx>
             <posy>31</posy>
             <width>300</width>
@@ -91,11 +63,53 @@
             <align>center</align>
             <aspectratio>keep</aspectratio>
             <animation effect="slide" end="285,0" time="500">WindowOpen</animation>
-            <texture fallback="landscape.png">$INFO[Window(Home).Property(NextAired.1.Art(landscape)]</texture>
-            <fadetime>500</fadetime>
+            <visible>!IsEmpty(Window(Home).Property(NextAired.1.Label))</visible>
+            <texture fallback="landscape.png">$INFO[Window(Home).Property(NextAired.1.Art(landscape)]</texture> -->
+            <!-- <aspectratio align="center">keep</aspectratio>
+            <bordertexture border="7">thumbs/thumbshadow.png</bordertexture>
+            <bordersize>7</bordersize>
+            <visible>!IsEmpty(Window(Home).property(TVGuide.PreviewThumbs))</visible> -->
+            <!-- <fadetime>500</fadetime>
         </control>
-        <!-- ######### -->
+        <control type="image">
+            <posx>0</posx>
+            <posy>31</posy>
+            <align>center</align>
+            <width>220</width>
+            <height>16</height>
+            <animation effect="slide" end="285,0" time="500">WindowOpen</animation>
+            <texture>pstvlButtonNoFocus.png</texture>
+            <textcolor>C0C0C0C0</textcolor>
+            <visible>!IsEmpty(Window(Home).Property(NextAired.1.Label))</visible>
+            <fadetime>500</fadetime>
+        </control>  -->
+       <!--  <control type="label">
+            <posx>0</posx>
+            <posy>35</posy>
+            <align>center</align>
+            <width>300</width>
+            <height>10</height>
+            <animation effect="slide" end="285,0" time="500">WindowOpen</animation>
+            <label>$INFO[Window(Home).Property(NextAired.1.Label)]</label>
+            <textcolor>C0C0C0C0</textcolor>
+            <visible>!IsEmpty(Window(Home).Property(NextAired.1.Label))</visible>
+            <fadetime>500</fadetime>
+        </control> 
         <control type="label">
+            <posx>0</posx>
+            <posy>150</posy>
+            <align>center</align>
+            <width min="55" max="300">auto</width>
+            <height>10</height>
+            <animation effect="slide" end="285,0" time="500">WindowOpen</animation>
+            <label>$INFO[Window(Home).Property(NextAired.1.Airtime)]</label>
+            <visible>!IsEmpty(Window(Home).Property(NextAired.1.Label))</visible>
+            <texture border="8">listselect_fo.png</texture>
+            <textcolor>C0C0C0C0</textcolor>
+            <fadetime>500</fadetime>
+        </control>  -->
+        <!-- ######### -->
+       <!--  <control type="label">
             <posx>0</posx>
             <posy>10</posy>
             <height>10</height>
@@ -127,9 +141,9 @@
             <animation effect="slide" end="620,0" time="1000">WindowOpen</animation>
             <texture fallback="landscape.png">$INFO[Window(Home).Property(NextAired.2.Art(landscape)]</texture>
             <fadetime>1000</fadetime>
-        </control>
+        </control> -->
         <!-- ######### -->
-        <control type="label">
+        <!-- <control type="label">
             <posx>0</posx>
             <posy>10</posy>
             <align>center</align>
@@ -148,9 +162,9 @@
             <align>center</align>
             <width min="55" max="300">auto</width>
             <fadetime>1500</fadetime>
-            <animation effect="slide" end="990,0" time="1500">WindowOpen</animation>
+            <animation effect="slide" end="990,0" time="1500">WindowOpen</animation> -->
             <!-- <shadowcolor>7fffffff</shadowcolor> -->
-            <label>$INFO[Window(Home).Property(NextAired.3.Airtime)]</label>
+            <!-- <label>$INFO[Window(Home).Property(NextAired.3.Airtime)]</label>
             <textcolor>C0C0C0C0</textcolor>
             <autoscroll delay="3000" time="1000" repeat="10000">!Control.HasFocus(13)</autoscroll>
         </control> 
@@ -171,7 +185,7 @@
             <posy>0</posy>
             <width>274</width>
             <height>720</height>
-        </control>
+        </control> -->
         <!-- Trending -->  
          <control type="group"> 
             <control type="label">
@@ -188,6 +202,7 @@
                 <animation type="Hidden" reversible="false">
                     <effect type="fade" start="1000" end="0" time="1000" tween="sine" easing="inout" />
                 </animation>
+                <visible>StringCompare(Control.GetLabel(523),)</visible>
             </control>
             <control type="image">
                 <posx>-15</posx>
@@ -202,7 +217,43 @@
                 <animation type="Hidden" reversible="false">
                     <effect type="fade" start="1000" end="0" time="500" tween="sine" easing="inout" />
                 </animation>
+                <visible>StringCompare(Control.GetLabel(523),)</visible>
             </control> 
+            <!-- Label for trending text -->
+            <control type="label">
+                <posx>-15</posx>
+                <posy>160</posy>
+                <align>center</align>
+                <width min="55" max="300">auto</width>
+                <height>10</height>
+                <fadetime>250</fadetime>
+                <textcolor>C0C0C0C0</textcolor>
+                <label>Trending Now</label>
+                <visible>StringCompare(Control.GetLabel(523),)</visible>
+            </control>
+            <!-- Label for videowindow text -->
+            <control type="label" id="523">           
+                <posx>-15</posx>
+                <posy>160</posy>
+                <align>center</align>
+                <width min="55" max="300">auto</width>
+                <height>10</height>
+                <fadetime>250</fadetime>
+                <textcolor>C0C0C0C0</textcolor>
+            </control>
+            <!-- #### Skinners Include Everything for videowindow patch to work #### -->
+            <!-- PATCH START --> <!-- 
+            <control type="videowindow">
+                <description>video</description>
+                <posx>-15</posx>
+                <posy>31</posy>
+                <width>300</width>
+                <height>125</height>
+                <aspectratio>stretch</aspectratio>
+            </control>
+            --> <!-- PATCH END -->
+            <!-- ################################################################## -->
+        </control>       
            <!--  <control type="label">
                 <posx>-15</posx>
                 <posy>5</posy>
@@ -347,18 +398,7 @@
                 <animation type="Hidden" reversible="false">
                     <effect type="fade" start="1000" end="0" time="300" tween="sine" easing="inout" />
                 </animation>
-            </control>   -->
-            <control type="label">
-                <posx>-15</posx>
-                <posy>160</posy>
-                <align>center</align>
-                <width min="55" max="300">auto</width>
-                <height>10</height>
-                <fadetime>250</fadetime>
-                <textcolor>C0C0C0C0</textcolor>
-                <label>Trending Now</label>
-            </control>
-        </control>        
+            </control>   --> 
         <!--Date-->
 		<control type="label" id="104">
             <description>Date Label</description>
@@ -466,23 +506,7 @@
                 <colordiffuse>FFFFFFFF</colordiffuse>
                 <texture>pstvlButtonNoFocus.png</texture>
             </control>
-        </control>
-        <control type="button" id="509">
-            <description>Dynamic art</description>
-            <label>logo</label>
-            <visible>false</visible>
-        </control>
-        <control type="image" id="510">
-            <description>Dynamic art</description>
-            <colordiffuse>FFFFFFFF</colordiffuse>
-            <posx>0</posx>
-            <posy>545</posy>
-            <width>300</width>
-            <height>150</height>
-            <align>center</align>
-            <aspectratio>keep</aspectratio>
-            <visible>false</visible>
-        </control>            
+        </control> 
         <control type="grouplist">
             <posx>285</posx>
             <posy>525</posy>
@@ -881,8 +905,24 @@
                 <height>125</height>
                 <align>center</align>
                 <aspectratio>keep</aspectratio>
-            </control>
-        </control>        
+            </control>  
+        </control>    
+        <control type="button" id="509">
+            <description>Dynamic art</description>
+            <label>logo</label>
+            <visible>false</visible>
+        </control>    
+        <control type="image" id="510">
+            <description>Dynamic art</description>
+            <colordiffuse>FFFFFFFF</colordiffuse>
+            <posx>58</posx>
+            <posy>565</posy>
+            <width>150</width>
+            <height>62</height>
+            <align>center</align>
+            <aspectratio>keep</aspectratio>
+            <visible>false</visible>
+        </control> 
         <control type="image" id="511">
             <description>Sickbeard/Couchpotato Icon</description>   
             <posx>221</posx>

@@ -23,7 +23,6 @@ import datetime
 import sys, re
 import random, traceback
 import urllib
-import urllib2
 import fanarttv
 
 from fanarttv import *
@@ -35,7 +34,6 @@ from ChannelList import ChannelList
 from ChannelListThread import ChannelListThread
 from FileAccess import FileLock, FileAccess
 from Migrate import Migrate
-from xml.etree import ElementTree as ET
 from Downloader import *
 
 
@@ -110,7 +108,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         InfoTimer = INFOBAR_TIMER[int(REAL_SETTINGS.getSetting('InfoTimer'))]
         self.log("InfoTimer = " + str(InfoTimer))
 
-        for i in range(3):     
+        for i in range(3):
             self.channelLabel.append(xbmcgui.ControlImage(50 + (50 * i), 50, 50, 50, IMAGES_LOC + 'solid.png', colorDiffuse = self.channelbugcolor))
             self.addControl(self.channelLabel[i])
             self.channelLabel[i].setVisible(False)

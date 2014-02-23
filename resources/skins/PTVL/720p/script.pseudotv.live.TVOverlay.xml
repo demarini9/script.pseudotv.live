@@ -39,35 +39,20 @@
                 <width>1280</width>
                 <height>720</height>
                 <texture>pstvlBackground2.png</texture>
-            </control>      
-            <control type="button" id="509">
-                <description>Dynamic art</description>
-                <label>logo</label>
-                <visible>false</visible>
-            </control>
-            <control type="image" id="510">
-                <posx>1120</posx>
-                <posy>500</posy>
-                <description>Dynamic art</description>
-                <width>150</width>
-                <height>185</height>
-                <align>right</align>
-                <aligny>center</aligny>
-                <aspectratio>keep</aspectratio>
-            </control>   
+            </control>       
             <control type="group">
             <!-- landscape Window --> 
                 <posx>-15</posx>
                 <posy>530</posy>
                 <control type="image">
-                    <texture fallback="landscape.png">$INFO[Player.Art(landscape)]</texture>
+                    <texture fallback="fanart.png">$INFO[Player.Art(fanart)]</texture>
                     <width>300</width>
                     <height>125</height>
                     <align>center</align>
                     <aspectratio>keep</aspectratio>
                 </control>
                 <control type="image">
-                    <texture>$INFO[Player.Art(tvshow.landscape)]</texture>
+                    <texture>$INFO[Player.Art(tvshow.fanart)]</texture>
                     <width>300</width>
                     <height>125</height>
                     <align>center</align>
@@ -75,7 +60,7 @@
                 </control>
                 <control type="button" id="507">
                     <description>Dynamic art</description>
-                    <label>landscape</label>
+                    <label>fanart</label>
                     <visible>false</visible>
                 </control>
                 <control type="image" id="508">
@@ -85,7 +70,21 @@
                     <align>center</align>
                     <aspectratio>keep</aspectratio>
                 </control> 
-            </control>        
+            </control>
+            <control type="button" id="509">
+                <description>Dynamic art</description>
+                <label>logo</label>
+                <visible>false</visible>
+            </control>
+            <control type="image" id="510">
+                <description>Dynamic art</description>
+                <posx>58</posx>
+                <posy>575</posy>
+                <width>150</width>
+                <height>62</height>
+                <align>center</align>
+                <aspectratio>keep</aspectratio>
+            </control>              
             <control type="image" id="511">
                 <description>Sickbeard/Couchpotato Icon</description>   
                 <posx>221</posx>

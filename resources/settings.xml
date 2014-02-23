@@ -28,6 +28,7 @@
         <setting id="ColorEPG" type="bool" label="30214" default="true"/>
         <setting id="HideClips" type="bool" label="30215" default="true"/>
     	<setting id="ClipLength" type="enum" subsetting="true" label="30216" visible="eq(-1,true)" values="15|30|60|90|120|180|240|300|360|420|460" default="5"/>
+    	<setting type="action" label="30217" action="RunScript($CWD/videowindow.py)"/>
     <setting label="30220" type="lsep"/>
         <setting id="InfoOnChange" type="bool" label="30221" default="true"/>
         <setting id="InfoTimer" subsetting="true" visible="eq(-1,true)" type="enum" label="30222" values="3|5|10|15|20|25" default="1"/>
@@ -132,7 +133,7 @@
     <category label="30900">
         <setting id="Donor_Enabled" label="30901" type="bool" default="false"/>
         <setting id="Donor_UP" subsetting="true" label="30902" visible="eq(-1,true)" type="text" default="User:Password" />    
-        <setting id="Donor_Update" subsetting="true"  visible="eq(-2,true)" label="30904" type="bool" default="false"/>
+    	<setting type="action" subsetting="true" label="30904" visible="eq(-2,true)" action="RunScript($CWD/donordownload.py)"/>
         <setting label="30903" visible="eq(-2,true)" type="lsep" default="" /> 
         <setting label="30990" type="lsep"/>
         <setting id="Override_ok" type="bool" label="30991" default="false"/>

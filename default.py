@@ -18,10 +18,7 @@
 
 import os, sys, re, shutil
 import xbmc, xbmcgui, xbmcaddon
-import urllib 
-
 from resources.lib.Globals import *
-from resources.lib.unzip import *
 
 # Script constants
 __scriptname__ = "PseudoTV Live"
@@ -55,9 +52,11 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
 #                shouldrestart = True
 
     if shouldrestart == False:
+        BCTPath = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'bct')) + '/'
+        ARTPath = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'artwork')) + '/'
+        
+        # Clear BCT Folder
         if REAL_SETTINGS.getSetting("ClearBCT") == "true":
-            BCTPath = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'bct')) + '/'
-            
             if os.path.exists(BCTPath):
                 try:
                     shutil.rmtree(BCTPath)
@@ -67,10 +66,9 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
                     pass
             else:
                 REAL_SETTINGS.setSetting('ClearBCT', "false")
-    
+        
+        # Clear Live Artwork Folder
         if REAL_SETTINGS.getSetting("ClearLiveArt") == "true":
-            ARTPath = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'artwork')) + '/'
-            
             if os.path.exists(ARTPath):
                 try:
                     shutil.rmtree(ARTPath)
@@ -80,60 +78,8 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
                     pass
             else:
                 REAL_SETTINGS.setSetting('ClearLiveArt', "false")
-
-                
-        if REAL_SETTINGS.getSetting("Donor_Enabled") == "true" and REAL_SETTINGS.getSetting("Donor_Update") == "true":  
-            un = unzip()
-            UserPass = REAL_SETTINGS.getSetting('Donor_UP')
-            #UserPass = base64.encodestring('%s' % (UserPass)) # Crypt UserPass
-            flename1 = 'Donor.py'
-            flename2 = 'Donor.pyo'
-            flename3 = 'Generic.zip'
-            Path1 = (xbmc.translatePath(os.path.join('special://home/addons/script.pseudotv.live/resources/lib/')))
-            Path2 = (xbmc.translatePath(os.path.join('special://home/addons/script.pseudotv.live-master/resources/lib/')))
-            Path3 = (xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache')) + '/')
-            URL = ('http://'+UserPass+'@ptvl.comeze.com/strms/')
-            urlPath = (URL + flename2)   
-            urlGen = (URL + flename3) 
-            fleGen = (Path3 + flename3) 
-            
-            try:
-                if os.path.exists(Path3 + 'Generic'):
-                    xbmc.log('script.pseudotv.live - Removing Old Generic Folder')
-                    shutil.rmtree(Path3 + 'Generic')
-                xbmc.log('script.pseudotv.live - Downloading Generic.zip')
-                urllib.urlretrieve(urlGen, fleGen)
-                xbmc.log('script.pseudotv.live - Extracting Generic.zip')
-                un.extract(fleGen, Path3)
-                xbmc.log('script.pseudotv.live - Removing Generic.zip')
-                os.remove(fleGen)
-            except:
-                xbmc.log('script.pseudotv.live - Updating Generic.zip - ::EXCEPTION::', xbmc.LOGERROR)
-                pass
-
-            try:
-                if os.path.exists(Path1):
-                    flePath1 = (Path1 + flename1)
-                else:
-                    flePath1 = (Path2 + flename1)
-                
-                if os.path.exists(Path1):
-                    flePath2 = (Path1 + flename2)
-                else:
-                    flePath2 = (Path2 + flename2)
-                try:
-                    os.remove(flePath2)
-                except:
-                    pass
-                urllib.urlretrieve(urlPath, flePath2)
-                xbmc.log('script.pseudotv.live - Updating Donor.pyo')
-                REAL_SETTINGS.setSetting('Donor_Update', "false")
-                xbmc.executebuiltin('RunScript("' + __cwd__ + '/pseudotv.py' + '")')
-            except:
-                xbmc.executebuiltin('RunScript("' + __cwd__ + '/pseudotv.py' + '")')
-                xbmc.log('script.pseudotv.live - Updating Donor.py - ::EXCEPTION::', xbmc.LOGERROR)
-                pass
-        else:
-            xbmc.executebuiltin('RunScript("' + __cwd__ + '/pseudotv.py' + '")')
+        
+        # Launch PTVL
+        xbmc.executebuiltin('RunScript("' + __cwd__ + '/pseudotv.py' + '")')
 else:
     xbmc.log('script.pseudotv.live - Already running, exiting', xbmc.LOGERROR)

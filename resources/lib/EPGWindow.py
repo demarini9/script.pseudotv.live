@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PseudoTV.  If not, see <http://www.gnu.org/licenses/>.
 
-import xbmc, xbmcgui, xbmcaddon
+import xbmc, xbmcgui, xbmcaddon, xbmcvfs
 import subprocess, os
 import time, threading
 import datetime, traceback
@@ -836,6 +836,17 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         else:
             self.apis = False
         
+        #Check if VideoWindow Patch found, change label.
+        skin = ('special://skin')
+        fle = 'Custom_PTVL_9506.xml'
+        if xbmcvfs.exists(os.path.join(skin ,'1080i')):
+            skinPath = (os.path.join(skin ,'1080i', fle))
+        else:
+            skinPath = (os.path.join(skin ,'720p', fle))
+            
+        if xbmcvfs.exists(skinPath):
+                self.getControl(523).setLabel('NOW WATCHING:')
+
         if REAL_SETTINGS.getSetting("art.enable") == "true" or REAL_SETTINGS.getSetting("Live.art.enable") == "true":        
             
             if self.infoOffset > 0:

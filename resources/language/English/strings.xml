@@ -1,7 +1,7 @@
 <strings>
 <string id="30000">General</string>
     <string id="30001">Configure Channels</string>
-    <string id="30002">Open Channel Configuration</string>
+    <string id="30002">Open Channel Configuration</string>    
     <string id="30003">Settings:</string>
         <string id="30044">Enable Autostart</string>
         <string id="30045">Delay Service (seconds)</string>
@@ -20,13 +20,14 @@
     <string id="30201">Enable Dynamic Artwork</string>
     <string id="30202">Select Skin</string>
     <string id="30203">Use Selected Skins Channel Logos</string>   
-    <string id="30210">EPG:</string>
+    <string id="30210">EPG:</string> 
         <string id="30211">EPG Clock Mode</string>
         <string id="30212">EPG Color by</string>
         <string id="30213">Include Movie Genres</string>
         <string id="30214">Color EPG channel logo</string>
         <string id="30215">Hide very short videos</string>
         <string id="30216">Duration of "short" videos</string>  
+        <string id="30217">Patch Skin, Enable EPG VideoWindow</string>  
     <string id="30220">Overlay:</string>
         <string id="30221">Show info when changing channels</string>
         <string id="30222">Info window duration (seconds)</string>   
