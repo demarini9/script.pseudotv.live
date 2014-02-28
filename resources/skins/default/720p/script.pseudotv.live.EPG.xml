@@ -1,5 +1,7 @@
 <window>
     <allowoverlay>no</allowoverlay>
+    <onload>ActivateWindow(9506)</onload>
+    <onunload>ActivateWindow(12005)</onunload>
     <coordinates>
         <system>1</system>
         <posx>0</posx>
@@ -92,6 +94,16 @@
                 <align>center</align>
                 <aspectratio>keep</aspectratio>
             </control>
+            <!-- #### Skinners Include Everything for videowindow patch to work #### -->
+            <!-- PATCH START --> <!-- 
+            <control type="videowindow">
+                <description>video</description>
+                <width>285</width>
+                <height>125</height>
+                <aspectratio>stretch</aspectratio>
+            </control>
+            --> <!-- PATCH END -->
+            <!-- ################################################################## -->
         </control>
         <control type="image" id="512">
             <description>Unaired NEW Icon</description>            

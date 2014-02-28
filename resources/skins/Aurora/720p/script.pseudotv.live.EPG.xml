@@ -1,4 +1,6 @@
 		<window>
+            <onload>ActivateWindow(9506)</onload>
+            <onunload>ActivateWindow(12005)</onunload>
     		<allowoverlay>no</allowoverlay>
     		<coordinates>
         	<system>1</system>
@@ -44,7 +46,7 @@
 		<control type="image" id="1">
 			<posx>0</posx>
 			<posy>61</posy>
-			<width>1280</width>
+			<width>1480</width>
 			<texture background="true">osd_menus_overlay.png</texture>
 			<include>BackgroundFade</include>
 			<fadetime>FanartCrossfadeTime</fadetime>
@@ -202,7 +204,19 @@
             <aspectratio>keep</aspectratio>
 			<visible>false</visible>
         </control>
-        </control>       
+        </control> 
+            <!-- #### Skinners Include Everything for videowindow patch to work #### -->
+            <!-- PATCH START --> <!-- 
+        <control type="videowindow">
+            <description>video</description>
+            <posx>845</posx>
+            <posy>475</posy>
+            <width>300</width>
+            <height>125</height>
+            <aspectratio>stretch</aspectratio>
+        </control>
+            --> <!-- PATCH END -->
+            <!-- ################################################################## -->      
         <control type="image" id="512">
             <description>Unaired NEW Icon</description>         
             <posx>841</posx>
