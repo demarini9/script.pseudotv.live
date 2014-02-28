@@ -622,7 +622,7 @@ class Migrate:
             AT_PopRes = ['480','720','1080']
             ATPopRes = AT_PopRes[int(Globals.REAL_SETTINGS.getSetting('autoFindPopcornResoultion'))]    
               
-            if REAL_SETTINGS.getSetting('autoFindPopcornPop') == "true":
+            if Globals.REAL_SETTINGS.getSetting('autoFindPopcornPop') == "true":
                 ATPopCat = 'pop|' + ATPopCat
             
             for i in range(1):
