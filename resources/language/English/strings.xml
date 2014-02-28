@@ -55,9 +55,11 @@
     <string id="30802">Record Folder</string>
     <string id="30070">AutoTune</string>
         <string id="30071">Enable Autotune</string>
-        <string id="30072">Warning!! this will delete your current channel configuration, are you sure?</string>
+        <string id="30072">Warning!! this will delete your current channel configuration</string>
         <string id="30073">LiveTV:</string>
             <string id="30075">Find PVR Backend</string>
+            <string id="30097">Find Hdhomerun Strms</string>
+            <string id="30098">Hdhomerun Strm Folder</string>
             <string id="30074">Find USTVNOW (Free Only!)</string>
             <string id="30076">TV/Movie:</string>
                 <string id="30077">Find Custom Playlist</string>
@@ -74,9 +76,14 @@
                     <string id="30086">Find Music Videos using VevoTV (US Only)</string>
                     <string id="30089">Find Music Videos using Local Directory</string>
                     <string id="30090">InternetTV:</string>  
-                        <string id="30091">Build Examples and plugin Channels*</string>
-                        <string id="30099">Restore Pre-Autotune Configuration (Coming Soon)</string>
-                        <string id="30100">Warning!! this will delete the current channels</string>
+                        <string id="30091">Plug-in Channels*</string>
+                        <string id="30092">BringThePopcorn Movies*</string>
+                        <string id="30093">Select Genre</string>
+                        <string id="30094">Select Year</string>
+                        <string id="30095">Select Resolution</string>
+                        <string id="30096">Filter by Popularity</string>
+                            <string id="30099">Restore Pre-Autotune Configuration</string>
+                            <string id="30100">Warning!! This will restore a previous channel configuration</string>
 <string id="30499">BCTs</string> 
     <string id="30500">(B)umpers:</string> 
         <string id="30501">Enable Bumpers</string>
@@ -85,10 +92,10 @@
         <string id="30510">(C)ommercials:</string> 
             <string id="30511">Enable Commercials</string>
             <string id="30512">Select Commercials Folder</string>
-            <string id="30513">Enable Advertolog.com (Donor Exclusive)</string>
+            <string id="30513">Enable Advertolog.com*</string>
             <string id="30514">Advertolog Configuration</string>
             <string id="30515">Preferred Internet Commercial Resolution</string>
-            <string id="30516">Enable iSpot.tv (Donor Exclusive), Select Type</string>
+            <string id="30516">Enable iSpot.tv*, Select Type</string>
             <string id="30517">Youtube Configuration</string>
             <string id="30518">Number of Commercials Between Shows</string>
             <string id="30520">(T)railers:</string> 
@@ -97,7 +104,7 @@
                 <string id="30523">Match Trailer Genre to Genre Channels</string>
                 <string id="30524">Enable Trailers in Movie Channels</string>
                 <string id="30525">Preferred Internet Trailer Resolution</string>
-                <string id="30527">Enable HD-Trailers.net (Donor Exclusive), Select Type</string>
+                <string id="30527">Enable HD-Trailers.net*, Select Type</string>
                 <string id="30528">HD-Trailers.net Movie Title Limit</string>
                 <string id="30530">Number of Trailers Between Shows</string>
 <string id="30700">APIs</string>
@@ -117,7 +124,7 @@
     <string id="30901">Enable Donor Features</string>
     <string id="30902">Username:Password</string>
     <string id="30904">Activate/Update Donor Features</string>
-    <string id="30903">* = Enhanced Content, Thanks for your support!</string>
+    <string id="30903">* = Donor Exclusive, Thank you for your support!</string>
     <string id="30990">DEBUGGING: (Use with Caution!)</string>
     <string id="30991">Override Stream Validation</string>
     <string id="30994">Plugin Validation Level</string>

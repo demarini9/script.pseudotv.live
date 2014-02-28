@@ -32,7 +32,7 @@ from resources.lib.unzip import *
 print "script.pseudotv.live-PseudoTV Live, Donor Download Started"
 
 mediaPath =  xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
-thumb = (mediaPath + 'guide.png')
+thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
 dlg = xbmcgui.Dialog()
 un = unzip()
 UserPass = REAL_SETTINGS.getSetting('Donor_UP')

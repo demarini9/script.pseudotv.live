@@ -52,10 +52,11 @@ from couchpotato import *
 from tvdb import *
 from tmdb import *
 
-try:
-    from Donor import *
-except:
-    pass
+if REAL_SETTINGS.getSetting("Donor_Enabled") == "true":
+    try:
+        from Donor import *
+    except:
+        pass
 
 class ChannelList:
     def __init__(self):
@@ -82,7 +83,7 @@ class ChannelList:
         self.cached_json_detailed_trailers = []
         
         try:
-            self.Donor = Donor()
+            self.Donor = Donor
         except:
             pass
 
@@ -200,7 +201,7 @@ class ChannelList:
                 if FileAccess.exists(xbmc.translatePath(chsetting1)):
                     self.maxChannels = i + 1
                     self.enteredChannelCount += 1
-            elif chtype <= 13:
+            elif chtype <= 15:
                 if len(chsetting1) > 0:
                     self.maxChannels = i + 1
                     self.enteredChannelCount += 1
@@ -726,6 +727,10 @@ class ChannelList:
         elif chtype == 13: # LastFM
             self.log("Last.FM " + setting1 + " using type " + setting2 + "...")
             fileList = self.lastFM(setting1, setting2, setting3, channel)   
+        
+        elif chtype == 14: # Extras
+            self.log("Extras, " + setting1 + "...")
+            fileList = self.extras(setting1, setting2, setting3, setting4, channel)   
             
         else:
             if chtype == 0:
@@ -1507,8 +1512,10 @@ class ChannelList:
             LiveID = (LiveID + '|' + DID + '|')
         elif Unaired == True:
             LiveID = (LiveID + '|' + 'NEW' + ',' + str(type) + '|')
-        else:
+        elif Unaired == False:
             LiveID = (LiveID + '|' + 'OLD' + ',' + str(type) + '|')
+        else:
+            LiveID = (LiveID + '|' + 'NA' + ',' + str(type) + '|')
 
         LiveID = LiveID.replace('||','|')
         LiveID = str(LiveID)
@@ -2342,9 +2349,13 @@ class ChannelList:
         showcount = 0   
         limit = 0
         stop = 0
+        safe = ''
         global youtube
         youtube = ''
 
+        if setting4 == '':
+            setting4 = '0'
+        
         if setting3 == '':
             limit = 50
             self.log("createYoutubeFilelist, Using Global Parse-limit " + str(limit))
@@ -2360,26 +2371,48 @@ class ChannelList:
         if self.background == False:
             self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "Parsing Youtube")
         
-        inSet = False
         startIndex = 1
         for x in range(stop):    
             if self.threadPause() == False:
                 del showList[:]
                 break
-
-            if setting2 == '1': #youtubechannel
-                self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", Youtube Channel" + ", Limit = " + str(limit))
+            setting1 = setting1.replace(' ', '+')
+            if setting2 == '1': #youtube user uploads
+                self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", Youtube User Uploads" + ", Limit = " + str(limit))
                 youtubechannel = 'http://gdata.youtube.com/feeds/api/users/' +setting1+ '/uploads?start-index=' +str(startIndex)+ '&max-results=25'
                 youtube = youtubechannel
-            elif setting2 == '2': #youtubeplaylist 
-                self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", Youtube Playlist" + ", Limit = " + str(limit))
+            elif setting2 == '2': #youtube playlist 
+                self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", Youtube Playlists" + ", Limit = " + str(limit))
                 youtubeplaylist = 'https://gdata.youtube.com/feeds/api/playlists/' +setting1+ '?start-index=1'
                 youtube = youtubeplaylist                        
-            elif setting2 == '3': #youtubesubscript 
-                self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", Youtube Subscription" + ", Limit = " + str(limit))
+            elif setting2 == '3': #youtube new subscriptions
+                self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", Youtube New Subscription" + ", Limit = " + str(limit))
                 youtubesubscript = 'http://gdata.youtube.com/feeds/api/users/' +setting1+ '/newsubscriptionvideos?start-index=' +str(startIndex)+ '&max-results=25'
-                youtube = youtubesubscript      
-            
+                youtube = youtubesubscript                  
+            elif setting2 == '4': #youtube favorites
+                self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", Youtube favorites" + ", Limit = " + str(limit))
+                youtubefavorites = 'https://gdata.youtube.com/feeds/api/users/' +setting1+ '/favorites?start-index=' +str(startIndex)+ '&max-results=25'
+                youtube = youtubefavorites      
+            elif setting2 == '5': #youtube search: User
+                self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", Youtube Search" + ", Limit = " + str(limit))
+                try:
+                    safe = setting1.split('|')[0]
+                    setting1 = setting1.split('|')[1]
+                except:
+                    safe = 'none'
+                youtubesearchVideo = 'https://gdata.youtube.com/feeds/api/videos?q=' +setting1+ '&start-index=' +str(startIndex)+ '&max-results=25&safeSearch=' +safe+ '&v=2'
+                youtube = youtubesearchVideo    
+            # elif setting2 == '6': #youtube search: Channel
+                # self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", Youtube Search" + ", Limit = " + str(limit))
+                # SSearch = setting1.split('|')[0]
+                # if 'SSearch' in SSearch:
+                    # safe = 'strict'
+                    # setting1 = setting1.split('|')[1]
+                # else:
+                    # safe = 'none'
+                # youtubesearchChannel = 'https://gdata.youtube.com/feeds/api/channels?q=' +setting1+ '&start-index=' +str(startIndex)+ '&max-results=25&safeSearch=' +safe+ '&v=2'
+                # youtube = youtubesearchChannel      
+
             feed = feedparser.parse(youtube)
             self.logDebug('createYoutubeFilelist, youtube = ' + str(youtube))                
             startIndex = startIndex + 25
@@ -2387,43 +2420,50 @@ class ChannelList:
             for i in range(len(feed['entries'])):
                 try:
                     showtitle = feed.channel.author_detail['name']
-                    showtitle = showtitle.replace(":", "")
+                    showtitle = showtitle.replace(":", "").replace('YouTube', setting1)
+                    
                     try:
                         genre = (feed.entries[0].tags[1]['term'])
                     except:
                         self.log("createYoutubeFilelist, Invalid genre")
                         genre = 'Youtube'
-                        pass
                     
                     try:
                         thumburl = feed.entries[i].media_thumbnail[0]['url']
                     except:
                         self.log("createYoutubeFilelist, Invalid media_thumbnail")
                         pass 
-        
-                    #Time when the episode was published
-                    time = (feed.entries[i].published_parsed)
-                    time = str(time)
-                    time = time.replace("time.struct_time", "")            
                     
-                    #Some channels release more than one episode daily.  This section converts the mm/dd/hh to season=mm episode=dd+hh
-                    showseason = [word for word in time.split() if word.startswith('tm_mon=')]
-                    showseason = str(showseason)
-                    showseason = showseason.replace("['tm_mon=", "")
-                    showseason = showseason.replace(",']", "")
-                    showepisodenum = [word for word in time.split() if word.startswith('tm_mday=')]
-                    showepisodenum = str(showepisodenum)
-                    showepisodenum = showepisodenum.replace("['tm_mday=", "")
-                    showepisodenum = showepisodenum.replace(",']", "")
-                    showepisodenuma = [word for word in time.split() if word.startswith('tm_hour=')]
-                    showepisodenuma = str(showepisodenuma)
-                    showepisodenuma = showepisodenuma.replace("['tm_hour=", "")
-                    showepisodenuma = showepisodenuma.replace(",']", "")
+                    try:
+                        #Time when the episode was published
+                        time = (feed.entries[i].published_parsed)
+                        time = str(time)
+                        time = time.replace("time.struct_time", "")            
+                        
+                        #Some channels release more than one episode daily.  This section converts the mm/dd/hh to season=mm episode=dd+hh
+                        showseason = [word for word in time.split() if word.startswith('tm_mon=')]
+                        showseason = str(showseason)
+                        showseason = showseason.replace("['tm_mon=", "")
+                        showseason = showseason.replace(",']", "")
+                        showepisodenum = [word for word in time.split() if word.startswith('tm_mday=')]
+                        showepisodenum = str(showepisodenum)
+                        showepisodenum = showepisodenum.replace("['tm_mday=", "")
+                        showepisodenum = showepisodenum.replace(",']", "")
+                        showepisodenuma = [word for word in time.split() if word.startswith('tm_hour=')]
+                        showepisodenuma = str(showepisodenuma)
+                        showepisodenuma = showepisodenuma.replace("['tm_hour=", "")
+                        showepisodenuma = showepisodenuma.replace(",']", "")
+                    except:
+                        pass
                 
-                    eptitle = feed.entries[i].title
-                    eptitle = re.sub('[!@#$/:]', '', eptitle)
-                    eptitle = uni(eptitle)
-                    eptitle = re.sub("[\W]+", " ", eptitle.strip()) 
+                    try:
+                        eptitle = feed.entries[i].title
+                        eptitle = re.sub('[!@#$/:]', '', eptitle)
+                        eptitle = uni(eptitle)
+                        eptitle = re.sub("[\W]+", " ", eptitle.strip()) 
+                    except:
+                        eptitle = setting1
+                        eptitle = eptitle.replace('+',', ')
                     
                     try:
                         showtitle = uni(self.trim(showtitle, 100, ''))
@@ -2436,10 +2476,13 @@ class ChannelList:
                     except:
                         self.log("eptitle Trim failed")
                         eptitle = uni(eptitle[:100])  
-                        
-                    summary = feed.entries[i].summary
-                    summary = uni(summary)
-                    summary = re.sub("[\W]+", " ", summary.strip())                        
+                    
+                    try:
+                        summary = feed.entries[i].summary
+                        summary = uni(summary)
+                        summary = re.sub("[\W]+", " ", summary.strip())                       
+                    except:
+                        summary = showtitle +' - '+ eptitle
                     
                     try:
                         summary = uni(self.trim(summary, 300, '...'))
@@ -2447,20 +2490,15 @@ class ChannelList:
                         self.log("summary Trim failed")
                         summary = uni(summary[:300])
                         
-                    # try:
-                        # runtime = feed.entries[i].media_content[0]['duration']
-                        # self.log("createYoutubeFilelist, Invalid media_content_duration")
-                    # except:
-                        # runtime = feed.entries[i].yt_duration['seconds']
-                        # self.log("createYoutubeFilelist, Invalid yt_duration")
-                    # else:
-                        # pass
-                        
-                    runtime = feed.entries[i].yt_duration['seconds']
-                    self.logDebug('createYoutubeFilelist, runtime = ' + str(runtime))
-                    runtime = int(runtime)
-                    # runtime = round(runtime/60.0)
-                    # runtime = int(runtime)
+                    try:
+                        runtime = feed.entries[i].yt_duration['seconds']
+                        self.logDebug('createYoutubeFilelist, runtime = ' + str(runtime))
+                        runtime = int(runtime)
+                        # runtime = round(runtime/60.0)
+                        # runtime = int(runtime)
+                    except:
+                        runtime = 0
+ 
                     
                     if runtime >= 1:
                         duration = runtime
@@ -2473,29 +2511,15 @@ class ChannelList:
                     duration = int(duration)
                     url = feed.entries[i].media_player['url']
                     self.logDebug('createYoutubeFilelist, url.1 = ' + str(url))
-                    
-                    if setting2 == '1':  
-                        url = url.replace("https://", "").replace("http://", "").replace("www.youtube.com/watch?v=", "").replace("&feature=youtube_gdata_player", "")     
-                    elif setting2 == '2':                    
-                        url = url.replace("https://", "").replace("http://", "").replace("www.youtube.com/watch?v=", "").replace("&feature=youtube_gdata_player", "").replace("?version=3&f=playlists&app=youtube_gdata", "")
-                    elif setting2 == '3':
-                        url = url.replace("https://", "").replace("http://", "").replace("www.youtube.com/watch?v=", "").replace("&feature=youtube_gdata_player", "").replace("?version=3&f=newsubscriptionvideos&app=youtube_gdata", "")
-                    
+                    url = url.replace("https://", "").replace("http://", "").replace("www.youtube.com/watch?v=", "").replace("&feature=youtube_gdata_player", "").replace("?version=3&f=playlists&app=youtube_gdata", "").replace("?version=3&f=newsubscriptionvideos&app=youtube_gdata", "")
                     self.logDebug('createYoutubeFilelist, url.2 = ' + str(url))
                     
                     # Build M3U
-                    if setting2 == '1'or setting2 == '2'or setting2 == '3':
-                        inSet = True
-                        istvshow = True
-                        tmpstr = str(duration) + ',' + eptitle + '//' + "Youtube - " + showtitle + "//" + summary + "//" + genre + "////" + 'LiveID|' + '\n' + 'plugin://plugin.video.youtube/?path=/root/video&action=play_video&videoid='+url
-                        tmpstr = tmpstr.replace("\\n", " ").replace("\\r", " ").replace("\\\"", "\"")
-                        self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", " + eptitle + "  DUR: " + str(duration))
-                        showList.append(tmpstr)
-
-                    else:
-                        if inSet == True:
-                            self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", DONE")
-                            break                    
+                    istvshow = True
+                    tmpstr = str(duration) + ',' + eptitle + '//' + "Youtube - " + showtitle + "//" + summary + "//" + genre + "////" + 'LiveID|' + '\n' + 'plugin://plugin.video.youtube/?path=/root/video&action=play_video&videoid='+url
+                    tmpstr = tmpstr.replace("\\n", " ").replace("\\r", " ").replace("\\\"", "\"")
+                    self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", " + eptitle + "  DUR: " + str(duration))
+                    showList.append(tmpstr)
                 except:
                     pass
         
@@ -2704,7 +2728,7 @@ class ChannelList:
             self.log("LastFM, Overriding Global Parse-limit to " + str(limit))
         
         if self.background == False:
-            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "Parsing Last.FM")
+            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "Parsing Last.FM...")
         
         inSet = False
         for i in range(limit):
@@ -3564,7 +3588,7 @@ class ChannelList:
         
     def walk(self, path):
         self.logDebug("walk")     
-        VIDEO_TYPES = ('.avi', '.mp4', '.m4v', '.3gp', '.3g2', '.f4v', '.mov', '.mkv', '.flv', '.ts', '.m2ts')
+        VIDEO_TYPES = ('.avi', '.mp4', '.m4v', '.3gp', '.3g2', '.f4v', '.mov', '.mkv', '.flv', '.ts', '.m2ts', '.strm')
         video = []
         folders = []
         # multipath support
@@ -3652,6 +3676,7 @@ class ChannelList:
 
     
     def sbManaged(self, tvdbid):
+        self.log("sbManaged")   
         sbManaged = False
         sbAPI = SickBeard(REAL_SETTINGS.getSetting('sickbeard.baseurl'),REAL_SETTINGS.getSetting('sickbeard.apikey'))
         if REAL_SETTINGS.getSetting('sickbeard.enabled') == 'true':
@@ -3664,7 +3689,8 @@ class ChannelList:
         return sbManaged
 
         
-    def cpManaged(self, title, imdbid):    
+    def cpManaged(self, title, imdbid): 
+        self.log("cpManaged")      
         cpManaged = False
         cpAPI = CouchPotato(REAL_SETTINGS.getSetting('couchpotato.baseurl'),REAL_SETTINGS.getSetting('couchpotato.apikey'))        
         if REAL_SETTINGS.getSetting('couchpotato.enabled') == 'true':
@@ -3681,6 +3707,7 @@ class ChannelList:
         
     
     def loadFavourites(self):
+        self.log("loadFavourites")   
         entries = list()
         path = xbmc.translatePath('special://userdata/favourites.xml')
         if os.path.exists(path):
@@ -3704,3 +3731,17 @@ class ChannelList:
                 pass
 
         return entries
+    
+    
+    def extras(self, setting1, setting2, setting3, setting4, channel):
+        self.log("extras")
+        self.Donor = Donor()
+        if setting1 == 'popcorn':
+            showList = []
+            
+            if self.background == False:
+                self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "Parsing Bring the Popcorn...")
+            
+            showList = self.Donor.Bringpopcorn(setting2, setting3, setting4, channel)
+            return showList
+    

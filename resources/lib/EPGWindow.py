@@ -64,23 +64,23 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         
         #Set skin media folder, else default
         if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media'))): 
-            self.mediaPath = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media')) + '/'
+            MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media')) + '/'
         else:
-            self.mediaPath = self.AltmediaPath
-        self.log('Mediapath is ' + self.mediaPath)
+            MEDIA_LOC = self.AltmediaPath
+        self.log('Mediapath is ' + MEDIA_LOC)
 
         # Use the given focus and non-focus textures if they exist.  Otherwise use the defaults.
-        if os.path.exists(self.mediaPath + BUTTON_FOCUS):
-            self.textureButtonFocus = self.mediaPath + BUTTON_FOCUS
-        elif xbmc.skinHasImage(self.mediaPath + BUTTON_FOCUS):
-            self.textureButtonFocus = self.mediaPath + BUTTON_FOCUS
+        if os.path.exists(MEDIA_LOC + BUTTON_FOCUS):
+            self.textureButtonFocus = MEDIA_LOC + BUTTON_FOCUS
+        elif xbmc.skinHasImage(MEDIA_LOC + BUTTON_FOCUS):
+            self.textureButtonFocus = MEDIA_LOC + BUTTON_FOCUS
         else:
             self.textureButtonFocus = 'pstvlButtonFocus.png'
 
-        if os.path.exists(self.mediaPath + BUTTON_NO_FOCUS):
-            self.textureButtonNoFocus = self.mediaPath + BUTTON_NO_FOCUS
-        elif xbmc.skinHasImage(self.mediaPath + BUTTON_NO_FOCUS):
-            self.textureButtonNoFocus = self.mediaPath + BUTTON_NO_FOCUS
+        if os.path.exists(MEDIA_LOC + BUTTON_NO_FOCUS):
+            self.textureButtonNoFocus = MEDIA_LOC + BUTTON_NO_FOCUS
+        elif xbmc.skinHasImage(MEDIA_LOC + BUTTON_NO_FOCUS):
+            self.textureButtonNoFocus = MEDIA_LOC + BUTTON_NO_FOCUS
         else:
             self.textureButtonNoFocus = 'pstvlButtonNoFocus.png'
 
@@ -131,10 +131,10 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         
         #Set timebar path, else use alt. path
         if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media', TIME_BAR))):
-            self.currentTimeBar = xbmcgui.ControlImage(timex, timey, timew, timeh, self.mediaPath + TIME_BAR)  
+            self.currentTimeBar = xbmcgui.ControlImage(timex, timey, timew, timeh, MEDIA_LOC + TIME_BAR)  
         else:
             self.currentTimeBar = xbmcgui.ControlImage(timex, timey, timew, timeh, self.AltmediaPath + TIME_BAR)      
-        self.log('Mediapath Time_Bar = ' + self.mediaPath + TIME_BAR)
+        self.log('Mediapath Time_Bar = ' + MEDIA_LOC + TIME_BAR)
         self.addControl(self.currentTimeBar)
         
         ### Skin labels, Set textcolor, focusedcolor and font. Rowcount todo ###
@@ -845,7 +845,10 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
             skinPath = (os.path.join(skin ,'720p', fle))
             
         if xbmcvfs.exists(skinPath):
+            try:
                 self.getControl(523).setLabel('NOW WATCHING:')
+            except:
+                pass
 
         if REAL_SETTINGS.getSetting("art.enable") == "true" or REAL_SETTINGS.getSetting("Live.art.enable") == "true":        
             
@@ -964,26 +967,26 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                 #Try, and pass if label isn't found (Backward compatibility with PTV Skins)
                 #Sickbeard/Couchpotato
                 if SBCP == 'SB':
-                    self.getControl(511).setImage(self.mediaPath + 'SB.png')
+                    self.getControl(511).setImage(DEFAULT_IMAGES_LOC + 'SB.png')
                 elif SBCP == 'CP':
-                    self.getControl(511).setImage(self.mediaPath + 'CP.png')
+                    self.getControl(511).setImage(DEFAULT_IMAGES_LOC + 'CP.png')
                 else:
-                    self.getControl(511).setImage(self.mediaPath + 'NA.png')
+                    self.getControl(511).setImage(DEFAULT_IMAGES_LOC + 'NA.png')
             except:
-                self.getControl(511).setImage(self.mediaPath + 'NA.png')
+                self.getControl(511).setImage(DEFAULT_IMAGES_LOC + 'NA.png')
                 pass     
 
             try:
                 #Try, and pass if label isn't found (Backward compatibility with PTV Skins)             
                 #Unaired/aired
                 if Unaired == 'NEW':
-                    self.getControl(512).setImage(self.mediaPath + 'NEW.png')
+                    self.getControl(512).setImage(MEDIA_LOC + 'NEW.png')
                 elif Unaired == 'OLD':
-                    self.getControl(512).setImage(self.mediaPath + 'OLD.png')                  
+                    self.getControl(512).setImage(MEDIA_LOC + 'OLD.png')                  
                 else:
-                    self.getControl(512).setImage(self.mediaPath + 'NA.png')
+                    self.getControl(512).setImage(MEDIA_LOC + 'NA.png')
             except:
-                self.getControl(512).setImage(self.mediaPath + 'NA.png')
+                self.getControl(512).setImage(MEDIA_LOC + 'NA.png')
                 pass     
 
         if REAL_SETTINGS.getSetting("art.enable") == "true":
@@ -1004,7 +1007,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                 elif FileAccess.exists(mediapathSeason1):
                     self.getControl(508).setImage(mediapathSeason1)
                 else:
-                    self.getControl(508).setImage(self.mediaPath + type1 + '.png')
+                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
                     
                     # if REAL_SETTINGS.getSetting("EnableDown") == "1" and (REAL_SETTINGS.getSetting("TVFileSys") == "0" or REAL_SETTINGS.getSetting("MovieFileSys") == "0") and self.apis == True:
                         # self.Downloader.ArtDownloader(type, id, type1, type1EXT, Mpath1, Ipath1)
@@ -1026,7 +1029,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                 elif FileAccess.exists(mediapathSeason2):
                     self.getControl(510).setImage(mediapathSeason2)
                 else:
-                    self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
                     
                     # if REAL_SETTINGS.getSetting("EnableDown") == "1" and (REAL_SETTINGS.getSetting("TVFileSys") == "0" or REAL_SETTINGS.getSetting("MovieFileSys") == "0") and self.apis == True:
                         # self.Downloader.ArtDownloader(type, id, type2, type2EXT, Mpath2, Ipath2)
@@ -1046,24 +1049,24 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     self.log('LiveTV Art Enabled')
                     self.LiveTVArtDownloader(imdbid, tvdbid, type, type1, type1EXT, type2, type2EXT)       
                 else:#fallback all artwork because live art disabled
-                    self.getControl(508).setImage(self.mediaPath + type1 + '.png')
-                    self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
+                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
 
             elif chtype == 9:
-                self.getControl(508).setImage(self.mediaPath + 'EPG.Internet.508.png')
-                self.getControl(510).setImage(self.mediaPath + 'EPG.Internet.510.png')
+                self.getControl(508).setImage(MEDIA_LOC + 'EPG.Internet.508.png')
+                self.getControl(510).setImage(MEDIA_LOC + 'EPG.Internet.510.png')
             
             elif chtype == 10:
-                self.getControl(508).setImage(self.mediaPath + 'EPG.Youtube.508.png')
-                self.getControl(510).setImage(self.mediaPath + 'EPG.Youtube.510.png')
+                self.getControl(508).setImage(MEDIA_LOC + 'EPG.Youtube.508.png')
+                self.getControl(510).setImage(MEDIA_LOC + 'EPG.Youtube.510.png')
             
             elif chtype == 11:
-                self.getControl(508).setImage(self.mediaPath + 'EPG.RSS.508.png')
-                self.getControl(510).setImage(self.mediaPath + 'EPG.RSS.510.png')
+                self.getControl(508).setImage(MEDIA_LOC + 'EPG.RSS.508.png')
+                self.getControl(510).setImage(MEDIA_LOC + 'EPG.RSS.510.png')
             
             elif chtype == 13:
-                self.getControl(508).setImage(self.mediaPath + 'EPG.LastFM.508.png')
-                self.getControl(510).setImage(self.mediaPath + 'EPG.LastFM.510.png')  
+                self.getControl(508).setImage(MEDIA_LOC + 'EPG.LastFM.508.png')
+                self.getControl(510).setImage(MEDIA_LOC + 'EPG.LastFM.510.png')  
 
         self.getControl(500).setLabel(self.MyOverlayWindow.channels[newchan - 1].getItemTitle(plpos))
         #code to display "Live TV" instead of date (date does confirm sync)
@@ -1211,7 +1214,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                         output.close()
                         self.getControl(508).setImage(flename1)
                 except:
-                    self.getControl(508).setImage(self.mediaPath + type1 + '.png')
+                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
                     pass
                 
                 try:
@@ -1234,12 +1237,12 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                         output.close()
                         self.getControl(510).setImage(flename2)
                 except:
-                    self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
                     pass
 
             else:#fallback all artwork because there is no id
-                self.getControl(508).setImage(self.mediaPath + type1 + '.png')
-                self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
+                self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
                 
         elif imdb and type == 'movie':
             self.log('LiveTVArtDownloader.Movie')    
@@ -1272,7 +1275,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                         output.close()
                         self.getControl(508).setImage(flename1)
                 except:
-                    self.getControl(508).setImage(self.mediaPath + type1 + '.png')
+                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
                     pass
                 
                 try:#Type2 Art
@@ -1299,14 +1302,14 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                         output.close()
                         self.getControl(510).setImage(flename2)  
                 except:
-                    self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
                     pass
             else:
-                self.getControl(508).setImage(self.mediaPath + type1 + '.png')
-                self.getControl(510).setImage(self.mediaPath + type2 + '.png')         
+                self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
+                self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')         
         else:
-            self.getControl(508).setImage(self.mediaPath + type1 + '.png')
-            self.getControl(510).setImage(self.mediaPath + type2 + '.png')            
+            self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
+            self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')            
             
 
     def determinePlaylistPosAtTime(self, starttime, channel):

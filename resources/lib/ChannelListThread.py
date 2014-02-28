@@ -47,8 +47,8 @@ class ChannelListThread(threading.Thread):
         self.chanlist.exitThread = False
         self.chanlist.readConfig()
         self.chanlist.sleepTime = 0.1
-        self.mediaPath =  xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
-        thumb = (self.mediaPath + 'guide.png')
+        MEDIA_LOC =  xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
+        thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
 
         if self.myOverlay == None:
             self.log("Overlay not defined. Exiting.")

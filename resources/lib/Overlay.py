@@ -109,7 +109,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         self.log("InfoTimer = " + str(InfoTimer))
 
         for i in range(3):
-            self.channelLabel.append(xbmcgui.ControlImage(50 + (50 * i), 50, 50, 50, IMAGES_LOC + 'solid.png', colorDiffuse = self.channelbugcolor))
+            self.channelLabel.append(xbmcgui.ControlImage(50 + (50 * i), 50, 50, 50, DEFAULT_IMAGES_LOC + 'solid.png', colorDiffuse = self.channelbugcolor))
             self.addControl(self.channelLabel[i])
             self.channelLabel[i].setVisible(False)
         self.doModal()
@@ -131,27 +131,31 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         self.log('PTVL Version = ' + VERSION)
         self.channelList = ChannelList()
         
+        settingsFile = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'settings2.xml'))
+        nsettingsFile = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'settings2.bak.xml'))
+        dlg = xbmcgui.Dialog()
+        thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
+        
+        # Clear Setting2 for fresh autotune
         if REAL_SETTINGS.getSetting("Autotune") == "true" and REAL_SETTINGS.getSetting("Warning1") == "true":
             self.log('Autotune onInit') 
-            settingsFile = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'settings2.xml'))
-            nsettingsFile = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'settings2.bak.xml'))
-
-            if FileAccess.exists(settingsFile):
-                if FileAccess.exists(nsettingsFile):
+            if os.path.exists(settingsFile):
+                if os.path.exists(nsettingsFile):
                     os.remove(nsettingsFile)
-                    self.log('Autotune, Removing old Backup...')
-                    
+                    xbmc.log('Autotune, Removing old Backup...')
+
                 FileAccess.rename(settingsFile, nsettingsFile)
-                self.log('Autotune, Backing up Setting2...')
-                
-                if FileAccess.exists(nsettingsFile):
-                    self.log('Autotune, Back Complete!')
-                    
+                xbmc.log('Autotune, Backing up Setting2...')
+                                
+                if os.path.exists(nsettingsFile):
+                    xbmc.log('Autotune, Back Complete!')
                     f = FileAccess.open(settingsFile, "w")
                     f.write('\n')
                     self.log('Autotune, Setting2 Deleted...')
                     f.close()
- 
+                    xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Initializing Autotuning...", 4000, thumb) )
+                    xbmc.log('Autotune, Setting2 Deleted...')
+
         if FileAccess.exists(GEN_CHAN_LOC) == False:
             try:
                 FileAccess.makedirs(GEN_CHAN_LOC)
@@ -215,7 +219,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
             if dlg.yesno("No Channels Configured", "Would you like PseudoTV Live to Auto Tune LiveTV PVR Backend\nchannels the next time it loads?"):
                 REAL_SETTINGS.setSetting("autoFindLivePVR","true")
                 autoTune = True
-
+                
             if dlg.yesno("No Channels Configured", "Would you like PseudoTV Live to Auto Tune Custom Playlists\nchannels the next time it loads?"):
                 REAL_SETTINGS.setSetting("autoFindCustom","true")
                 autoTune = True
@@ -654,6 +658,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         else:
             self.apis = False
             
+        type = ''
         tvdbid = 0
         imdbid = 0
         dbid = 0
@@ -661,7 +666,6 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         mediapath = uni(self.channels[self.currentChannel - 1].getItemFilename(position))
         self.logDebug('setShowInfo.mediapath.1 = ' + uni(mediapath))
         
-        self.mediaPath =  xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
         genre = uni(self.channels[self.currentChannel - 1].getItemgenre(position))
         title = uni(self.channels[self.currentChannel - 1].getItemTitle(position))
         
@@ -751,26 +755,26 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                 #Try, and pass if label isn't found (Backward compatibility with PTV Skins)
                 #Sickbeard/Couchpotato
                 if SBCP == 'SB':
-                    self.getControl(511).setImage(self.mediaPath + 'SB.png')
+                    self.getControl(511).setImage(DEFAULT_IMAGES_LOC + 'SB.png')
                 elif SBCP == 'CP':
-                    self.getControl(511).setImage(self.mediaPath + 'CP.png')
+                    self.getControl(511).setImage(DEFAULT_IMAGES_LOC + 'CP.png')
                 else:
-                    self.getControl(511).setImage(self.mediaPath + 'NA.png')
+                    self.getControl(511).setImage(DEFAULT_IMAGES_LOC + 'NA.png')
             except:
-                self.getControl(511).setImage(self.mediaPath + 'NA.png')
+                self.getControl(511).setImage(DEFAULT_IMAGES_LOC + 'NA.png')
                 pass     
 
             try:
                 #Try, and pass if label isn't found (Backward compatibility with PTV Skins)             
                 #Unaired/aired
                 if Unaired == 'NEW':
-                    self.getControl(512).setImage(self.mediaPath + 'NEW.png')
+                    self.getControl(512).setImage(MEDIA_LOC + 'NEW.png')
                 elif Unaired == 'OLD':
-                    self.getControl(512).setImage(self.mediaPath + 'OLD.png')                  
+                    self.getControl(512).setImage(MEDIA_LOC + 'OLD.png')                  
                 else:
-                    self.getControl(512).setImage(self.mediaPath + 'NA.png')
+                    self.getControl(512).setImage(MEDIA_LOC + 'NA.png')
             except:
-                self.getControl(512).setImage(self.mediaPath + 'NA.png')
+                self.getControl(512).setImage(MEDIA_LOC + 'NA.png')
                 pass     
 
         if REAL_SETTINGS.getSetting("art.enable") == "true":
@@ -791,7 +795,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                 elif FileAccess.exists(mediapathSeason1):
                     self.getControl(508).setImage(mediapathSeason1)
                 else:
-                    self.getControl(508).setImage(self.mediaPath + type1 + '.png')
+                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
                     
                     # if REAL_SETTINGS.getSetting("EnableDown") == "1" and (REAL_SETTINGS.getSetting("TVFileSys") == "0" or REAL_SETTINGS.getSetting("MovieFileSys") == "0") and self.apis == True:
                         # self.Downloader.ArtDownloader(type, id, type2, type2EXT, Mpath1, Ipath1)
@@ -813,7 +817,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                 elif FileAccess.exists(mediapathSeason2):
                     self.getControl(510).setImage(mediapathSeason2)
                 else:
-                    self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
                         
                     # if REAL_SETTINGS.getSetting("EnableDown") == "1" and (REAL_SETTINGS.getSetting("TVFileSys") == "0" or REAL_SETTINGS.getSetting("MovieFileSys") == "0") and self.apis == True:
                         # self.Downloader.ArtDownloader(type, id, type2, type2EXT, Mpath2, Ipath2)
@@ -833,24 +837,24 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                     self.log('LiveTV Art Enabled')
                     self.LiveTVArtDownloader(imdbid, tvdbid, type, type1, type1EXT, type2, type2EXT)       
                 else:#fallback all artwork because live art disabled
-                    self.getControl(508).setImage(self.mediaPath + type1 + '.png')
-                    self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
+                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
 
             elif chtype == 9:
-                self.getControl(508).setImage(self.mediaPath + 'Overlay.Internet.508.png')
-                self.getControl(510).setImage(self.mediaPath + 'Overlay.Internet.510.png')
+                self.getControl(508).setImage(MEDIA_LOC + 'Overlay.Internet.508.png')
+                self.getControl(510).setImage(MEDIA_LOC + 'Overlay.Internet.510.png')
             
             elif chtype == 10:
-                self.getControl(508).setImage(self.mediaPath + 'Overlay.Youtube.508.png')
-                self.getControl(510).setImage(self.mediaPath + 'Overlay.Youtube.510.png')
+                self.getControl(508).setImage(MEDIA_LOC + 'Overlay.Youtube.508.png')
+                self.getControl(510).setImage(MEDIA_LOC + 'Overlay.Youtube.510.png')
             
             elif chtype == 11:
-                self.getControl(508).setImage(self.mediaPath + 'Overlay.RSS.508.png')
-                self.getControl(510).setImage(self.mediaPath + 'Overlay.RSS.510.png')    
+                self.getControl(508).setImage(MEDIA_LOC + 'Overlay.RSS.508.png')
+                self.getControl(510).setImage(MEDIA_LOC + 'Overlay.RSS.510.png')    
             
             elif chtype == 13:
-                self.getControl(508).setImage(self.mediaPath + 'Overlay.LastFM.508.png')
-                self.getControl(510).setImage(self.mediaPath + 'Overlay.LastFM.510.png')    
+                self.getControl(508).setImage(MEDIA_LOC + 'Overlay.LastFM.508.png')
+                self.getControl(510).setImage(MEDIA_LOC + 'Overlay.LastFM.510.png')    
 
 
         self.log('setshowposition ' + str(position))
@@ -1238,11 +1242,11 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                     self.log('notification.init')     
                     mediapath = uni(self.channels[self.currentChannel - 1].getItemFilename(nextshow))         
                     self.logDebug('notification.mediapath.1 = ' + uni(mediapath))                        
-                    self.mediaPath =  xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
-                    self.logDebug('notification.self.mediaPath = ' + uni(self.mediaPath))     
+                    MEDIA_LOC =  xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
+                    self.logDebug('notification.MEDIA_LOC = ' + uni(MEDIA_LOC))     
                     chtype = int(ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
                     title = 'Coming Up Next'   
-                    thumb = (self.mediaPath + 'guide.png')
+                    thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
                 
                     if REAL_SETTINGS.getSetting("ColorOverlay") == "true":
                         ChannelLogo = (self.channelLogos + ascii(self.channels[self.currentChannel - 1].name) + '_c.png')
@@ -1282,7 +1286,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                         elif FileAccess.exists(ChannelLogo):
                             thumb = ChannelLogo
                         else: 
-                            thumb = (self.mediaPath + 'guide.png')
+                            thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
 
                     elif chtype >= 8:
                     
@@ -1296,9 +1300,9 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                             self.log("notification.plugin.id = " + id)
                             thumb = id
                         else: 
-                            thumb = (self.mediaPath + 'guide.png')          
+                            thumb = (DEFAULT_IMAGES_LOC + 'icon.png')          
                     else: 
-                        thumb = (self.mediaPath + 'guide.png')
+                        thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
                     
                     xbmc.executebuiltin('XBMC.Notification(%s, %s, %s, %s)' % (title, self.channels[self.currentChannel - 1].getItemTitle(nextshow).replace(',', ''), str(NOTIFICATION_DISPLAY_TIME * 1000), thumb))
                     self.logDebug("thumb = " + str(thumb))
@@ -1378,7 +1382,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                         output.close()
                         self.getControl(508).setImage(flename1)
                 except:
-                    self.getControl(508).setImage(self.mediaPath + type1 + '.png')
+                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
                     pass
                 
                 try:
@@ -1401,12 +1405,12 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                         output.close()
                         self.getControl(510).setImage(flename2)
                 except:
-                    self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
                     pass
 
             else:#fallback all artwork because there is no id
-                self.getControl(508).setImage(self.mediaPath + type1 + '.png')
-                self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
+                self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
                 
         elif imdb and type == 'movie':
             self.log('LiveTVArtDownloader.Movie')    
@@ -1439,7 +1443,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                         output.close()
                         self.getControl(508).setImage(flename1)
                 except:
-                    self.getControl(508).setImage(self.mediaPath + type1 + '.png')
+                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
                     pass
                 
                 try:#Type2 Art
@@ -1466,14 +1470,14 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                         output.close()
                         self.getControl(510).setImage(flename2)  
                 except:
-                    self.getControl(510).setImage(self.mediaPath + type2 + '.png')
+                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
                     pass
             else:
-                self.getControl(508).setImage(self.mediaPath + type1 + '.png')
-                self.getControl(510).setImage(self.mediaPath + type2 + '.png')         
+                self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
+                self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')         
         else:
-            self.getControl(508).setImage(self.mediaPath + type1 + '.png')
-            self.getControl(510).setImage(self.mediaPath + type2 + '.png')            
+            self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
+            self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')            
             
     # cleanup and end
     def end(self):

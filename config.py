@@ -34,7 +34,6 @@ from resources.lib.Migrate import Migrate
 NUMBER_CHANNEL_TYPES = 8
 
 
-
 class ConfigWindow(xbmcgui.WindowXMLDialog):
     def __init__(self, *args, **kwargs):
         self.log("__init__")

@@ -33,13 +33,15 @@ import os, sys, re, fileinput
 import xbmc, xbmcgui, xbmcaddon, xbmcvfs
 from resources.lib.Globals import *
 
-print "script.pseudotv.live-PseudoTV Live, Video Window Patcher Started"
+print "script.pseudotv.live-VideoWindow, Patcher Started"
 
+found = False
 install = False
 copy = False
+patch = False
 dlg = xbmcgui.Dialog()
 mediaPath =  xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
-thumb = (mediaPath + 'guide.png')
+thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
 
 # Find Addon Path
 AddonPath = 'special://home/addons/script.pseudotv.live/resources/skins/'
@@ -68,11 +70,12 @@ fle = 'Custom_PTVL_9506.xml'
 
 if xbmcvfs.exists(os.path.join(skin ,'1080i')):
     skinPath = (os.path.join(skin ,'1080i', fle))
+    found = True
 else:
     skinPath = (os.path.join(skin ,'720p', fle))
+    found = True
 xbmc.log('script.pseudotv.live-VideoWindow.SkinPath = ' + skinPath)
-
-    
+  
 Path = (os.path.join(ADDON_INFO, 'resources', 'skins', 'default', '720p'))
 flePath = (os.path.join(Path, fle))
 
@@ -91,7 +94,11 @@ if xbmcvfs.exists(skinPath):
             xbmc.log('script.pseudotv.live-VideoWindow, Deleted')
             xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patch Deleted!", 4000, thumb) )
         except:
+            xbmc.log('script.pseudotv.live-VideoWindow, Delete Failed')
             pass
+    else:
+        if dlg.yesno("PseudoTV Live", "VideoWindow Patch Found!\nUpdate Skin?"):
+            found = True
 else:
     install = True
   
@@ -104,6 +111,7 @@ if install:
         if xbmcvfs.exists(skinPath):
             copy = True
     except:
+        xbmc.log('script.pseudotv.live-VideoWindow, Copy Failed')
         pass
     
     if copy:
@@ -111,5 +119,23 @@ if install:
         xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patched!\nXBMC Restart Required", 4000, thumb) )
     else:
         xbmc.log('script.pseudotv.live-VideoWindow, Copy Failed')
+        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patch Error!", 4000, thumb) )
+
+# Update Pseudo Skin with VideoWindow Patch        
+if found:
+    try: 
+        replaceAll(PseudoSkinfle,b,a) #Replace with search n replace regex pattern todo  
+        replaceAll(PseudoSkinfle,d,c)
+        if xbmcvfs.exists(skinPath):
+            patch = True
+    except:
+        xbmc.log('script.pseudotv.live-VideoWindow, Copy Failed')
+        pass
+    
+    if patch:
+        xbmc.log('script.pseudotv.live-VideoWindow, Patched')
+        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patched!\nXBMC Restart Required", 4000, thumb) )
+    else:
+        xbmc.log('script.pseudotv.live-VideoWindow, Patched Failed')
         xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patch Error!", 4000, thumb) )
         

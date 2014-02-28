@@ -16,23 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with PseudoTV.  If not, see <http://www.gnu.org/licenses/>.
 
-import subprocess, os
+import subprocess, os, re, sys, time
 import xbmcaddon, xbmc, xbmcgui
-import Settings
-import Globals
-import ChannelList
-import urllib
-import urllib2
-import httplib
-import time
-import sys, re
+import Settings, Globals, ChannelList
+import urllib, urllib2, httplib
 
 from xml.etree import ElementTree as ET
 from FileAccess import FileLock, FileAccess
-try:
-    from Donor import *
-except:
-    pass
 
 
 class Migrate:
@@ -128,10 +118,6 @@ class Migrate:
         chanlist.background = True
         # chanlist.needsreset = True
         chanlist.makenewlists = True
-        try:
-            self.Donor = Donor()
-        except:
-            pass
         settingsFile = xbmc.translatePath(os.path.join(Globals.SETTINGS_LOC, 'settings2.xml'))
         
         if  FileAccess.exists(settingsFile):
@@ -148,7 +134,7 @@ class Migrate:
         
         # LiveTV - PVR
         self.updateDialogProgress = 5
-        if Globals.REAL_SETTINGS.getSetting("autoFindLivePVR") == "true" and Globals.REAL_SETTINGS.getSetting('xmltvLOC') != '':
+        if Globals.REAL_SETTINGS.getSetting("autoFindLivePVR") == "true" and (Globals.REAL_SETTINGS.getSetting('xmltvLOC') != '' or Globals.REAL_SETTINGS.getSetting('EPGDB') == "true"):
             self.log("autoTune, Adding Live PVR Channels")
             self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding Live PVR Channels","")
             CHnum = 0
@@ -229,6 +215,89 @@ class Migrate:
                 pass
             channelNum = channelNum
             self.logDebug('channelNum = ' + str(channelNum))
+        
+        # LiveTV - HDhomerun
+        self.updateDialogProgress = 10
+        if Globals.REAL_SETTINGS.getSetting("autoFindLiveHD") == "true" and (Globals.REAL_SETTINGS.getSetting('xmltvLOC') != '' or Globals.REAL_SETTINGS.getSetting('EPGDB') == "true"):
+            self.log("autoTune, Adding Live HDhomerun Channels")
+            self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding Live HDhomerun Channels","")
+            CHnum = 0
+            RCHnum = 0
+            CHid = 0
+            CHlst = ''
+            CHname = ''
+            CHzapit = ''
+            LocalLST = []
+            LocalFle = ''
+            
+            if channelNum == 0:
+                channelNum = 1
+                
+            try:
+                HDstrmPath = Globals.REAL_SETTINGS.getSetting('autoFindLiveHDPath')
+                self.logDebug('autoFindLiveHD, HDstrmPath = ' + str(HDstrmPath))   
+                self.xmlTvFile = xbmc.translatePath(os.path.join(Globals.REAL_SETTINGS.getSetting('xmltvLOC'), 'xmltv.xml'))
+                self.logDebug('autoFindLiveHD, self.xmlTvFile = ' + str(self.xmlTvFile))   
+            
+                f = open(self.xmlTvFile, "rb")
+                tree = ET.parse(f)
+                root = tree.getroot()
+
+                LocalFLE = ''
+                LocalLST = os.listdir(HDstrmPath)
+
+                for n in range(len(LocalLST)):
+                    if '.strm' in LocalLST[n]:
+                        inSet = False
+                        LocalFLE = (LocalLST[n])
+                        filename = (HDstrmPath + '/' + LocalFLE)
+                        CHname = os.path.splitext(LocalFLE)[0]
+
+                        for elem in root.getiterator():
+                            if elem.tag == ("channel"):
+                                name = elem.findall('display-name')
+
+                                for i in name:
+                                    CHlst = ''
+                                    RCHnum = (CHnum + 1)
+                                    if CHname == i.text:
+                                        inSet = True
+                                        CHzapit = elem.attrib
+                                        CHzapit = str(CHzapit)
+                                        CHzapit = CHzapit.split(": '", 1)[-1]
+                                        CHzapit = CHzapit.split("'")[0]
+                                        CHlst = (CHlst + ',' + str(CHzapit))
+
+                        self.log('autoFindLiveHD, inSet = ' + str(inSet) + ' , ' +  str(CHlst))
+                        if inSet == True:
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "8")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", CHzapit)
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_2", filename)
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_3", "xmltv")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_4", "")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", CHname + ' LiveTV')  
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                            channelNum = channelNum + 1
+                        
+                        if inSet == False:
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "9")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "5400")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_2", filename)
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_3", CHname)
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_4", "XMLTV DATA NOT FOUND")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", CHname + ' LiveTV')  
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                            channelNum = channelNum + 1  
+            except:
+                pass
+            channelNum = channelNum
+            self.logDebug('channelNum = ' + str(channelNum))
 
             
         # Custom Channels
@@ -292,6 +361,7 @@ class Migrate:
             i = 1
             for i in range(len(chanlist.networkList)):
                 channelNum = channelNum + 1
+                # channelNum = self.initialAddChannels(chanlist.networkList, 1, channelNum)
                 # add network presets
                 Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "1")
                 Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
@@ -307,6 +377,7 @@ class Migrate:
             self.log("autoTune, Adding TV Genres")
             self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding TV Genres","")
             channelNum = channelNum - 1
+            # channelNum = self.initialAddChannels(chanlist.showGenreList, 3, channelNum)
             for i in range(len(chanlist.showGenreList)):
                 channelNum = channelNum + 1
                 # add network presets
@@ -349,6 +420,7 @@ class Migrate:
             self.log("autoTune, Adding Movie Genres")
             self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding Movie Genres","")
             channelNum = channelNum - 1
+            # channelNum = self.initialAddChannels(chanlist.movieGenreList, 4, channelNum)
             for i in range(len(chanlist.movieGenreList)):
                 channelNum = channelNum + 1
                 self.updateDialogProgress = self.updateDialogProgress + (10/len(chanlist.movieGenreList))
@@ -532,6 +604,44 @@ class Migrate:
             channelNum = channelNum + 1
             self.logDebug('channelNum = ' + str(channelNum))
         
+        
+        #InternetTV - Bringthepopcorn
+        self.updateDialogProgress = 60
+        if Globals.REAL_SETTINGS.getSetting("autoFindPopcorn") == "true":
+            self.log("autoTune, Adding Bring The Popcorn Movies")
+            self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding Bring The Popcorn Movies","")
+            if channelNum == 0:
+                channelNum = 1
+                        
+            AT_PopCat = ['action','adventure','animation','british','comedy','crime','disaster','documentary','drama','eastern','erotic','family','fan+film','fantasy','film+noir','foreign','history','holiday','horror','indie','kids','music','musical','mystery','neo-noir','road+movie','romance','science+fiction','short','sport','sports+film','suspense','thriller','tv+movie','war','western']
+            ATPopCat = AT_PopCat[int(Globals.REAL_SETTINGS.getSetting('autoFindPopcornGenre'))]
+               
+            AT_PopYear = ['2010-Now','2000-2010','1990-2000','1980-1990','1970-1980','1960-1970','1950-1960','1940-1950','1930-1940','1920-1930','1910-1920']
+            ATPopYear = AT_PopYear[int(Globals.REAL_SETTINGS.getSetting('autoFindPopcornYear'))]
+            
+            AT_PopRes = ['480','720','1080']
+            ATPopRes = AT_PopRes[int(Globals.REAL_SETTINGS.getSetting('autoFindPopcornResoultion'))]    
+              
+            if REAL_SETTINGS.getSetting('autoFindPopcornPop') == "true":
+                ATPopCat = 'pop|' + ATPopCat
+            
+            for i in range(1):
+                # add Bringthepopcorn user presets
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "14")
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "popcorn")
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_2", ATPopCat)
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_3", ATPopRes)
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_4", ATPopYear)
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "BringThePopcorn")  
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+       
+            channelNum = channelNum + 1
+            self.logDebug('channelNum = ' + str(channelNum))
+        
+
         #InternetTV - Strms
         self.updateDialogProgress = 50
         if Globals.REAL_SETTINGS.getSetting("autoFindInternetStrms") == "true":
@@ -561,14 +671,170 @@ class Migrate:
                 Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_opt_1", "HD Nation")  
                 Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_changed", "true")
 
-            channelNum = channelNum + 3
+            channelNum = channelNum + 2
             self.logDebug('channelNum = ' + str(channelNum))
-           
-            if Globals.REAL_SETTINGS.getSetting("Donor_Enabled") == "true":
-                try:
-                    self.Donor.migrateDonor(channelNum)
-                except:
-                    pass
+            
+            if Globals.REAL_SETTINGS.getSetting("Donor_Enabled") == "true":        
+                self.updateDialogProgress = 50
+                self.updateDialog = xbmcgui.DialogProgress()
+                self.updateDialog.create("PseudoTV Live", "Auto Tune")
+                UserPass = Globals.REAL_SETTINGS.getSetting('Donor_UP')
+                self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV...","")
+                GenericPath = (xbmc.translatePath(os.path.join(Globals.SETTINGS_LOC, 'cache', 'strms', 'Generic')) + '/')
+        
+                if os.path.exists(GenericPath):
+                    id = 'plugin.video.tgun'
+                    try:
+                        xbmcaddon.Addon(id)
+                        installed = True
+                    except:
+                        installed = False
+
+                    if installed == True:
+                        self.log("autoTune, Adding InternetTV TGUN")
+                        self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from TGUN","")
+                        InternetTgunTVMovies = (GenericPath + 'TGUN.-.TVMovies/')
+                        InternetTgunClassicTV = (GenericPath + 'TGUN.-.ClassicTV/')
+                        for i in range(1):
+                            # add TGUN
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetTgunTVMovies+ "")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "TGUN - TV/Movies")  
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_type", "7")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_time", "0")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_1", "" +InternetTgunClassicTV+ "")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rulecount", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_id", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_opt_1", "TGUN - ClassicTV")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_changed", "true")
+
+                    channelNum = channelNum + 2
+                    self.logDebug('channelNum = ' + str(channelNum))   
+
+                    id = 'plugin.video.jtv.archives'            
+                    try:
+                        xbmcaddon.Addon(id)
+                        installed = True
+                    except Exception:
+                        installed = False
+
+                    if installed == True:
+                        self.log("autoTune, Adding InternetTV JTV")
+                        self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from JTV","")
+                        InternetJTVDocumentary = (GenericPath + 'JTV.-.Documentary/')
+                        InternetJTVMovies = (GenericPath + 'JTV.-.Movies/')
+                        InternetJTVSeries = (GenericPath + 'JTV.-.Series/')
+                        for i in range(1):
+                            # add JTV
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetJTVDocumentary+ "")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "JTV - Documentary")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_type", "7")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_time", "0")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_1", "" +InternetJTVMovies+ "")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rulecount", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_id", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_opt_1", "JTV - Movies")  
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_changed", "true")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_type", "7")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_time", "0")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_1", "" +InternetJTVSeries+ "")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_rulecount", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_rule_1_id", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_rule_1_opt_1", "JTV - Series")  
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_changed", "true")
+
+                    channelNum = channelNum + 3
+                    self.logDebug('channelNum = ' + str(channelNum))
+
+                    id = 'plugin://plugin.video.F.T.V'            
+                    try:
+                        xbmcaddon.Addon(id)
+                        installed = True
+                    except Exception:
+                        installed = False
+
+                    if installed == True:
+                        self.log("autoTune, Adding InternetTV FTV")
+                        self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from FTV","")
+                        InternetFTVMovies = (GenericPath + 'FilmOn.-.Movies/')
+                        InternetFTVMusic = (GenericPath + 'FilmOn.-.Music/')
+                        for i in range(1):
+                            # add FTV
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetFTVMovies+ "")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "FTV - Movies")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_type", "7")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_time", "0")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_1", "" +InternetFTVMusic+ "")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rulecount", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_id", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_opt_1", "FTV - Music")  
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_changed", "true")
+
+                    channelNum = channelNum + 2
+                    self.logDebug('channelNum = ' + str(channelNum))
+
+                    id = 'plugin://plugin.video.foodnetwork'            
+                    try:
+                        xbmcaddon.Addon(id)
+                        installed = True
+                    except Exception:
+                        installed = False
+
+                    if installed == True:
+                        self.log("autoTune, Adding InternetTV FoodNetwork")
+                        self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from FoodNetwork","")
+                        InternetFoodNetwork = (GenericPath + 'Generic/Food.Network/')
+                        for i in range(1):
+                            # add FoodNetwork
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetFoodNetwork+ "")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "Food Network")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+
+                    channelNum = channelNum + 1
+                    self.logDebug('channelNum = ' + str(channelNum))
+
+                    id = 'plugin://plugin.video.supercartoons'            
+                    try:
+                        xbmcaddon.Addon(id)
+                        installed = True
+                    except Exception:
+                        installed = False
+
+                    if installed == True:
+                        self.log("autoTune, Adding InternetTV Supercartoons")
+                        self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from Supercartoons","")
+                        InternetSupercartoons = (GenericPath + 'SuperCartoons/')
+                        for i in range(1):
+                            # add Supercartoons
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetSupercartoons+ "")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "Super Cartoons")
+                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+
+                    channelNum = channelNum + 1
+                    self.logDebug('channelNum = ' + str(channelNum))
+            
            
         Globals.ADDON_SETTINGS.writeSettings()
 
@@ -580,6 +846,7 @@ class Migrate:
         Globals.REAL_SETTINGS.setSetting('Autotune', "false")
         Globals.REAL_SETTINGS.setSetting('Warning1', "false")
         Globals.REAL_SETTINGS.setSetting('autoFindLivePVR', "false")
+        Globals.REAL_SETTINGS.setSetting('autoFindLiveHD', "false")
         Globals.REAL_SETTINGS.setSetting("autoFindCustom","false")
         Globals.REAL_SETTINGS.setSetting("autoFindNetworks","false")
         Globals.REAL_SETTINGS.setSetting("autoFindStudios","false")
@@ -593,9 +860,50 @@ class Migrate:
         Globals.REAL_SETTINGS.setSetting("autoFindMusicVideosLastFM","false")
         Globals.REAL_SETTINGS.setSetting("autoFindMusicVideosLocal","")
         Globals.REAL_SETTINGS.setSetting("autoFindInternetStrms","false")
+        Globals.REAL_SETTINGS.setSetting("autoFindInternetStrms","false")
+        Globals.REAL_SETTINGS.setSetting("autoFindPopcorn","false")
         Globals.REAL_SETTINGS.setSetting("ForceChannelReset","true")
 
         Globals.ADDON_SETTINGS.setSetting('LastExitTime', str(int(curtime)))
         self.updateDialog.close()
 
         
+def initialAddChannels(self, thelist, chantype, currentchan):
+    if len(thelist) > 0:
+        counted = 0
+        lastitem = 0
+        curchancount = 1
+        lowerlimit = 1
+        lowlimitcnt = 0
+
+        for item in thelist:
+            if item[1] > lowerlimit:
+                if item[1] != lastitem:
+                    if curchancount + counted <= 10 or counted == 0:
+                        counted += curchancount
+                        curchancount = 1
+                        lastitem = item[1]
+                    else:
+                        break
+                else:
+                    curchancount += 1
+
+                lowlimitcnt += 1
+
+                if lowlimitcnt == 3:
+                    lowlimitcnt = 0
+                    lowerlimit += 1
+            else:
+                break
+
+        if counted > 0:
+            for item in thelist:
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(currentchan) + "_type", str(chantype))
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(currentchan) + "_1", item[0])
+                counted -= 1
+                currentchan += 1
+
+                if counted == 0:
+                    break
+
+    return currentchan

@@ -19,6 +19,7 @@
 import os, sys, re, shutil
 import xbmc, xbmcgui, xbmcaddon
 from resources.lib.Globals import *
+from resources.lib.FileAccess import *
 
 # Script constants
 __scriptname__ = "PseudoTV Live"
@@ -60,6 +61,7 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
             if os.path.exists(BCTPath):
                 try:
                     shutil.rmtree(BCTPath)
+                    xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "BCT Cache Cleared", 4000, thumb) )
                     REAL_SETTINGS.setSetting('ClearBCT', "false")
                 except:
                     REAL_SETTINGS.setSetting('ClearBCT', "false")
@@ -72,6 +74,7 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
             if os.path.exists(ARTPath):
                 try:
                     shutil.rmtree(ARTPath)
+                    xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "LiveTV Artwork Cache Cleared", 4000, thumb) )
                     REAL_SETTINGS.setSetting('ClearLiveArt', "false")
                 except:
                     REAL_SETTINGS.setSetting('ClearLiveArt', "false")
