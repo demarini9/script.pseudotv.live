@@ -114,7 +114,6 @@ else:
 
 MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media')) + '/'
 
-
 # if REAL_SETTINGS.getSetting('EnableSettop') == 'true':
     # REAL_SETTINGS.setSetting('Auto_Start', 'true')
     # REAL_SETTINGS.setSetting('timer_amount', '1')
