@@ -57,32 +57,10 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         self.showingInfo = False
         self.infoOffset = 0
         self.infoOffsetV = 0
-        self.Downloader = Downloader()
-        
+        self.Downloader = Downloader()        
         self.log('Using EPG Coloring = ' + str(REAL_SETTINGS.getSetting('EPGcolor_enabled')))
-        self.AltmediaPath =  xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
-        
-        #Set skin media folder, else default
-        if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media'))): 
-            MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media')) + '/'
-        else:
-            MEDIA_LOC = self.AltmediaPath
-        self.log('Mediapath is ' + MEDIA_LOC)
-
-        # Use the given focus and non-focus textures if they exist.  Otherwise use the defaults.
-        if os.path.exists(MEDIA_LOC + BUTTON_FOCUS):
-            self.textureButtonFocus = MEDIA_LOC + BUTTON_FOCUS
-        elif xbmc.skinHasImage(MEDIA_LOC + BUTTON_FOCUS):
-            self.textureButtonFocus = MEDIA_LOC + BUTTON_FOCUS
-        else:
-            self.textureButtonFocus = 'pstvlButtonFocus.png'
-
-        if os.path.exists(MEDIA_LOC + BUTTON_NO_FOCUS):
-            self.textureButtonNoFocus = MEDIA_LOC + BUTTON_NO_FOCUS
-        elif xbmc.skinHasImage(MEDIA_LOC + BUTTON_NO_FOCUS):
-            self.textureButtonNoFocus = MEDIA_LOC + BUTTON_NO_FOCUS
-        else:
-            self.textureButtonNoFocus = 'pstvlButtonNoFocus.png'
+        self.textureButtonFocus = MEDIA_LOC + BUTTON_FOCUS
+        self.textureButtonNoFocus = MEDIA_LOC + BUTTON_NO_FOCUS
 
         for i in range(self.rowCount):
             self.channelButtons[i] = []
@@ -130,11 +108,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         timeh = self.getControl(120).getHeight()
         
         #Set timebar path, else use alt. path
-        if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media', TIME_BAR))):
-            self.currentTimeBar = xbmcgui.ControlImage(timex, timey, timew, timeh, MEDIA_LOC + TIME_BAR)  
-        else:
-            self.currentTimeBar = xbmcgui.ControlImage(timex, timey, timew, timeh, self.AltmediaPath + TIME_BAR)      
-        self.log('Mediapath Time_Bar = ' + MEDIA_LOC + TIME_BAR)
+        self.currentTimeBar = xbmcgui.ControlImage(timex, timey, timew, timeh, MEDIA_LOC + TIME_BAR)  
         self.addControl(self.currentTimeBar)
         
         ### Skin labels, Set textcolor, focusedcolor and font. Rowcount todo ###
@@ -994,17 +968,17 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         
             if chtype <= 7:
                 mediapathSeason, filename = os.path.split(mediapath)
-                self.logDebug('setShowInfo.mediapathSeason = ' + uni(mediapathSeason))  
-                
                 mediapathSeries = os.path.dirname(mediapathSeason)
-                self.logDebug('setShowInfo.mediapathSeries = ' + uni(mediapathSeries))
                 
-                mediapathSeries1 = ascii(mediapathSeries + '/' + type1EXT)
-                mediapathSeason1 = ascii(mediapathSeason + '/' + type1EXT)  
+                mediapathSeries1 = ascii(os.path.join(mediapathSeries, type1EXT))
+                mediapathSeason1 = ascii(os.path.join(mediapathSeason, type1EXT))
+                
+                self.logDebug('setShowInfo.mediapathSeries = ' + uni(mediapathSeries1))
+                self.logDebug('setShowInfo.mediapathSeason = ' + uni(mediapathSeason1))  
 
-                if FileAccess.exists(mediapathSeries1):
+                if xbmcvfs.exists(mediapathSeries1):
                     self.getControl(508).setImage(mediapathSeries1)
-                elif FileAccess.exists(mediapathSeason1):
+                elif xbmcvfs.exists(mediapathSeason1):
                     self.getControl(508).setImage(mediapathSeason1)
                 else:
                     self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
@@ -1021,12 +995,12 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     elif REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "true" and chtype != 7:
                         xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype1+')')
             
-                mediapathSeries2 = ascii(mediapathSeries + '/' + type2EXT) 
-                mediapathSeason2 = ascii(mediapathSeason + '/' + type2EXT)
+                mediapathSeries2 = ascii(os.path.join(mediapathSeries, type2EXT))
+                mediapathSeason2 = ascii(os.path.join(mediapathSeason, type2EXT))
                 
-                if FileAccess.exists(mediapathSeries2):
+                if xbmcvfs.exists(mediapathSeries2):
                     self.getControl(510).setImage(mediapathSeries2)
-                elif FileAccess.exists(mediapathSeason2):
+                elif xbmcvfs.exists(mediapathSeason2):
                     self.getControl(510).setImage(mediapathSeason2)
                 else:
                     self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')

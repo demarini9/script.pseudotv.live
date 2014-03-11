@@ -830,6 +830,9 @@ class ScheduleChannelRule(BaseRule):
             item.description = channelList.channels[chan - 1].getItemDescription(startingep + i)
             item.title = channelList.channels[chan - 1].getItemTitle(startingep + i)
             item.episodetitle = channelList.channels[chan - 1].getItemEpisodeTitle(startingep + i)
+            item.genre = channelList.channels[chan - 1].getItemgenre(startingep + i)
+            item.timestamp = channelList.channels[chan - 1].getItemtimestamp(startingep + i)
+            item.LiveID = channelList.channels[chan - 1].getItemLiveID(startingep + i)
             channeldata.Playlist.itemlist.insert(showindex, item)
             channeldata.Playlist.totalDuration += item.duration
             showindex += 1
@@ -1042,9 +1045,14 @@ class InterleaveChannel(BaseRule):
 
                 # Added FOR loop to iterate interleaving multiple-continuous episodes from chosen channel
                 for i in range(numbereps):
-                    newstr = str(channelList.channels[chan - 1].getItemDuration(startingep - 1)) + ',' + channelList.channels[chan - 1].getItemTitle(startingep - 1)
-                    newstr += "//" + channelList.channels[chan - 1].getItemEpisodeTitle(startingep - 1)
-                    newstr += "//" + channelList.channels[chan - 1].getItemDescription(startingep - 1) + '\n' + channelList.channels[chan - 1].getItemFilename(startingep - 1)
+                    newstr = str(channelList.channels[chan - 1].getItemDuration(startingep - 1)) + ','
+                    newstr += channelList.channels[chan - 1].getItemTitle(startingep - 1) + "//" + channelList.channels[chan - 1].getItemEpisodeTitle(startingep - 1) + "//" + channelList.channels[chan - 1].getItemDescription(startingep - 1) + "//" + channelList.channels[chan - 1].getItemgenre(startingep - 1) + "//" + channelList.channels[chan - 1].getItemtimestamp(startingep - 1) + "//" + channelList.channels[chan - 1].getItemLiveID(startingep - 1)
+                    newstr = uni(newstr)
+                    newstr = newstr.replace("\\n", " ").replace("\\r", " ").replace("\\\"", "\"")
+                    newstr = uni(newstr) + uni('\n') + uni(channelList.channels[chan - 1].getItemFilename(startingep - 1))                  
+                    # newstr = str(channelList.channels[chan - 1].getItemDuration(startingep - 1)) + ',' + channelList.channels[chan - 1].getItemTitle(startingep - 1)
+                    # newstr += "//" + channelList.channels[chan - 1].getItemEpisodeTitle(startingep - 1)
+                    # newstr += "//" + channelList.channels[chan - 1].getItemDescription(startingep - 1) + '\n' + channelList.channels[chan - 1].getItemFilename(startingep - 1)
                     newfilelist.append(newstr)
                     # Moved startingep to FOR loop - otherwise it just adds the same file multiple times
                     startingep += 1
@@ -1549,5 +1557,4 @@ class EvenShowsRule(BaseRule):
                         return item
                         
         return ''
-
 

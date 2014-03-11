@@ -35,7 +35,7 @@ import tvdb_api
 # except:
    # import storageserverdummy as StorageServer
 
-# # cache = StorageServer.StorageServer("script.pseudotv.live", 24) # (Your plugin name, Cache time in hours)
+# cache = StorageServer.StorageServer("script.pseudotv.live", 24) # (Your plugin name, Cache time in hours)
 
 from urllib import unquote
 from urllib import urlopen
@@ -81,13 +81,7 @@ class ChannelList:
         self.cached_json_detailed_TV = []
         self.cached_json_detailed_Movie = []
         self.cached_json_detailed_trailers = []
-        
-        try:
-            self.Donor = Donor
-        except:
-            pass
 
-            
     def readConfig(self):
         self.channelResetSetting = int(REAL_SETTINGS.getSetting("ChannelResetSetting"))
         self.log('Channel Reset Setting is ' + str(self.channelResetSetting))
@@ -402,10 +396,8 @@ class ChannelList:
             if makenewlist:
             
                 try:#clean artwork folder
-                    artworkLOC = (xbmc.translatePath(os.path.join(ART_LOC)))
-                    self.logDebug("artworkLOC = " + str(artworkLOC))
-                    shutil.rmtree(artworkLOC)
-                    self.log("artwork cache folder cleaned")
+                    shutil.rmtree(ART_LOC)
+                    self.log("artwork cache folder cleared")
                 except:
                     pass
 
@@ -613,10 +605,10 @@ class ChannelList:
             
             # Validate XMLTV Data #
             if setting3 != '':
-                self.xmltv_ok(setting3)
+                xmltvValid = self.xmltv_ok(setting1, setting3)
             
             # Validate LiveTV Feed #
-            if self.xmltvValid == True:
+            if xmltvValid == True:
                 #Override Check# 
                 if REAL_SETTINGS.getSetting('Override_ok') == "true":
                     self.log("Overriding Stream Validation")
@@ -624,7 +616,7 @@ class ChannelList:
                 else:
                 
                     if setting2[0:4] == 'rtmp' or setting2[0:5] == 'rtmpe':#rtmp check
-                        self.rtmpDump(setting2)  
+                        self.rtmpValid = self.rtmpDump(setting2)  
                         if self.rtmpValid == True:   
                             fileList = self.buildLiveTVFileList(setting1, setting2, setting3, channel)    
                         else:
@@ -632,7 +624,7 @@ class ChannelList:
                             return    
                     
                     elif setting2[0:4] == 'http':#http check     
-                        self.url_ok(setting2) 
+                        self.urlValid = self.url_ok(setting2) 
                         if self.urlValid == True: 
                             fileList = self.buildLiveTVFileList(setting1, setting2, setting3, channel)    
                         else:
@@ -640,7 +632,7 @@ class ChannelList:
                             return    
                 
                     elif setting2[0:6] == 'plugin':#plugin check    
-                        self.plugin_ok(setting2)
+                        self.Pluginvalid = self.plugin_ok(setting2)
                         if self.Pluginvalid == True:
                             fileList = self.buildLiveTVFileList(setting1, setting2, setting3, channel)    
                         else:
@@ -648,7 +640,7 @@ class ChannelList:
                             return
                     
                     elif setting2[-4:] == 'strm':#strm check           
-                        self.strm_ok(setting2)
+                        self.strmValid = self.strm_ok(setting2)
                         if self.strmValid == True:
                             fileList = self.buildLiveTVFileList(setting1, setting2, setting3, channel) 
                             self.log('makeChannelList, Building STRM channel')
@@ -672,7 +664,7 @@ class ChannelList:
             else:
             
                 if setting2[0:4] == 'rtmp':#rtmp check
-                    self.rtmpDump(setting2)
+                    self.rtmpValid = self.rtmpDump(setting2)
                     if self.rtmpValid == True:
                         fileList = self.buildInternetTVFileList(setting1, setting2, setting3, setting4, channel)
                     else:
@@ -680,7 +672,7 @@ class ChannelList:
                         return
        
                 elif setting2[0:4] == 'http':#http check                
-                    self.url_ok(setting2)
+                    self.urlValid = self.url_ok(setting2)
                     if self.urlValid == True:
                         fileList = self.buildInternetTVFileList(setting1, setting2, setting3, setting4, channel)
                     else:
@@ -688,7 +680,7 @@ class ChannelList:
                         return   
                 
                 elif setting2[0:6] == 'plugin':#plugin check                
-                    self.plugin_ok(setting2)
+                    self.Pluginvalid = self.plugin_ok(setting2)
                     if self.Pluginvalid == True:
                         fileList = self.buildInternetTVFileList(setting1, setting2, setting3, setting4, channel)
                     else:
@@ -696,7 +688,7 @@ class ChannelList:
                         return
                 
                 elif setting2[-4:] == 'strm':#strm check           
-                    self.strm_ok(setting2)
+                    self.strmValid = self.strm_ok(setting2)
                     if self.strmValid == True:
                         fileList = self.buildInternetTVFileList(setting1, setting2, setting3, setting4, channel)
                         self.log('makeChannelList, Building STRM channel')
@@ -2345,25 +2337,21 @@ class ChannelList:
         
     def createYoutubeFilelist(self, setting1, setting2, setting3, setting4, channel):
         showList = []
-        seasoneplist = []
-        showcount = 0   
         limit = 0
         stop = 0
         safe = ''
         global youtube
         youtube = ''
 
-        if setting4 == '':
-            setting4 = '0'
-        
         if setting3 == '':
             limit = 50
-            self.log("createYoutubeFilelist, Using Global Parse-limit " + str(limit))
+            self.log("createYoutubeFilelist, Using Parse-limit = " + str(limit))
         else:
             limit = int(setting3)
-            self.log("createYoutubeFilelist, Overriding Global Parse-limit to " + str(limit))
+            self.log("createYoutubeFilelist, Overriding Parse-limit = " + str(limit))
             
-        if setting2 == '2':
+        # If Setting2 = User playlist pagination disabled, else loop through pagination of 25 entries per page and stop at limit.
+        if setting2 == '2' or setting2 == '9': 
             stop = 2
         else:
             stop = (limit / 25)
@@ -2402,17 +2390,8 @@ class ChannelList:
                     safe = 'none'
                 youtubesearchVideo = 'https://gdata.youtube.com/feeds/api/videos?q=' +setting1+ '&start-index=' +str(startIndex)+ '&max-results=25&safeSearch=' +safe+ '&v=2'
                 youtube = youtubesearchVideo    
-            # elif setting2 == '6': #youtube search: Channel
-                # self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", Youtube Search" + ", Limit = " + str(limit))
-                # SSearch = setting1.split('|')[0]
-                # if 'SSearch' in SSearch:
-                    # safe = 'strict'
-                    # setting1 = setting1.split('|')[1]
-                # else:
-                    # safe = 'none'
-                # youtubesearchChannel = 'https://gdata.youtube.com/feeds/api/channels?q=' +setting1+ '&start-index=' +str(startIndex)+ '&max-results=25&safeSearch=' +safe+ '&v=2'
-                # youtube = youtubesearchChannel      
-
+            elif setting2 == '9': #youtube raw gdata
+                youtube = setting1
             feed = feedparser.parse(youtube)
             self.logDebug('createYoutubeFilelist, youtube = ' + str(youtube))                
             startIndex = startIndex + 25
@@ -2897,11 +2876,11 @@ class ChannelList:
                 elif lines[0:9] == 'hdhomerun':#hdhomerun check 
                     self.logDebug("strm_ok.Lines hdhomerun = " + str(lines))
                     self.strmValid = True
-                    return
+                    return self.strmValid
                 elif lines[0:3] == 'udp':#udp check 
                     self.logDebug("strm_ok.Lines udp = " + str(lines))
                     self.strmValid = True
-                    return
+                    return self.strmValid
                 else:
                     self.logDebug("strm_ok.Lines defaulting no type found! = " + str(lines))
                     self.strmFailed = True
@@ -2919,14 +2898,18 @@ class ChannelList:
                     self.logDebug("strm_ok, file write lines = " + str(lines))
                 f.write(fallback)
                 f.close()
-                self.strmValid = True           
+                self.strmValid = True          
         except:
             pass
-            
+        
+        return self.strmValid        
+
    
-    def xmltv_ok(self, setting3):
+    def xmltv_ok(self, setting1, setting3):
         self.xmltvValid = False
         self.xmlTvFile = ''
+        linesLST = []
+        lines = ''
         self.log("setting3 = " + str(setting3))
         
         # if setting3 == 'ustvnow':
@@ -2955,14 +2938,19 @@ class ChannelList:
             self.log("xmltv_ok, testing " + str(self.xmlTvFile))
             try:
                 FileAccess.exists(self.xmlTvFile)
-                # channelplaylist.seek(0, 2)#todo add open, seek to verify info inside xmltv.xml
-                self.log("INFO: XMLTV Data Found...")
-                self.xmltvValid = True
+                self.log("INFO: XMLTV File Found...")
+                f = FileAccess.open(self.xmlTvFile, "rb")
+                linesLST = f.readlines()
+                for i in range(len(set(linesLST))):
+                    lines = linesLST[i]
+                    if setting1 in lines:
+                        self.log("INFO: XMLTV ZAPIT Data Found...")
+                        self.xmltvValid = True
             except IOError as e:
-                self.xmltvValid = False
-                self.log("ERROR: Problem accessing the DNS. " + str(setting3) +".xml XMLTV file NOT FOUND, ERROR: " + str(e))
+                self.log("ERROR: Problem accessing " + str(setting3) +".xml, ERROR: " + str(e))
 
         self.log("xmltvValid = " + str(self.xmltvValid))
+        return self.xmltvValid
                     
         
     def rtmpDump(self, stream):
@@ -3331,6 +3319,7 @@ class ChannelList:
     
     def GetCommercialList (self, channel, fileList):
         self.log("GetCommercialList")
+        self.Donor = Donor()
         CommercialCachePath = xbmc.translatePath(os.path.join(BCT_LOC, 'commercials')) + '/'   
         chtype = ADDON_SETTINGS.getSetting('Channel_' + str(channel) + '_type')
         
@@ -3385,14 +3374,14 @@ class ChannelList:
                 CommercialLST = self.readCache(CommercialCachePath, CommercialInternetCache)
                 
             elif CacheExpired == True:
-                try:    
-                    if self.background == False:
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Commercials")
-                    CommercialLST = self.Donor.InternetCommercial(CommercialCachePath)
-                    self.writeCache(CommercialLST, CommercialCachePath, CommercialInternetCache)
-                except:
-                    self.log("Donor Code Unavailable")
-                    pass
+                # try:    
+                if self.background == False:
+                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Commercials")
+                CommercialLST = self.Donor.InternetCommercial(CommercialCachePath)
+                self.writeCache(CommercialLST, CommercialCachePath, CommercialInternetCache)
+                # except:
+                    # self.log("Donor Code Unavailable")
+                    # pass
 
                     
         #Youtube
@@ -3420,6 +3409,7 @@ class ChannelList:
     
     def GetTrailerList (self, channel, fileList):
         self.log("GetTrailerList")
+        self.Donor = Donor()
         TrailerCachePath = xbmc.translatePath(os.path.join(BCT_LOC, 'trailers')) + '/'  
         chtype = (ADDON_SETTINGS.getSetting('Channel_' + str(channel) + '_type'))
         

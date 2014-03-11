@@ -256,14 +256,13 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                 REAL_SETTINGS.setSetting("Warning1","false")
                 self.Error('Unable to find any channels. \nPlease go to the Addon Settings to configure PseudoTV Live.')
                 self.end()
-                return
-                
+                return   
             del dlg
 
         if self.maxChannels == 0:
             self.Error('Unable to find any channels. Please configure the addon.')
+            found = False
             return
-        found = False
         
         for i in range(self.maxChannels):
             if self.channels[i].isValid:
@@ -782,17 +781,17 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         
             if chtype <= 7:
                 mediapathSeason, filename = os.path.split(mediapath)
-                self.logDebug('setShowInfo.mediapathSeason = ' + uni(mediapathSeason))  
-                
                 mediapathSeries = os.path.dirname(mediapathSeason)
-                self.logDebug('setShowInfo.mediapathSeries = ' + uni(mediapathSeries))
                 
-                mediapathSeries1 = ascii(mediapathSeries + '/' + type1EXT)
-                mediapathSeason1 = ascii(mediapathSeason + '/' + type1EXT)  
+                mediapathSeries1 = ascii(os.path.join(mediapathSeries, type1EXT))
+                mediapathSeason1 = ascii(os.path.join(mediapathSeason, type1EXT))
+                
+                self.logDebug('setShowInfo.mediapathSeries = ' + uni(mediapathSeries1))
+                self.logDebug('setShowInfo.mediapathSeason = ' + uni(mediapathSeason1))  
 
-                if FileAccess.exists(mediapathSeries1):
+                if xbmcvfs.exists(mediapathSeries1):
                     self.getControl(508).setImage(mediapathSeries1)
-                elif FileAccess.exists(mediapathSeason1):
+                elif xbmcvfs.exists(mediapathSeason1):
                     self.getControl(508).setImage(mediapathSeason1)
                 else:
                     self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
@@ -809,12 +808,12 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                     elif REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "true" and chtype != 7:
                         xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype1+')')
             
-                mediapathSeries2 = ascii(mediapathSeries + '/' + type2EXT) 
-                mediapathSeason2 = ascii(mediapathSeason + '/' + type2EXT)
+                mediapathSeries2 = ascii(os.path.join(mediapathSeries, type2EXT))
+                mediapathSeason2 = ascii(os.path.join(mediapathSeason, type2EXT))
                 
-                if FileAccess.exists(mediapathSeries2):
+                if xbmcvfs.exists(mediapathSeries2):
                     self.getControl(510).setImage(mediapathSeries2)
-                elif FileAccess.exists(mediapathSeason2):
+                elif xbmcvfs.exists(mediapathSeason2):
                     self.getControl(510).setImage(mediapathSeason2)
                 else:
                     self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
@@ -1242,7 +1241,6 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                     self.log('notification.init')     
                     mediapath = uni(self.channels[self.currentChannel - 1].getItemFilename(nextshow))         
                     self.logDebug('notification.mediapath.1 = ' + uni(mediapath))                        
-                    MEDIA_LOC =  xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
                     self.logDebug('notification.MEDIA_LOC = ' + uni(MEDIA_LOC))     
                     chtype = int(ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
                     title = 'Coming Up Next'   
@@ -1272,25 +1270,27 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                             type1EXT = (type + '.png')
                         self.logDebug('notification.type.ext = ' + str(type1EXT))  
 
-                        mediapathSeason, filename = os.path.split(mediapath)
-                        self.logDebug('notification.mediapath.2 = ' + uni(mediapathSeason))                            
+                        mediapathSeason, filename = os.path.split(mediapath)                        
                         mediapathSeries = os.path.dirname(mediapathSeason)
-                        self.logDebug('notification.mediapath.3 = ' + uni(mediapathSeries))
-                        mediapathSeries1 = (mediapathSeries + '/' + type1EXT)
-                        mediapathSeason1 = (mediapathSeason + '/' + type1EXT)   
+                        
+                        mediapathSeries1 = ascii(os.path.join(mediapathSeries, type1EXT))
+                        mediapathSeason1 = ascii(os.path.join(mediapathSeason, type1EXT))
+                        
+                        self.logDebug('notification.type.mediapathSeries = ' + uni(mediapathSeries1))
+                        self.logDebug('notification.type.mediapathSeason = ' + uni(mediapathSeason1))  
 
-                        if FileAccess.exists(mediapathSeries1):
+                        if xbmcvfs.exists(mediapathSeries1):
                             thumb = mediapathSeries1
-                        elif FileAccess.exists(mediapathSeason1):
+                        elif xbmcvfs.exists(mediapathSeason1):
                             thumb = mediapathSeason1
-                        elif FileAccess.exists(ChannelLogo):
+                        elif xbmcvfs.exists(ChannelLogo):
                             thumb = ChannelLogo
                         else: 
                             thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
 
                     elif chtype >= 8:
                     
-                        if FileAccess.exists(ChannelLogo):
+                        if xbmcvfs.exists(ChannelLogo):
                             thumb = ChannelLogo
                         elif mediapathSeason[0:6] == 'plugin':
                             id = mediapathSeason

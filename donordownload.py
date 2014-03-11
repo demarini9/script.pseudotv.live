@@ -78,7 +78,7 @@ if DonorDownload:
         REAL_SETTINGS.setSetting('Donor_Update', "false")
         xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Donor Features Activated\Updated\nThank you for your support...", 1000, thumb) )
     except:
-        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Donor Features Activated\Updated Failed\nTry Again Later...", 1000, thumb) )
+        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Donor Features Activated\Updated Failed!\nTry Again Later...", 1000, thumb) )
         xbmc.log('script.pseudotv.live-Downloading Donor.pyo Failed: EXCEPTION', xbmc.LOGERROR)
         pass
 

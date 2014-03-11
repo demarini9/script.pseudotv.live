@@ -613,26 +613,26 @@ class Migrate:
             if channelNum == 0:
                 channelNum = 1
                         
-            AT_PopCat = ['action','adventure','animation','british','comedy','crime','disaster','documentary','drama','eastern','erotic','family','fan+film','fantasy','film+noir','foreign','history','holiday','horror','indie','kids','music','musical','mystery','neo-noir','road+movie','romance','science+fiction','short','sport','sports+film','suspense','thriller','tv+movie','war','western']
-            ATPopCat = AT_PopCat[int(Globals.REAL_SETTINGS.getSetting('autoFindPopcornGenre'))]
+            # AT_PopCat = ['action','adventure','animation','british','comedy','crime','disaster','documentary','drama','eastern','erotic','family','fan+film','fantasy','film+noir','foreign','history','holiday','horror','indie','kids','music','musical','mystery','neo-noir','road+movie','romance','science+fiction','short','sport','sports+film','suspense','thriller','tv+movie','war','western']
+            # ATPopCat = AT_PopCat[int(Globals.REAL_SETTINGS.getSetting('autoFindPopcornGenre'))]
                
-            AT_PopYear = ['2010-Now','2000-2010','1990-2000','1980-1990','1970-1980','1960-1970','1950-1960','1940-1950','1930-1940','1920-1930','1910-1920']
-            ATPopYear = AT_PopYear[int(Globals.REAL_SETTINGS.getSetting('autoFindPopcornYear'))]
+            # AT_PopYear = ['2010-Now','2000-2010','1990-2000','1980-1990','1970-1980','1960-1970','1950-1960','1940-1950','1930-1940','1920-1930','1910-1920']
+            # ATPopYear = AT_PopYear[int(Globals.REAL_SETTINGS.getSetting('autoFindPopcornYear'))]
             
-            AT_PopRes = ['480','720','1080']
-            ATPopRes = AT_PopRes[int(Globals.REAL_SETTINGS.getSetting('autoFindPopcornResoultion'))]    
+            # AT_PopRes = ['480','720','1080']
+            # ATPopRes = AT_PopRes[int(Globals.REAL_SETTINGS.getSetting('autoFindPopcornResoultion'))]    
               
-            if Globals.REAL_SETTINGS.getSetting('autoFindPopcornPop') == "true":
-                ATPopCat = 'pop|' + ATPopCat
+            # if Globals.REAL_SETTINGS.getSetting('autoFindPopcornPop') == "true":
+                # ATPopCat = 'pop|' + ATPopCat
             
             for i in range(1):
                 # add Bringthepopcorn user presets
                 Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "14")
                 Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
                 Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "popcorn")
-                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_2", ATPopCat)
-                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_3", ATPopRes)
-                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_4", ATPopYear)
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_2", 'autotune')
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_3", '')
+                Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_4", '')
                 Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
                 Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
                 Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "BringThePopcorn")  

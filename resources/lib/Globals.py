@@ -111,9 +111,13 @@ if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skin
     EPGGENRE_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media', 'epg-genres')) + '/'
 else:
     EPGGENRE_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media', 'epg-genres')) + '/'
-
-MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media')) + '/'
-
+       
+if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media'))): 
+    MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media')) + '/'
+else:
+    MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
+ 
+ 
 # if REAL_SETTINGS.getSetting('EnableSettop') == 'true':
     # REAL_SETTINGS.setSetting('Auto_Start', 'true')
     # REAL_SETTINGS.setSetting('timer_amount', '1')
@@ -146,6 +150,7 @@ if USING_EDEN:
     except:
         pass
 
+        
 TIME_BAR = 'pstvlTimeBar.png'
 BUTTON_FOCUS = 'pstvlButtonFocus.png'
 BUTTON_NO_FOCUS = 'pstvlButtonNoFocus.png'
