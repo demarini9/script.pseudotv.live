@@ -261,18 +261,19 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
 
         if self.maxChannels == 0:
             self.Error('Unable to find any channels. Please configure the addon.')
-            found = False
             return
-        
+
+        found = False
+
         for i in range(self.maxChannels):
             if self.channels[i].isValid:
                 found = True
                 break
-                
+
         if found == False:
             self.Error("Unable to populate channels. Please verify that you", "have scraped media in your library and that you have", "properly configured channels.")
-
             return
+
         if self.sleepTimeValue > 0:
             self.sleepTimer = threading.Timer(self.sleepTimeValue, self.sleepAction)
 

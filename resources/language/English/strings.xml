@@ -76,7 +76,7 @@
                     <string id="30086">Find Music Videos using VevoTV (US Only)</string>
                     <string id="30089">Find Music Videos using Local Directory</string>
                     <string id="30090">InternetTV:</string>  
-                        <string id="30091">Plug-in Channels*</string>
+                        <string id="30091">Plug-in Channels* (OFFLINE)</string>
                         <string id="30092">BringThePopcorn Movies*</string>
                         <string id="30093">Select Genre</string>
                         <string id="30094">Select Year</string>
@@ -93,8 +93,8 @@
             <string id="30511">Enable Commercials</string>
             <string id="30512">Select Commercials Folder</string>
             <string id="30513">Enable Advertolog.com*</string>
-            <string id="30514">Advertolog Configuration</string>
-            <string id="30515">Preferred Internet Commercial Resolution</string>
+            <string id="30514">Select Region</string>
+            <string id="30515">Preferred Commercial Resolution</string>
             <string id="30516">Enable iSpot.tv*, Select Type</string>
             <string id="30517">Youtube Configuration</string>
             <string id="30518">Number of Commercials Between Shows</string>

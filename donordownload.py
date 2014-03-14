@@ -70,54 +70,55 @@ if REAL_SETTINGS.getSetting("Donor_Enabled") == "true":
         DonorDownload = True    
         
 if DonorDownload:
-    
     # Download Donor.pyo
     try:
         urllib.urlretrieve(DonorURLPath, fleMasterPath)
         xbmc.log('script.pseudotv.live-Downloading Donor.pyo')
         REAL_SETTINGS.setSetting('Donor_Update', "false")
-        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Donor Features Activated\Updated\nThank you for your support...", 1000, thumb) )
+        if os.path.exists(fleMasterPath):
+            xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Donor Features Activated\Updated\nXBMC Restart Required...", 1000, thumb) )
+        else:
+            xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Donor Features Activated\Updated Failed!\nTry Again Later...", 1000, thumb) )
     except:
         xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Donor Features Activated\Updated Failed!\nTry Again Later...", 1000, thumb) )
         xbmc.log('script.pseudotv.live-Downloading Donor.pyo Failed: EXCEPTION', xbmc.LOGERROR)
         pass
 
     # Download Generic.Zip
-    if os.path.exists(GenericPath):
-        xbmc.log('script.pseudotv.live-Removing Old Generic Folder')
-        try:
-            shutil.rmtree(GenericPath)
-        except:
-            xbmc.log('script.pseudotv.live-removing Generic.zip Failed: EXCEPTION', xbmc.LOGERROR)
-            pass
-    try:
-        xbmc.log('script.pseudotv.live-Downloading Generic.zip')
-        urllib.urlretrieve(GenericURLPath, GenericURLFlePath)
-    except:
-        xbmc.log('script.pseudotv.live-Downloading Generic.zip Failed: EXCEPTION', xbmc.LOGERROR)
-        pass
+    # if os.path.exists(GenericPath):
+        # xbmc.log('script.pseudotv.live-Removing Old Generic Folder')
+        # try:
+            # shutil.rmtree(GenericPath)
+        # except:
+            # xbmc.log('script.pseudotv.live-removing Generic.zip Failed: EXCEPTION', xbmc.LOGERROR)
+            # pass
+    # try:
+        # xbmc.log('script.pseudotv.live-Downloading Generic.zip')
+        # urllib.urlretrieve(GenericURLPath, GenericURLFlePath)
+    # except:
+        # xbmc.log('script.pseudotv.live-Downloading Generic.zip Failed: EXCEPTION', xbmc.LOGERROR)
+        # pass
     
-    try:
-        if not os.path.exists(StrmsPath):
-            os.makedirs(StrmsPath)   
-        xbmc.log('script.pseudotv.live - Extracting Generic.zip')
-        un.extract(GenericURLFlePath, StrmsPath)
-    except:
-        xbmc.log('script.pseudotv.live-extracting Generic.zip Failed: EXCEPTION', xbmc.LOGERROR)
-        pass
+    # try:
+        # if not os.path.exists(StrmsPath):
+            # os.makedirs(StrmsPath)   
+        # xbmc.log('script.pseudotv.live - Extracting Generic.zip')
+        # un.extract(GenericURLFlePath, StrmsPath)
+    # except:
+        # xbmc.log('script.pseudotv.live-extracting Generic.zip Failed: EXCEPTION', xbmc.LOGERROR)
+        # pass
     
-    try:
-        xbmc.log('script.pseudotv.live - Removing Generic.zip')
-        os.remove(GenericURLFlePath)
-    except:
-        xbmc.log('script.pseudotv.live-Updating Generic.zip Failed: EXCEPTION', xbmc.LOGERROR)
-        pass
+    # try:
+        # xbmc.log('script.pseudotv.live - Removing Generic.zip')
+        # os.remove(GenericURLFlePath)
+    # except:
+        # xbmc.log('script.pseudotv.live-Updating Generic.zip Failed: EXCEPTION', xbmc.LOGERROR)
+        # pass
 
-    if os.path.exists(GenericPath):
-        DonorInstall = True
+    # if os.path.exists(GenericPath):
+        # DonorInstall = True
         
-        
-if DonorInstall == True:
-    xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Donor Channels Synced!\nXBMC Restart Required", 1000, thumb) )
-else:
-    xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Not All Donor Channels Synced\nTry Again Later...", 1000, thumb) )
+# if DonorInstall == True:
+    # xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Donor Channels Synced!\nXBMC Restart Required", 1000, thumb) )
+# else:
+    # xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Not All Donor Channels Synced\nTry Again Later...", 1000, thumb) )
