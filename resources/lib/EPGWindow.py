@@ -62,6 +62,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         self.textureButtonFocus = MEDIA_LOC + BUTTON_FOCUS
         self.textureButtonNoFocus = MEDIA_LOC + BUTTON_NO_FOCUS
 
+
         for i in range(self.rowCount):
             self.channelButtons[i] = []
 
@@ -113,24 +114,16 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         
         ### Skin labels, Set textcolor, focusedcolor and font. Rowcount todo ###
         try:
-            textcolor = int(self.getControl(100).getLabel(), 16)            
+            textcolor = int(self.getControl(100).getLabel(), 16)
+            focusedcolor = int(self.getControl(100).getLabel2(), 16)
+            self.textfont =  self.getControl(105).getLabel()          
             if textcolor > 0:
                 self.textcolor = hex(textcolor)[2:]
                 self.logDebug("onInit.Self.textcolor = " + str(self.textcolor))
-        except:
-            pass
-        
-        try:
-            focusedcolor = int(self.getControl(99).getLabel(), 16)
+            
             if focusedcolor > 0:
                 self.focusedcolor = hex(focusedcolor)[2:]
-                self.logDebug("onInit.Self.focusedcolor = " + str(self.focusedcolor))
-        except:
-            pass
-        
-        try:    
-            self.textfont = self.getControl(105).getLabel()
-            self.logDebug("onInit.Self.textfont = " + str(self.textfont))
+
         except:
             pass
         
@@ -813,12 +806,12 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         #Check if VideoWindow Patch found, change label.
         skin = ('special://skin')
         fle = 'Custom_PTVL_9506.xml'
-        if xbmcvfs.exists(os.path.join(skin ,'1080i')):
+        if FileAccess.exists(os.path.join(skin ,'1080i')):
             skinPath = (os.path.join(skin ,'1080i', fle))
         else:
             skinPath = (os.path.join(skin ,'720p', fle))
             
-        if xbmcvfs.exists(skinPath):
+        if FileAccess.exists(skinPath):
             try:
                 self.getControl(523).setLabel('NOW WATCHING:')
             except:
@@ -871,7 +864,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
             pass
         
         jpg = ['banner', 'fanart', 'folder', 'landscape', 'poster']
-        png = ['character', 'clearart', 'logo']
+        png = ['character', 'clearart', 'logo', 'disc']
         
         if type1 in jpg:
             type1EXT = (type1 + '.jpg')
@@ -886,8 +879,8 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         self.logDebug('setShowInfo.type2.ext = ' + str(type2EXT))   
         
         #rename art types for script.artwork.downloader
-        arttype1 = type1.replace("folder", "poster").replace("landscape", "thumb").replace("character", "characterart").replace("logo", "clearlogo")
-        arttype2 = type2.replace("folder", "poster").replace("landscape", "thumb").replace("character", "characterart").replace("logo", "clearlogo")
+        arttype1 = type1.replace("folder", "poster").replace("character", "characterart").replace("logo", "clearlogo").replace("disc", "discart")
+        arttype2 = type2.replace("folder", "poster").replace("character", "characterart").replace("logo", "clearlogo").replace("disc", "discart")
         
         if not 'LiveID' in LiveID:
             try:
@@ -913,12 +906,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     self.logDebug('setShowInfo.LiveLST.dbid = ' + str(dbid))
                     type = dbidTYPE.split(',', 1)[-1]
                     self.logDebug('setShowInfo.LiveLST.type = ' + str(type))
-                    
-                    if arttype1 == 'thumb' and type == 'tvshow':
-                        arttype1 = ('tv' + arttype1)
-                    if arttype2 == 'thumb' and type == 'tvshow':
-                        arttype2 = ('tv' + arttype2)
-                    
+
                     if type == 'tvshow':
                         id = tvdbid
                     elif type == 'movie':
@@ -976,47 +964,36 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                 self.logDebug('setShowInfo.mediapathSeries = ' + uni(mediapathSeries1))
                 self.logDebug('setShowInfo.mediapathSeason = ' + uni(mediapathSeason1))  
 
-                if xbmcvfs.exists(mediapathSeries1):
+                if FileAccess.exists(mediapathSeries1):
                     self.getControl(508).setImage(mediapathSeries1)
-                elif xbmcvfs.exists(mediapathSeason1):
+                elif FileAccess.exists(mediapathSeason1):
                     self.getControl(508).setImage(mediapathSeason1)
                 else:
                     self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-                    
-                    # if REAL_SETTINGS.getSetting("EnableDown") == "1" and (REAL_SETTINGS.getSetting("TVFileSys") == "0" or REAL_SETTINGS.getSetting("MovieFileSys") == "0") and self.apis == True:
-                        # self.Downloader.ArtDownloader(type, id, type1, type1EXT, Mpath1, Ipath1)
-                    
-                    # elif REAL_SETTINGS.getSetting("EnableDown") == "1" and (REAL_SETTINGS.getSetting("TVFileSys") == "1" or REAL_SETTINGS.getSetting("MovieFileSys") == "1") and self.apis == True:
-                        # self.Downloader.ArtDownloader(type, id, type2, type2EXT, Mpath1, Ipath1)
-                    
-                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "false" and chtype != 7:
-                        xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, mode=gui, mediatype='+type+', dbid='+dbid+', '+arttype1+')')
-                    
-                    elif REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "true" and chtype != 7:
+
+                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and chtype != 7:
                         xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype1+')')
-            
+                        
+                    elif REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7 and self.apis == True:
+                        self.Downloader.ArtDownload(type, id, type1EXT, mediapathSeries1, mediapathSeason1)
+  
                 mediapathSeries2 = ascii(os.path.join(mediapathSeries, type2EXT))
                 mediapathSeason2 = ascii(os.path.join(mediapathSeason, type2EXT))
                 
-                if xbmcvfs.exists(mediapathSeries2):
+                if FileAccess.exists(mediapathSeries2):
                     self.getControl(510).setImage(mediapathSeries2)
-                elif xbmcvfs.exists(mediapathSeason2):
+                elif FileAccess.exists(mediapathSeason2):
                     self.getControl(510).setImage(mediapathSeason2)
                 else:
                     self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
-                    
-                    # if REAL_SETTINGS.getSetting("EnableDown") == "1" and (REAL_SETTINGS.getSetting("TVFileSys") == "0" or REAL_SETTINGS.getSetting("MovieFileSys") == "0") and self.apis == True:
-                        # self.Downloader.ArtDownloader(type, id, type2, type2EXT, Mpath2, Ipath2)
-                    
-                    # elif REAL_SETTINGS.getSetting("EnableDown") == "1" and (REAL_SETTINGS.getSetting("TVFileSys") == "1" or REAL_SETTINGS.getSetting("MovieFileSys") == "1") and self.apis == True:
-                        # self.Downloader.ArtDownloader(type, id, type2, type2EXT, Mpath2, Ipath2)
-                    
-                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "false" and chtype != 7:
-                        xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, mode=gui, mediatype='+type+', dbid='+dbid+', '+arttype2+')')
-                    
-                    elif REAL_SETTINGS.getSetting("EnableDown") == "2" and REAL_SETTINGS.getSetting("EnableDownSilent") == "true" and chtype != 7:
+
+                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and chtype != 7:
                         xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype2+')')
-                
+                        
+                    elif REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7 and self.apis == True:
+                        self.Downloader.ArtDownload(type, id, type2EXT, mediapathSeries2, mediapathSeason2)
+  
+                        
             #LiveTV w/ TVDBID via Fanart.TV        
             elif chtype == 8:
                 if REAL_SETTINGS.getSetting('Live.art.enable') == 'true' and self.apis == True:

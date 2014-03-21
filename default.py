@@ -17,9 +17,8 @@
 # along with PseudoTV.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, sys, re, shutil
-import xbmc, xbmcgui, xbmcaddon
+import xbmc, xbmcgui, xbmcaddon, xbmcvfs
 from resources.lib.Globals import *
-from resources.lib.FileAccess import *
 
 # Script constants
 __scriptname__ = "PseudoTV Live"
@@ -33,24 +32,6 @@ __cwd__        = __settings__.getAddonInfo('path')
 if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
     xbmcgui.Window(10000).setProperty("PseudoTVRunning", "True")
     shouldrestart = False
-
-#    if xbmc.executehttpapi("GetGuiSetting(1, services.webserver)")[4:] == "False":
-#        try:
-#            forcedserver = __settings__.getSetting("ForcedWebServer") == "True"
-#        except:
-#            forcedserver = False
-
-#        if forcedserver == False:
-#            dlg = xbmcgui.Dialog()
-#            retval = dlg.yesno('PseudoTV', 'PseudoTV will run more efficiently with the web', 'server enabled.  Would you like to turn it on?')
-#            __settings__.setSetting("ForcedWebServer", "True")
-
-#            if retval:
-#                xbmc.executehttpapi("SetGUISetting(3, services.webserverport, 8152)")
-#                xbmc.executehttpapi("SetGUISetting(1, services.webserver, true)")
-#                dlg.ok('PseudoTV', 'XBMC needs to shutdown in order to apply the', 'changes.')
-#                xbmc.executebuiltin("RestartApp()")
-#                shouldrestart = True
 
     if shouldrestart == False:
         BCTPath = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'bct')) + '/'

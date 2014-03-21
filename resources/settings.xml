@@ -8,13 +8,27 @@
         <setting id="notify" type="bool" label="30046" subsetting="true" visible="eq(-1,true)" default="true"/>
         <setting id="timer_amount" type="enum" values="0|5|10|15|20" label="30045" subsetting="true" visible="eq(-2,true)" default="0"/>
         <setting id="AutoOff" type="enum" label="30004" values="Disable|30|60|90|120|150|180|210|240" default="0"/>
-        <setting id="ForceChannelReset" type="bool" label="30005" default="false"/>
+        <setting id="ForceChannelReset" type="bool" label="30005" default="false" />
         <setting id="ChannelResetSetting" type="enum" label="30006" values="Automatic|Daily|Weekly|Monthly|Never|Every Time" default="0"/>
     	<setting id="StartMode" type="enum" label="30007" values="Resume|Real Time|Random" default="1" />
     	<setting id="ThreadMode" type="enum" label="30008" values="On|Minimum Use|Off" default="1" />
-        <setting id="ChannelSharing" type="bool" label="30009" default="false"/>
+    </category>
+<!--Sharing-->
+    <category label="30100">
+        <setting label="30101" type="lsep"/>
+        <setting id="ChannelSharing" type="bool" label="30009" default="false" />
         <setting id="HdhomerunMaster" subsetting="true" type="bool" label="30011" default="true" visible="eq(-1,true)" />
-    	<setting id="SettingsFolder" subsetting="true" type="folder" source="auto" visible="eq(-2,true)" label="30010" default="" />
+        <setting id="SettingsFolder" subsetting="true" type="folder" source="auto" visible="eq(-2,true)" label="30010" default="" />
+        <setting label="30102" type="lsep"/>
+        <setting id="UPNP1" type="bool" label="30103" default="false" />
+        <setting id="UPNP1_IPP" subsetting="true" type="text"  label="30709" visible="eq(-1,true)" default="IP:9090" />
+        <setting id="UPNP1_UPW" subsetting="true" type="text" label="30902" visible="eq(-2,true)" default="xbmc:xbmc" />
+        <setting id="UPNP2" type="bool" label="30104" default="false" />
+        <setting id="UPNP2_IPP" subsetting="true" type="text"  label="30709" visible="eq(-1,true)" default="IP:9090" />
+        <setting id="UPNP2_UPW" subsetting="true" type="text" label="30902" visible="eq(-2,true)" default="xbmc:xbmc" />
+        <setting id="UPNP3" type="bool" label="30105" default="false" />
+        <setting id="UPNP3_IPP" subsetting="true" type="text"  label="30709" visible="eq(-1,true)" default="IP:9090" />
+        <setting id="UPNP3_UPW" subsetting="true" type="text" label="30902" visible="eq(-2,true)" default="xbmc:xbmc" />
     </category>
 <!--Visual-->
     <category label="30200">
@@ -45,7 +59,7 @@
         <setting id="SUPchannel" type="enum"  label="30303" values="Last Channel|Preferred Channel" default="0"/>
         <setting id="CurrentChannel" type="text" label="30304" subsetting="true" visible="eq(-1,1)" default="1"/>
     	<setting id="EnableDown" type="enum" label="30305" values="Disabled|Direct Download (Coming Soon)|script.artwork.downloader" default="0" /> 
-        <setting id="EnableDownSilent" type="bool" label="30306" subsetting="true" visible="eq(-1,2)" default="true"/>
+        <!-- <setting id="EnableDownSilent" type="bool" label="30306" subsetting="true" visible="eq(-1,2)" default="true"/> -->
         <setting id="TVFileSys" type="enum" subsetting="true" label="30307" visible="eq(-2,1)" values="\Title\Season\Media.ext|\Title\Media.ext" default="0"/>
     	<setting id="MovieFileSys" type="enum" subsetting="true" label="30308" visible="eq(-3,1)" values="\Movies\Title\Media.ext|\Movies\Media.ext" default="0"/>
     	<setting id="ATLimit" label="30310" type="enum" values="25|50|100|250|500|1000|Unlimited" default="6"/>

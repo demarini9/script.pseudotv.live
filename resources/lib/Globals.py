@@ -17,7 +17,7 @@
 # along with PseudoTV.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import xbmcaddon, xbmc, xbmcgui
+import xbmcaddon, xbmc, xbmcgui, xbmcvfs
 import Settings
 import sys, re
 
@@ -65,26 +65,28 @@ MODE_RANDOM = 8
 MODE_REALTIME = 16
 MODE_SERIAL = MODE_RESUME | MODE_ALWAYSPAUSE | MODE_ORDERAIRDATE
 MODE_STARTMODES = MODE_RANDOM | MODE_REALTIME | MODE_RESUME
-
 CHANNEL_SHARING = False
+
+#LOCATIONS
 SETTINGS_LOC = 'special://profile/addon_data/' + ADDON_ID
-PRESETS_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'presets')) + '/'
 CHANNELS_LOC = os.path.join(SETTINGS_LOC, 'cache') + '/'
 GEN_CHAN_LOC = os.path.join(CHANNELS_LOC, 'generated') + '/'
 MADE_CHAN_LOC = os.path.join(CHANNELS_LOC, 'stored') + '/'
 ART_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'artwork')) + '/'
 BCT_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'bct')) + '/'
+DEFAULT_IMAGES_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'images')) + '/'
 
-LOCK_LOC = os.path.join(SETTINGS_LOC, 'cache') + '/'
+LOCK_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache' + '/'))
 if REAL_SETTINGS.getSetting('ChannelSharing') == "true":
     CHANNEL_SHARING = True
     LOCK_LOC = xbmc.translatePath(os.path.join(REAL_SETTINGS.getSetting('SettingsFolder'), 'cache')) + '/'
 
-######################################################
 
+    #SKIN SELECT
 if int(REAL_SETTINGS.getSetting('SkinSelector')) == 0:
     Skin_Select = 'default'
-    if REAL_SETTINGS.getSetting("SkinLogos") == "true":
+    
+if REAL_SETTINGS.getSetting("SkinLogos") == "true":
         REAL_SETTINGS.setSetting('ChannelLogoFolder', 'special://home/addons/script.pseudotv.live/resources/skins/default/images/')
 
 elif int(REAL_SETTINGS.getSetting('SkinSelector')) == 1:
@@ -98,10 +100,8 @@ elif int(REAL_SETTINGS.getSetting('SkinSelector')) == 2:
 elif int(REAL_SETTINGS.getSetting('SkinSelector')) == 3:
     Skin_Select = 'ConCast'
 
-########################################################
 
-DEFAULT_IMAGES_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'images')) + '/'
-
+#VERIFY PATHS
 if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'images'))):
     IMAGES_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'images')) + '/'
 else:
@@ -117,7 +117,7 @@ if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skin
 else:
     MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
  
- 
+#SETTOP BOX
 # if REAL_SETTINGS.getSetting('EnableSettop') == 'true':
     # REAL_SETTINGS.setSetting('Auto_Start', 'true')
     # REAL_SETTINGS.setSetting('timer_amount', '1')
@@ -128,29 +128,7 @@ AT_Limit = [25,50,100,250,500,1000,0]
 
 GlobalFileLock = FileLock()
 ADDON_SETTINGS = Settings.Settings()
-
-USING_EDEN = True
-USING_FRODO = False
-USING_GOTHAM = False
-
-try:
-    import xbmcvfs
-    log("Globals - Eden")
-except:
-    USING_EDEN = False
-    log("Globals - Dharma")
-
-if USING_EDEN:
-    try:
-        log("Trying Frodo")
-        xbmcgui.Window(10000).addControls(0)
-    except TypeError:
-        USING_FRODO = True
-        log("Globals - Frodo")
-    except:
-        pass
-
-        
+ 
 TIME_BAR = 'pstvlTimeBar.png'
 BUTTON_FOCUS = 'pstvlButtonFocus.png'
 BUTTON_NO_FOCUS = 'pstvlButtonNoFocus.png'

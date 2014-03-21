@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PseudoTV.  If not, see <http://www.gnu.org/licenses/>.
 
-import xbmc, xbmcgui, xbmcaddon
+import xbmc, xbmcgui, xbmcaddon, xbmcvfs
 import subprocess, os, sys, re
 import time, datetime, threading
 import httplib, urllib, urllib2, feedparser
@@ -258,10 +258,6 @@ class ChannelList:
         usedhttp = False
 
         self.determineWebServer()
-
-        if USING_EDEN:
-            command = command.replace('fields', 'properties')
-
         self.log('sendJSON command: ' + command)
 
         # If there have been problems using the server, just skip the attempt and use executejsonrpc
@@ -508,7 +504,7 @@ class ChannelList:
                 if tottime > (self.channels[channel - 1].totalTimePlayed - (60 * 60 * 12)):
                     tmpstr = str(self.channels[channel - 1].getItemDuration(i)) + ','
                     tmpstr += self.channels[channel - 1].getItemTitle(i) + "//" + self.channels[channel - 1].getItemEpisodeTitle(i) + "//" + self.channels[channel - 1].getItemDescription(i) + "//" + self.channels[channel - 1].getItemgenre(i) + "//" + self.channels[channel - 1].getItemtimestamp(i) + "//" + self.channels[channel - 1].getItemLiveID(i)
-                    tmpstr = uni(tmpstr)
+                    tmpstr = uni(tmpstr[:2036])
                     tmpstr = tmpstr.replace("\\n", " ").replace("\\r", " ").replace("\\\"", "\"")
                     tmpstr = uni(tmpstr) + uni('\n') + uni(self.channels[channel - 1].getItemFilename(i))
                     flewrite += uni("#EXTINF:") + uni(tmpstr) + uni("\n")
@@ -553,8 +549,7 @@ class ChannelList:
     # Open the smart playlist and read the name out of it...this is the channel name
     def getSmartPlaylistName(self, fle):
         self.log('getSmartPlaylistName')
-        #fle = xbmc.translatePath(fle)
-        fle = fle
+        fle = xbmc.translatePath(fle)
 
         try:
             xml = FileAccess.open(fle, "r")
@@ -735,7 +730,6 @@ class ChannelList:
             else:
                 fle = self.makeTypePlaylist(chtype, setting1, setting2)
             
-            #fle = xbmc.translatePath(fle)
             fle = fle
 
             if len(fle) == 0:
@@ -805,7 +799,7 @@ class ChannelList:
         if append == False:
             channelplaylist.write(uni("#EXTM3U\n"))
 
-        if None == fileList or len(fileList) == 0:
+        if len(fileList) == 0:
             self.log("Unable to get information about channel " + str(channel), xbmc.LOGERROR)
             channelplaylist.close()
             return False
@@ -816,18 +810,18 @@ class ChannelList:
         if reverseOrder:
             fileList.reverse()
 
-        if len(fileList) > 4096:
-            fileList = fileList[:4096]
+        if len(fileList) > 16384:
+            fileList = fileList[:16384]
 
         fileList = self.runActions(RULES_ACTION_LIST, channel, fileList)
         self.channels[channel - 1].isRandom = israndom
 
         if append:
-            if len(fileList) + self.channels[channel - 1].Playlist.size() > 4096:
-                fileList = fileList[:(4096 - self.channels[channel - 1].Playlist.size())]
+            if len(fileList) + self.channels[channel - 1].Playlist.size() > 16384:
+                fileList = fileList[:(16384 - self.channels[channel - 1].Playlist.size())]
         else:
-            if len(fileList) > 4096:
-                fileList = fileList[:4096]
+            if len(fileList) > 16384:
+                fileList = fileList[:16384]
 
         # Write each entry into the new playlist
         for string in fileList:
@@ -882,7 +876,8 @@ class ChannelList:
                 self.fillMusicInfo()
             return self.createGenrePlaylist('songs', chtype, setting1)
 
-            
+        self.log('makeTypePlaylists invalid channel type: ' + str(chtype))
+        return ''    
     def createNetworkPlaylist(self, network):
         flename = xbmc.makeLegalFilename(GEN_CHAN_LOC + 'Network_' + network + '.xsp')
 
@@ -909,7 +904,7 @@ class ChannelList:
                 fle.write('    <rule field="tvshow" operator="is">' + theshow + '</rule>\n')
                 added = True
 
-        self.writeXSPFooter(fle, limit, "random")
+        self.writeXSPFooter(fle, 0, "random")
         fle.close()
 
         if added == False:
@@ -921,9 +916,6 @@ class ChannelList:
     def createShowPlaylist(self, show, setting2):
         order = 'random'
 
-        limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
-        self.log('limit = ' + str(limit))  
-            
         try:
             setting = int(setting2)
 
@@ -943,7 +935,7 @@ class ChannelList:
         self.writeXSPHeader(fle, 'episodes', self.getChannelName(6, show))
         show = self.cleanString(show)
         fle.write('    <rule field="tvshow" operator="is">' + show + '</rule>\n')
-        self.writeXSPFooter(fle, limit, order)
+        self.writeXSPFooter(fle, 0, order)
         fle.close()
         return flename
 
@@ -977,9 +969,6 @@ class ChannelList:
     def createGenreMixedPlaylist(self, genre):
         flename = xbmc.makeLegalFilename(GEN_CHAN_LOC + 'Mixed_' + genre + '.xsp')
 
-        limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
-        self.log('limit = ' + str(limit))
-
         try:
             fle = FileAccess.open(flename, "w")
         except:
@@ -991,16 +980,13 @@ class ChannelList:
         self.writeXSPHeader(fle, 'mixed', self.getChannelName(5, genre))
         fle.write('    <rule field="playlist" operator="is">' + epname + '</rule>\n')
         fle.write('    <rule field="playlist" operator="is">' + moname + '</rule>\n')
-        self.writeXSPFooter(fle, limit, "random")
+        self.writeXSPFooter(fle, 0, "random")
         fle.close()
         return flename
 
 
     def createGenrePlaylist(self, pltype, chtype, genre):
         flename = xbmc.makeLegalFilename(GEN_CHAN_LOC + pltype + '_' + genre + '.xsp')
-
-        limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
-        self.log('limit = ' + str(limit))
 
         try:
             fle = FileAccess.open(flename, "w")
@@ -1011,16 +997,13 @@ class ChannelList:
         self.writeXSPHeader(fle, pltype, self.getChannelName(chtype, genre))
         genre = self.cleanString(genre)
         fle.write('    <rule field="genre" operator="is">' + genre + '</rule>\n')
-        self.writeXSPFooter(fle, limit, "random")
+        self.writeXSPFooter(fle, 0, "random")
         fle.close()
         return flename
 
 
     def createStudioPlaylist(self, studio):
         flename = xbmc.makeLegalFilename(GEN_CHAN_LOC + 'Studio_' + studio + '.xsp')
- 
-        limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
-        self.log('limit = ' + str(limit))
 
         try:
             fle = FileAccess.open(flename, "w")
@@ -1031,7 +1014,7 @@ class ChannelList:
         self.writeXSPHeader(fle, "movies", self.getChannelName(2, studio))
         studio = self.cleanString(studio)
         fle.write('    <rule field="studio" operator="is">' + studio + '</rule>\n')
-        self.writeXSPFooter(fle, limit, "random")
+        self.writeXSPFooter(fle, 0, "random")
         fle.close()
         return flename
 
@@ -1079,8 +1062,8 @@ class ChannelList:
                         afile = uni(os.path.split(match.group(1).replace("\\\\", "\\"))[1])
                         afile, ext = os.path.splitext(afile)
                         tmpstr = uni(str(duration) + ',')
-                        tmpstr += afile + "//" + thedir + "//" + 'Directory' + "////" + 'LiveID|'
-                        tmpstr = uni(tmpstr[:500])
+                        tmpstr += uni(afile) + uni("//") + uni(thedir) + uni("//") + uni("Directory") + uni("////") + uni("LiveID|")
+                        tmpstr = uni(tmpstr[:2036])
                         tmpstr = uni(tmpstr.replace("\\n", " ").replace("\\r", " ").replace("\\\"", "\""))
                         tmpstr += uni("\n") + uni(match.group(1).replace("\\\\", "\\"))
                         fileList.append(tmpstr)
@@ -1100,6 +1083,9 @@ class ChannelList:
 
 
     def writeXSPFooter(self, fle, limit, order):
+        limit = AT_Limit[int(REAL_SETTINGS.getSetting('ATLimit'))]
+        self.log('limit = ' + str(limit))  
+            
         if limit > 0:
             fle.write('    <limit>' + str(limit) + '</limit>\n')
 
@@ -1167,17 +1153,11 @@ class ChannelList:
                 del self.musicGenreList[:]
                 return
 
-            if USING_FRODO:
-                match = re.search('"genre" *: *\[(.*?)\]', f)
-            else:
-                match = re.search('"genre" *: *"(.*?)",', f)
-
+            match = re.search('"genre" *: *\[(.*?)\]', f)
+          
             if match:
-                if USING_FRODO:
-                    genres = match.group(1).split(',')
-                else:
-                    genres = match.group(1).split('/')
-
+                genres = match.group(1).split(',')
+               
                 for genre in genres:
                     found = False
                     curgenre = genre.lower().strip('"').strip()
@@ -1219,7 +1199,7 @@ class ChannelList:
     
     def fillTVInfo(self, sortbycount = False):
         self.log("fillTVInfo")
-        json_query = uni('{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "params": {"fields":["studio", "genre"]}, "id": 1}')
+        json_query = '{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "params": {"properties":["studio", "genre"]}, "id": 1}'
 
         if self.background == False:
             self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "adding videos", "reading TV data")
@@ -1234,19 +1214,11 @@ class ChannelList:
                 del self.showGenreList[:]
                 return
 
-            if USING_FRODO:
-                match = re.search('"studio" *: *\[(.*?)\]', f)
-            else:
-                match = re.search('"studio" *: *"(.*?)",', f)
-
+            match = re.search('"studio" *: *\[(.*?)\]', f)
             network = ''
 
             if match:
-                if USING_FRODO:
-                    network = (match.group(1).split(','))[0]
-                else:
-                    network = match.group(1)
-
+                network = (match.group(1).split(','))[0]
                 network = network.strip('"').strip()
                 found = False
 
@@ -1281,18 +1253,12 @@ class ChannelList:
             if match:
                 show = match.group(1).strip()
                 self.showList.append([show, network])
-
-            if USING_FRODO:
-                match = re.search('"genre" *: *\[(.*?)\]', f)
-            else:
-                match = re.search('"genre" *: *"(.*?)",', f)
+                
+            match = re.search('"genre" *: *\[(.*?)\]', f)
 
             if match:
-                if USING_FRODO:
-                    genres = match.group(1).split(',')
-                else:
-                    genres = match.group(1).split('/')
-
+                genres = match.group(1).split(',')
+                
                 for genre in genres:
                     found = False
                     curgenre = genre.lower().strip('"').strip()
@@ -1341,7 +1307,7 @@ class ChannelList:
     def fillMovieInfo(self, sortbycount = False):
         self.log("fillMovieInfo")
         studioList = []
-        json_query = uni('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"fields":["studio", "genre"]}, "id": 1}')
+        json_query = '{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"properties":["studio", "genre"]}, "id": 1}'
 
         if self.background == False:
             self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "adding videos", "reading movie data")
@@ -1357,16 +1323,10 @@ class ChannelList:
                 del studioList[:]
                 break
 
-            if USING_FRODO:
-                match = re.search('"genre" *: *\[(.*?)\]', f)
-            else:
-                match = re.search('"genre" *: *"(.*?)",', f)
+            match = re.search('"genre" *: *\[(.*?)\]', f)
 
             if match:
-                if USING_FRODO:
-                    genres = match.group(1).split(',')
-                else:
-                    genres = match.group(1).split('/')
+                genres = match.group(1).split(',')
 
                 for genre in genres:
                     found = False
@@ -1392,17 +1352,11 @@ class ChannelList:
                         else:
                             self.movieGenreList.append(genre.strip('"').strip())
 
-            if USING_FRODO:
-                match = re.search('"studio" *: *\[(.*?)\]', f)
-            else:
-                match = re.search('"studio" *: *"(.*?)"', f)
-
+            match = re.search('"studio" *: *\[(.*?)\]', f)
+           
             if match:
-                if USING_FRODO:
-                    studios = match.group(1).split(',')
-                else:
-                    studios = match.group(1).split('/')
-
+                studios = match.group(1).split(',')
+                
                 for studio in studios:
                     curstudio = studio.strip('"').strip()
                     found = False
@@ -1601,7 +1555,7 @@ class ChannelList:
         genre = ''
         cpManaged = False
         sbManaged = False
-        json_query = uni('{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s", "media": "video", "fields":["season","episode","playcount","duration","runtime","tagline","showtitle","album","artist","plot","plotoutline"]}, "id": 1}' % (self.escapeDirJSON(dir_name)))   
+        json_query = uni('{"jsonrpc": "2.0", "method": "Files.GetDirectory", "params": {"directory": "%s", "media": "video", "properties":["season","episode","playcount","streamdetails","duration","runtime","tagline","showtitle","album","artist","plot","plotoutline"]}, "id": 1}' % (self.escapeDirJSON(dir_name)))
 
         if self.background == False:
             self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "adding videos", "querying database")
@@ -1773,7 +1727,7 @@ class ChannelList:
 
                                 # This is a movie
                                 if album == None or len(album.group(1)) == 0:
-                                    tagline = re.search('"tagline" *: *"(.*?)",', f)
+                                    tagline = re.search('"tagline" *: *"(.*?)"', f)
                                     
                                     if tagline != None:
                                         tmpstr += tagline.group(1)
@@ -2865,11 +2819,9 @@ class ChannelList:
                 if lines[0:4] == 'rtmp':#rtmp check
                     rtmpOK = self.rtmpDump(lines)
                     self.logDebug("strm_ok.Lines rtmp = " + str(lines))
-                    #if invalid delete line
                 elif lines[0:4] == 'http':#http check                
                     urlOK = self.url_ok(lines)
                     self.logDebug("strm_ok.Lines http = " + str(lines))
-                    #if invalid delete line
                 elif lines[0:6] == 'plugin':#plugin check                
                     pluginOK = self.plugin_ok(lines)
                     self.logDebug("strm_ok.Lines plugin = " + str(lines))
@@ -3590,7 +3542,7 @@ class ChannelList:
         else:
             folders.append(path)
         for folder in folders:
-            if xbmcvfs.exists(xbmc.translatePath(folder)):
+            if FileAccess.exists(xbmc.translatePath(folder)):
                 # get all files and subfolders
                 dirs,files = xbmcvfs.listdir(folder)
                 for item in files:

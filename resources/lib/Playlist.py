@@ -131,6 +131,8 @@ class Playlist:
 
         if index >= 0 and index < len(self.itemlist):
             epit = self.itemlist[index].episodetitle
+            if ". " in epit:
+                param, epit = epit.split(". ",1)
             self.processingSemaphore.release()
             return epit
 
@@ -198,7 +200,7 @@ class Playlist:
             if realindex + 1 >= len(lines):
                 break
 
-            if len(self.itemlist) > 4096:
+            if len(self.itemlist) > 16384:
                 break
 
             try:
@@ -213,7 +215,7 @@ class Playlist:
 
                 if index > 0:
                     tmpitem.duration = int(line[8:index])
-                    tmpitem.title = line[index + 1:-1]
+                    tmpitem.title = line[index + 1:]
                     index = tmpitem.title.find('//')
 
                     if index >= 0:
@@ -268,7 +270,7 @@ class Playlist:
         for i in range(self.size()):
             tmpstr = str(self.getduration(i)) + ','
             tmpstr += self.getTitle(i) + "//" + self.getepisodetitle(i) + "//" + self.getdescription(i) + "//" + self.getgenre(i) + "//" + self.gettimestamp(i) + "//" + self.getLiveID(i)
-            tmpstr = tmpstr[:600]
+            tmpstr = tmpstr[:2036]
             tmpstr = tmpstr.replace("\\n", " ").replace("\\r", " ").replace("\\\"", "\"")
             tmpstr = tmpstr + '\n' + self.getfilename(i)
             flewrite += "#EXTINF:" + tmpstr + "\n"

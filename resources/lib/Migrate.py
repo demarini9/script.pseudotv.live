@@ -17,7 +17,7 @@
 # along with PseudoTV.  If not, see <http://www.gnu.org/licenses/>.
 
 import subprocess, os, re, sys, time
-import xbmcaddon, xbmc, xbmcgui
+import xbmcaddon, xbmc, xbmcgui, xbmcvfs
 import Settings, Globals, ChannelList
 import urllib, urllib2, httplib
 
@@ -233,69 +233,74 @@ class Migrate:
             if channelNum == 0:
                 channelNum = 1
                 
-            try:
-                HDstrmPath = Globals.REAL_SETTINGS.getSetting('autoFindLiveHDPath')
-                self.logDebug('autoFindLiveHD, HDstrmPath = ' + str(HDstrmPath))   
-                self.xmlTvFile = xbmc.translatePath(os.path.join(Globals.REAL_SETTINGS.getSetting('xmltvLOC'), 'xmltv.xml'))
-                self.logDebug('autoFindLiveHD, self.xmlTvFile = ' + str(self.xmlTvFile))   
-            
-                f = open(self.xmlTvFile, "rb")
-                tree = ET.parse(f)
-                root = tree.getroot()
+            # try:
+            HDstrmPath = Globals.REAL_SETTINGS.getSetting('autoFindLiveHDPath')
+            self.logDebug('autoFindLiveHD, HDstrmPath = ' + str(HDstrmPath))   
+            self.xmlTvFile = xbmc.translatePath(os.path.join(Globals.REAL_SETTINGS.getSetting('xmltvLOC'), 'xmltv.xml'))
+            self.logDebug('autoFindLiveHD, self.xmlTvFile = ' + str(self.xmlTvFile))   
+        
+            f = FileAccess.open(self.xmlTvFile, "rb")
+            tree = ET.parse(f)
+            root = tree.getroot()
 
-                LocalFLE = ''
-                LocalLST = os.listdir(HDstrmPath)
+            LocalFLE = ''
+            LocalLST = str(xbmcvfs.listdir(HDstrmPath)[1]).replace("[","").replace("]","").replace("'","")
+            LocalLST = LocalLST.split(", ")
+            print LocalLST
 
-                for n in range(len(LocalLST)):
-                    if '.strm' in LocalLST[n]:
-                        inSet = False
-                        LocalFLE = (LocalLST[n])
-                        filename = (HDstrmPath + '/' + LocalFLE)
-                        CHname = os.path.splitext(LocalFLE)[0]
+            for n in range(len(LocalLST)):
+                if '.strm' in (LocalLST[n]):
+                    print '.strm'
+                    inSet = False
+                    LocalFLE = (LocalLST[n])
+                    print LocalFLE
+                    filename = (HDstrmPath + LocalFLE)
+                    print filename
+                    CHname = os.path.splitext(LocalFLE)[0]
+                    print CHname
+                    for elem in root.getiterator():
+                        if elem.tag == ("channel"):
+                            name = elem.findall('display-name')
 
-                        for elem in root.getiterator():
-                            if elem.tag == ("channel"):
-                                name = elem.findall('display-name')
+                            for i in name:
+                                CHlst = ''
+                                RCHnum = (CHnum + 1)
+                                if CHname == i.text:
+                                    inSet = True
+                                    CHzapit = elem.attrib
+                                    CHzapit = str(CHzapit)
+                                    CHzapit = CHzapit.split(": '", 1)[-1]
+                                    CHzapit = CHzapit.split("'")[0]
+                                    CHlst = (CHlst + ',' + str(CHzapit))
 
-                                for i in name:
-                                    CHlst = ''
-                                    RCHnum = (CHnum + 1)
-                                    if CHname == i.text:
-                                        inSet = True
-                                        CHzapit = elem.attrib
-                                        CHzapit = str(CHzapit)
-                                        CHzapit = CHzapit.split(": '", 1)[-1]
-                                        CHzapit = CHzapit.split("'")[0]
-                                        CHlst = (CHlst + ',' + str(CHzapit))
-
-                        self.log('autoFindLiveHD, inSet = ' + str(inSet) + ' , ' +  str(CHlst))
-                        if inSet == True:
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "8")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", CHzapit)
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_2", filename)
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_3", "xmltv")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_4", "")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", CHname + ' LiveTV')  
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
-                            channelNum = channelNum + 1
-                        
-                        if inSet == False:
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "9")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "5400")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_2", filename)
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_3", CHname)
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_4", "XMLTV DATA NOT FOUND")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", CHname + ' LiveTV')  
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
-                            channelNum = channelNum + 1  
-            except:
-                pass
+                    self.log('autoFindLiveHD, inSet = ' + str(inSet) + ' , ' +  str(CHlst))
+                    if inSet == True:
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "8")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", CHzapit)
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_2", filename)
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_3", "xmltv")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_4", "")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", CHname + ' LiveTV')  
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                        channelNum = channelNum + 1
+                    
+                    if inSet == False:
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "9")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "5400")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_2", filename)
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_3", CHname)
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_4", "XMLTV DATA NOT FOUND")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", CHname + ' LiveTV')  
+                        Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                        channelNum = channelNum + 1  
+            # except:
+                # pass
             channelNum = channelNum
             self.logDebug('channelNum = ' + str(channelNum))
 
