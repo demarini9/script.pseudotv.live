@@ -24,19 +24,6 @@ import base64, shutil, random
 import Globals
 import tvdb_api
 
-# # Use json instead of simplejson when python v2.7 or greater
-# if sys.version_info < (2, 7):
-    # import simplejson
-# else:
-    # import json as simplejson
-    
-# try:
-    # import StorageServer
-# except:
-   # import storageserverdummy as StorageServer
-
-# cache = StorageServer.StorageServer("script.pseudotv.live", 24) # (Your plugin name, Cache time in hours)
-
 from urllib import unquote
 from urllib import urlopen
 from xml.etree import ElementTree as ET
@@ -55,7 +42,10 @@ from tmdb import *
 if REAL_SETTINGS.getSetting("Donor_Enabled") == "true":
     try:
         from Donor import *
+        # xbmc.log("Importing Donor Version " + str(DONOR_VERSION)
     except:
+        xbmc.log("Donor Import Failed")
+        REAL_SETTINGS.setSetting('Donor_Enabled', "False")
         pass
 
 class ChannelList:
@@ -2937,7 +2927,7 @@ class ChannelList:
         elif OSplat == '12':
             OSpath = '/usr/bin/rtmpdump'
             
-        RTMPDUMP = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'lib', 'rtmpdump', OSpath))
+        RTMPDUMP = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'lib', 'rtmpdump', OSpath))
         self.log("RTMPDUMP = " + RTMPDUMP)
         assert os.path.isfile(RTMPDUMP)
         
@@ -3271,7 +3261,6 @@ class ChannelList:
     
     def GetCommercialList (self, channel, fileList):
         self.log("GetCommercialList")
-        self.Donor = Donor()
         CommercialCachePath = xbmc.translatePath(os.path.join(BCT_LOC, 'commercials')) + '/'   
         chtype = ADDON_SETTINGS.getSetting('Channel_' + str(channel) + '_type')
         
@@ -3326,14 +3315,16 @@ class ChannelList:
                 CommercialLST = self.readCache(CommercialCachePath, CommercialInternetCache)
                 
             elif CacheExpired == True:
-                # try:    
-                if self.background == False:
-                    self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Commercials")
-                CommercialLST = self.Donor.InternetCommercial(CommercialCachePath)
-                self.writeCache(CommercialLST, CommercialCachePath, CommercialInternetCache)
-                # except:
-                    # self.log("Donor Code Unavailable")
-                    # pass
+                if REAL_SETTINGS.getSetting("Donor_Enabled") == "true":    
+                    try:
+                        self.Donor = Donor()   
+                        if self.background == False:
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Commercials")
+                        CommercialLST = self.Donor.InternetCommercial(CommercialCachePath)
+                        self.writeCache(CommercialLST, CommercialCachePath, CommercialInternetCache)
+                    except:
+                        self.log("Donor Code Unavailable")
+                        pass
 
                     
         #Youtube
@@ -3361,7 +3352,6 @@ class ChannelList:
     
     def GetTrailerList (self, channel, fileList):
         self.log("GetTrailerList")
-        self.Donor = Donor()
         TrailerCachePath = xbmc.translatePath(os.path.join(BCT_LOC, 'trailers')) + '/'  
         chtype = (ADDON_SETTINGS.getSetting('Channel_' + str(channel) + '_type'))
         
@@ -3495,14 +3485,16 @@ class ChannelList:
                 TrailerLST = self.readCache(TrailerCachePath, TrailerInternetCache)
                 
             elif CacheExpired == True:
-                try:    
-                    if self.background == False:
-                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Trailers")
-                    TrailerLST = self.Donor.InternetTrailer(TrailerCachePath)
-                    self.writeCache(TrailerLST, TrailerCachePath, TrailerInternetCache)
-                except:
-                    self.log("Donor Code Unavailable")
-                    pass
+                if REAL_SETTINGS.getSetting("Donor_Enabled") == "true":    
+                    try:
+                        self.Donor = Donor()      
+                        if self.background == False:
+                            self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Trailers")
+                        TrailerLST = self.InternetTrailer(TrailerCachePath)
+                        self.writeCache(TrailerLST, TrailerCachePath, TrailerInternetCache)
+                    except:
+                        self.log("Donor Code Unavailable")
+                        pass
 
         
         #Youtube
@@ -3559,7 +3551,7 @@ class ChannelList:
         self.log("writeCache")  
         now = datetime.datetime.today()
 
-        if not os.path.exists(os.path.join(thepath)):
+        if not FileAccess.exists(os.path.join(thepath)):
             os.makedirs(os.path.join(thepath))
         
         thefile = uni(thepath + thefile)        
@@ -3652,7 +3644,7 @@ class ChannelList:
         self.log("loadFavourites")   
         entries = list()
         path = xbmc.translatePath('special://userdata/favourites.xml')
-        if os.path.exists(path):
+        if FileAccess.exists(path):
             f = open(path)
             xml = f.read()
             f.close()
@@ -3677,13 +3669,19 @@ class ChannelList:
     
     def extras(self, setting1, setting2, setting3, setting4, channel):
         self.log("extras")
-        self.Donor = Donor()
-        if setting1 == 'popcorn':
-            showList = []
-            
-            if self.background == False:
-                self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "Parsing Bring the Popcorn...")
-            
-            showList = self.Donor.Bringpopcorn(setting2, setting3, setting4, channel)
-            return showList
+ 
+        if REAL_SETTINGS.getSetting("Donor_Enabled") == "true":    
+            try:
+                self.Donor = Donor()
+                if setting1 == 'popcorn':
+                    showList = []
+                    
+                    if self.background == False:
+                        self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(self.settingChannel), "Parsing Bring the Popcorn...")
+                    
+                    showList = self.Donor.Bringpopcorn(setting2, setting3, setting4, channel)
+                    return showList
+            except:
+                self.log("Donor Code Unavailable")
+                pass
     

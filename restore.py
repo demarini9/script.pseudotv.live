@@ -28,24 +28,26 @@ import xbmc, xbmcgui, xbmcaddon, xbmcvfs
 from resources.lib.Globals import *
 from resources.lib.FileAccess import *
 
-print "script.pseudotv.live-restore, Setting2 Restore Started"
+xbmc.log("script.pseudotv.live-restore, Setting2 Restore Started")
 
 settingsFile = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'settings2.xml'))
 nsettingsFile = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'settings2.bak.xml'))
-dlg = xbmcgui.Dialog()
-mediaPath =  xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
-thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
 
 if REAL_SETTINGS.getSetting("ATRestore") == "true":
     if FileAccess.exists(settingsFile) and FileAccess.exists(nsettingsFile):
-        # try:
-        xbmc.log('Autotune, Removing Setting2...')
-        os.remove(settingsFile)
-        xbmc.log('Autotune, Restoring Backup Setting2...')   
-        FileAccess.rename(nsettingsFile, settingsFile)  
-        REAL_SETTINGS.setSetting("ATRestore","false")   
-        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Backup Channels Restored", 4000, thumb) )
-        # except:        
-            # REAL_SETTINGS.setSetting("ATRestore","false")
-            # xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Restoring Backup Channels Failed!", 4000, thumb) )
-            # pass 
+        try:
+            xbmc.log('Autotune, Removing Setting2...')
+            os.remove(settingsFile)
+            xbmc.log('Autotune, Restoring Backup Setting2...')   
+            FileAccess.rename(nsettingsFile, settingsFile)  
+            REAL_SETTINGS.setSetting("ATRestore","false")   
+            MSG = "Backup Channels Restored"
+        except:        
+            REAL_SETTINGS.setSetting("ATRestore","false")
+            MSG = "Restoring Backup Channels Failed!"
+            pass
+    else:
+        MSG = "No Backup Found"
+        
+    xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", MSG, 4000, THUMB) )
+        

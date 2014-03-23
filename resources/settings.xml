@@ -99,7 +99,7 @@
         <setting id="autoFindInternetStrms" type="bool" label="30091" subsetting="true" visible="eq(-20,true)" default="false"/>
         <setting id="autoFindPopcorn" type="bool" label="30092" subsetting="true" visible="eq(-21,true)" default="false"/>
         <setting id="ATRestore" type="bool" label="30099" visible="eq(-23,false) "default="false"/>
-      	<setting id="Warning2" type="action" subsetting="true" label="30100" visible="eq(-1,true)" action="RunScript($CWD/restore.py)"/>  
+      	<setting id="Warning2" type="action" subsetting="true" label="30069" visible="eq(-1,true)" action="RunScript($CWD/restore.py)"/>  
         <setting label="30903" type="lsep" default="" /> 
     </category>
 <!--BCTs-->   

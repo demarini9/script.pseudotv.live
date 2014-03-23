@@ -35,20 +35,8 @@ from ChannelListThread import ChannelListThread
 from FileAccess import FileLock, FileAccess
 from Migrate import Migrate
 from Downloader import *
+from upnp import *
 
-                     
-def getUrl(url,data,user,pw):
-    req = urllib2.Request(url,data)
-    userpass = base64.encodestring('%s:%s' % (user, pw))[:-1]
-    req.add_header('Authorization', 'Basic %s' % userpass)
-    try:
-        response = urllib2.urlopen(req)
-        link=response.read()
-        response.close()
-        return link
-    except urllib2.URLError:
-        pass    
-    
       
 class MyPlayer(xbmc.Player):
     def __init__(self):
@@ -59,6 +47,24 @@ class MyPlayer(xbmc.Player):
     
     def log(self, msg, level = xbmc.LOGDEBUG):
         log('Player: ' + msg, level)
+    
+    
+    def onPlayBackStarted(self):
+        self.log('Playback started')
+        file = xbmc.Player().getPlayingFile()
+        file = file.replace("\\\\","\\")
+        seektime = 0
+        seektime = xbmc.Player().getTotalTime()
+        print seektime
+        if REAL_SETTINGS.getSetting("UPNP1") == "true":
+            self.log('UPNP1 Sharing')
+            UPNP1 = SendUPNP(IPP1, file, seektime)
+        if REAL_SETTINGS.getSetting("UPNP2") == "true":
+            self.log('UPNP2 Sharing')
+            UPNP2 = SendUPNP(IPP2, file, seektime)
+        if REAL_SETTINGS.getSetting("UPNP3") == "true":
+            self.log('UPNP3 Sharing')
+            UPNP3 = SendUPNP(IPP3, file, seektime)
     
     
     def onPlayBackStopped(self):
@@ -138,7 +144,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
     # override the doModal function so we can setup everything first
     def onInit(self):
         self.log('onInit')
-        self.log('PTVL Version = ' + VERSION)
+        self.log('PTVL Version = ' + ADDON_VERSION)
         self.channelList = ChannelList()
         
         settingsFile = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'settings2.xml'))
@@ -205,7 +211,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         self.playerTimer = threading.Timer(2.0, self.playerTimerAction)
         self.playerTimer.name = "PlayerTimer"
         self.infoTimer = threading.Timer(5.0, self.hideInfo)
-        self.myEPG = EPGWindow("script.pseudotv.live.EPG.xml", ADDON_INFO, Skin_Select)
+        self.myEPG = EPGWindow("script.pseudotv.live.EPG.xml", ADDON_PATH, Skin_Select)
         self.myEPG.MyOverlayWindow = self
         
         # Don't allow any actions during initialization
@@ -577,57 +583,18 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         self.log('setChannel return')
 
         #UPNP
+        file = self.channels[self.currentChannel - 1].getItemFilename(self.channels[self.currentChannel - 1].playlistPosition)
+        file = file.replace("\\\\","\\")
         if REAL_SETTINGS.getSetting("UPNP1") == "true":
             self.log('UPNP1 Sharing')
-            file = xbmc.Player().getPlayingFile()
-            file = file.replace("\\\\","\\")
-            print file
-            seek = str(datetime.timedelta(seconds=seektime))
-            seek = seek.split(":")
-            hours = str(seek[0])
-            minutes = str(seek[1])
-            Mseconds = str(seek[2])
-            seconds = str(Mseconds.split(".")[0])
-            milliseconds = str(Mseconds.split(".")[1])
-            print seektime
-            print seek
-            print hours
-            print minutes
-            print seconds
-            print milliseconds
-            data1 = json.dumps({"jsonrpc": "2.0", "method": "Player.Open", "params": {"item": {"file": file}}, "id": 1})
-            # data1 = json.dumps({"jsonrpc": "2.0", "method": "Player.Open", "params": {"item": {"file": file}, "options": {"resume": {"hours": hours, "minutes": minutes, "seconds": seconds, "milliseconds": milliseconds}}}, "id": 1})
-            IPP1 = (REAL_SETTINGS.getSetting("UPNP1_IPP"))
-            ipw1 = (REAL_SETTINGS.getSetting("UPNP1_UPW"))
-            user1 = ipw1.split(":")[0]
-            pw1 = ipw1.split(":")[1]
-            json_result = getUrl("http://"+IPP1+"/jsonrpc",data1,user1,pw1)
+            UPNP1 = SendUPNP(IPP1, file, seektime)
+        if REAL_SETTINGS.getSetting("UPNP2") == "true":
+            self.log('UPNP2 Sharing')
+            UPNP2 = SendUPNP(IPP2, file, seektime)
+        if REAL_SETTINGS.getSetting("UPNP3") == "true":
+            self.log('UPNP3 Sharing')
+            UPNP3 = SendUPNP(IPP3, file, seektime)
         
-        # if REAL_SETTINGS.getSetting("UPNP2") == "true": 
-            # file = xbmc.Player().getPlayingFile()
-            # file = file.replace("\\\\","\\")
-            # print file
-            # print seektime
-            # data2 = json.dumps({"jsonrpc": "2.0", "method": "Player.Open", "params": {"item": {"file": file}},  "id": 1})
-            # IPP2 = (REAL_SETTINGS.getSetting("UPNP2_IPP"))
-            # ipw2 = (REAL_SETTINGS.getSetting("UPNP2_UPW"))
-            # user2 = ipw2.split(":")[0]
-            # pw2 = ipw2.split(":")[1]
-            # json_result = getUrl("http://"+IPP2+"/jsonrpc",data2,user2,pw2)
-        
-        # if REAL_SETTINGS.getSetting("UPNP3") == "true": 
-            # file = xbmc.Player().getPlayingFile()
-            # file = file.replace("\\\\","\\")
-            # print file
-            # print seektime
-            # data3 = json.dumps({"jsonrpc": "2.0", "method": "Player.Open", "params": {"item": {"file": file}},  "id": 1})
-            # IPP3 = (REAL_SETTINGS.getSetting("UPNP3_IPP"))
-            # ipw3 = (REAL_SETTINGS.getSetting("UPNP3_UPW"))
-            # user3 = ipw3.split(":")[0]
-            # pw3 = ipw3.split(":")[1]
-            # json_result = getUrl("http://"+IPP3+"/jsonrpc",data3,user3,pw3)
-        
-
     def InvalidateChannel(self, channel):
         self.log("InvalidateChannel" + str(channel))
 
@@ -1539,6 +1506,14 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         self.isExiting = True
         updateDialog = xbmcgui.DialogProgress()
         updateDialog.create("PseudoTV Live", "Exiting")
+                
+        if REAL_SETTINGS.getSetting("UPNP1") == "true":
+            UPNP1 = StopUPNP(IPP1)
+        
+        if CHANNEL_SHARING and self.isMaster:
+            updateDialog.update(0, "Exiting", "Removing File Locks")
+            GlobalFileLock.unlockFile('MasterLock')
+        
         
         if CHANNEL_SHARING and self.isMaster:
             updateDialog.update(0, "Exiting", "Removing File Locks")

@@ -30,7 +30,7 @@ __author__     = "Lunatixz, Orginally Jason102 & Angrycamel"
 __url__        = "https://github.com/Lunatixz/script.pseudotv.live"
 __settings__   = xbmcaddon.Addon(id='script.pseudotv.live')
 __cwd__        = __settings__.getAddonInfo('path')
-__version__    = VERSION
+__version__    = ADDON_VERSION
 __language__   = __settings__.getLocalizedString
 __cwd__        = __settings__.getAddonInfo('path')
 

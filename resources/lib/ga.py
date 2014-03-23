@@ -55,7 +55,7 @@ if Globals.REAL_SETTINGS.getSetting('Visitor_GA') == '':
 VISITOR = str(Globals.REAL_SETTINGS.getSetting("Visitor_GA"))
 
 # The path to visit
-PATH = ("PTVL/" + str(VISITOR) + '/' + str(donor) + '/' + str(VERSION) + '/' + str(Skin_Select) + '/' + bcts)
+PATH = ("PTVL/" + str(VISITOR) + '/' + str(donor) + '/' + str(ADDON_VERSION) + '/' + str(Skin_Select) + '/' + bcts)
  
 # Collect everything in a dictionary
 DATA = {"utmwv": "5.2.2d",

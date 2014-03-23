@@ -6,8 +6,6 @@
         <string id="30044">Enable Autostart</string>
         <string id="30045">Delay Service (seconds)</string>
         <string id="30046">Show Notification</string>
-        <string id="30047">AutoStart PseudoTV Live</string>
-        <string id="30048">Service Starting...</string>
         <string id="30004">Auto-off Timer (minutes)</string>
         <string id="30005">Force channel reset on next start</string>
         <string id="30006">Time between channel resets</string>
@@ -33,7 +31,7 @@
         <string id="30214">Color EPG channel logo</string>
         <string id="30215">Hide very short videos</string>
         <string id="30216">Duration of "short" videos</string>  
-        <string id="30217">Patch Skin, Enable EPG VideoWindow</string>  
+        <string id="30217">EPG VideoWindow Patcher</string>  
     <string id="30220">Overlay:</string>
         <string id="30221">Show info when changing channels</string>
         <string id="30222">Info window duration (seconds)</string>   
@@ -89,7 +87,7 @@
                         <string id="30095">Select Resolution</string>
                         <string id="30096">Filter by Popularity</string>
                             <string id="30099">Restore Pre-Autotune Configuration</string>
-                            <string id="30100">Warning!! This will restore a previous channel configuration</string>
+                            <string id="30069">Warning!! This will restore a previous channel configuration</string>
 <string id="30499">BCTs</string> 
     <string id="30500">(B)umpers:</string> 
         <string id="30501">Enable Bumpers</string>

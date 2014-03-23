@@ -22,6 +22,7 @@ def replaceAll(file,searchExp,replaceExp):
         if searchExp in line:
             line = line.replace(searchExp,replaceExp)
         sys.stdout.write(line)
+        
 
 def main():
     pass
@@ -32,16 +33,9 @@ if __name__ == '__main__':
 import os, sys, re, fileinput
 import xbmc, xbmcgui, xbmcaddon, xbmcvfs
 from resources.lib.Globals import *
+from resources.lib.FileAccess import *
 
-print "script.pseudotv.live-VideoWindow, Patcher Started"
-
-found = False
-install = False
-copy = False
-patch = False
-dlg = xbmcgui.Dialog()
-mediaPath =  xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
-thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
+xbmc.log('script.pseudotv.live-VideoWindow.Patcher Started')
 
 # Find Addon Path
 AddonPath = 'special://home/addons/script.pseudotv.live/resources/skins/'
@@ -54,7 +48,7 @@ else:
 xbmc.log('script.pseudotv.live-VideoWindow.fleMasterPath = ' + fleMasterPath)
 
 
-# Find Pseudo Skin Path
+# Find PseudoTV Skin Path
 PseudoSkin = (os.path.join(fleMasterPath, Skin_Select, '720p')) + '/'
 
 if xbmcvfs.exists(PseudoSkin):
@@ -65,77 +59,115 @@ xbmc.log('script.pseudotv.live-VideoWindow.PseudoSkinfle = ' + PseudoSkinfle)
     
     
 # Find XBMC Skin Path
+Found = False
 skin = ('special://skin')
 fle = 'Custom_PTVL_9506.xml'
 
 if xbmcvfs.exists(os.path.join(skin ,'1080i')):
     skinPath = (os.path.join(skin ,'1080i', fle))
-    found = True
+    Found = True
 else:
     skinPath = (os.path.join(skin ,'720p', fle))
-    found = True
+    Found = True
 xbmc.log('script.pseudotv.live-VideoWindow.SkinPath = ' + skinPath)
-  
-Path = (os.path.join(ADDON_INFO, 'resources', 'skins', 'default', '720p'))
-flePath = (os.path.join(Path, fle))
 
+Path = (os.path.join(fleMasterPath, 'default', '720p'))
+flePath = (os.path.join(Path, fle))
+  
 a = '<!-- PATCH START -->'
 b = '<!-- PATCH START --> <!--'
 c = '<!-- PATCH END -->'
 d = '--> <!-- PATCH END -->'
 
+Install = False
+Installed = False
+Reapply = False
+Patched = False
+Error = False
+Uninstall = False
+UnPatch = False
+
 # Delete Old VideoWindow Patch
 if xbmcvfs.exists(skinPath):
-    if dlg.yesno("PseudoTV Live", "VideoWindow Patch Found!\nDelete Patch?"):
+    if dlg.yesno("PseudoTV Live", "VideoWindow Patch Found!\nRemove Patch?"):
         try:
-            xbmcvfs.delete(skinPath)   
-            replaceAll(PseudoSkinfle,a,b) #Replace with search n replace regex pattern todo  
-            replaceAll(PseudoSkinfle,c,d)
-            xbmc.log('script.pseudotv.live-VideoWindow, Deleted')
-            xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patch Deleted!", 4000, thumb) )
+            xbmcvfs.delete(skinPath) 
+            Uninstall = True
+            xbmc.log('script.pseudotv.live-VideoWindow, Uninstall')
         except:
-            xbmc.log('script.pseudotv.live-VideoWindow, Delete Failed')
+            xbmc.log('script.pseudotv.live-VideoWindow, Delete Patch Failed')
+            Error = True
+            pass
+            
+        try:
+            f = FileAccess.open(PseudoSkinfle, "r")
+            linesLST = f.readlines()            
+            f.close()
+            
+            for i in range(len(set(linesLST))):
+                lines = linesLST[i]
+                if a in lines:
+                    replaceAll(PseudoSkinfle,a,b)
+                elif c in lines:
+                    replaceAll(PseudoSkinfle,c,d)
+            UnPatch = True
+            xbmc.log('script.pseudotv.live-VideoWindow, UnPatch')
+        except:
+            xbmc.log('script.pseudotv.live-VideoWindow, Remove Patch Failed')
+            Error = True
             pass
     else:
-        if dlg.yesno("PseudoTV Live", "VideoWindow Patch Found!\nUpdate Skin?"):
-            found = True
+        if dlg.yesno("PseudoTV Live", "VideoWindow Patch Found!\nReapply Patch?"):
+            Reapply = True
 else:
-    install = True
+    Install = True
+  
+
   
 # Copy VideoWindow Patch  
-if install:
+if Found and Install:
     try:
-        xbmcvfs.copy(flePath, skinPath)   
-        replaceAll(PseudoSkinfle,b,a) #Replace with search n replace regex pattern todo  
-        replaceAll(PseudoSkinfle,d,c)
+        xbmcvfs.copy(flePath, skinPath)
         if xbmcvfs.exists(skinPath):
-            copy = True
+            Installed = True
+            xbmc.log('script.pseudotv.live-VideoWindow, Installed')
+            Reapply = True
     except:
-        xbmc.log('script.pseudotv.live-VideoWindow, Copy Failed')
+        xbmc.log('script.pseudotv.live-VideoWindow, Intall Failed')
+        Error = True
         pass
     
-    if copy:
-        xbmc.log('script.pseudotv.live-VideoWindow, Copied')
-        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patched!\nXBMC Restart Required", 4000, thumb) )
-    else:
-        xbmc.log('script.pseudotv.live-VideoWindow, Copy Failed')
-        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patch Error!", 4000, thumb) )
-
-# Update Pseudo Skin with VideoWindow Patch        
-if found:
-    try: 
-        replaceAll(PseudoSkinfle,b,a) #Replace with search n replace regex pattern todo  
-        replaceAll(PseudoSkinfle,d,c)
-        if xbmcvfs.exists(skinPath):
-            patch = True
-    except:
-        xbmc.log('script.pseudotv.live-VideoWindow, Copy Failed')
-        pass
-    
-    if patch:
-        xbmc.log('script.pseudotv.live-VideoWindow, Patched')
-        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patched!\nXBMC Restart Required", 4000, thumb) )
-    else:
-        xbmc.log('script.pseudotv.live-VideoWindow, Patched Failed')
-        xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "VideoWindow Patch Error!", 4000, thumb) )
+if Reapply:
+    try:
+        f = FileAccess.open(PseudoSkinfle, "r")
+        linesLST = f.readlines()            
+        f.close()
         
+        for i in range(len(set(linesLST))):
+            lines = linesLST[i]
+            if b in lines:
+                replaceAll(PseudoSkinfle,b,a)
+            elif d in lines:
+                replaceAll(PseudoSkinfle,d,c)            
+        xbmc.log('script.pseudotv.live-VideoWindow, Patched')
+        Patched = True
+    except:
+        xbmc.log('script.pseudotv.live-VideoWindow, Reapply Failed')
+        Error = True
+        pass
+    
+    
+if Installed or Patched:
+    MSG = "VideoWindow Patched!\nXBMC Restart Required"
+else:
+    MSG = "VideoWindow Patch Not Installed"
+    
+if Uninstall or UnPatch:
+    MSG = "VideoWindow Patch Removed!\nXBMC Restart Required"
+else:
+    MSG = "VideoWindow Patch Not Uninstalled"
+
+if Error:
+    MSG = "VideoWindow Patch Error!"
+    
+xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", MSG, 4000, THUMB) )

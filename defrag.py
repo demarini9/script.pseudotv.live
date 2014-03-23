@@ -1,53 +1,32 @@
-#-------------------------------------------------------------------------------
-# Name:        module2
-# Purpose:
-#
-# Author:      strtmkurt
-#
-# Created:     22/07/2013
-# Copyright:   (c) strtmkurt 2013
-# Licence:     <your licence>
-#-------------------------------------------------------------------------------
-
 def main():
     pass
 
 
-import re
-import os
-import xbmcaddon, xbmc, xbmcgui
+import os, sys, re, shutil
+import xbmc, xbmcgui, xbmcaddon, xbmcvfs
 
 from resources.lib.Globals import *
-from resources.lib.Settings import *
-from resources.lib.FileAccess import FileAccess
+from resources.lib.FileAccess import *
 
+settingsFile = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'settings2.xml'))
+nsettingsFile = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'new_settings2.xml'))
 
-flename = xbmc.translatePath(os.path.join(Globals.SETTINGS_LOC, 'settings2.xml'))  
-flenname = xbmc.translatePath(os.path.join(Globals.SETTINGS_LOC, 'new_settings2.xml'))  
-OpnFil = FileAccess.open(flename, "rb")
-WrtFil = FileAccess.open(flename, "w")
+OpnFil = FileAccess.open(settingsFile, "rb")
+WrtFil = FileAccess.open(settingsFile, "wb")
 WrtFil.write('<settings> \n')
-WrtFil.write('    ' + '<setting id="Version" value="2.1.0" />\n')                        
 
+# Number of total lines in Settings2.xml file
+nr_of_lines = len(OpnFil.readlines())
 
-    # Number of total lines in Settings2.xml file
-nr_of_lines = sum(1 for line in FileAccess.open(flename))
-
-# def simplecount(filename):
-    # lines = 0
-    # for line in FileAccess.open(flename):
-        # lines += 1
-    # return nr_of_lines
-
-    # Procedure to get the total number of channels for this Settings2.xml file
-    # High_Chan_Num variable will be the highest channel for the user
-    # ChanNum variable is used to compare the current input channel with the
-    # current highest channel (High_Chan_Num)
+# Procedure to get the total number of channels for this Settings2.xml file
+# High_Chan_Num variable will be the highest channel for the user
+# ChanNum variable is used to compare the current input channel with the
+# current highest channel (High_Chan_Num)
 
 High_Chan_Num = 0
-OpnFil.seek(0)  # Start file at the first line
+OpnFil.seek(0, 2)  # Start file at the first line
 for line in range(1, nr_of_lines): # Equal length of file
-    Xstring = OpnFil.readline() #Input line as string from Settings2.xml file
+    Xstring = str(OpnFil.readlines()) #Input line as string from Settings2.xml file
     ins = Xstring.split("_")    # Split the line into parts using "_" delimeter
         # If the first part <> this string, then get next line
     if ins[0] == "    <setting id=" + chr(34) + "Channel":
@@ -60,86 +39,89 @@ High_Chan_Num = High_Chan_Num + 1    #Add 1 for following procedures.
 
 for Num_Pos_Chan in range(1, High_Chan_Num): # Equal number of possible channels
 
-    OpnFil.seek(0)
+    OpnFil.seek(0, 2)
     for line in range(1, nr_of_lines): # Equal length of file
         Search_Item = "Channel_" + str(Num_Pos_Chan) + "_type"
-        Xstring = OpnFil.readline()
+        Xstring = OpnFil.readlines()
         if re.search(Search_Item, Xstring, re.I):
             WrtFil.write (Xstring)
 
-    OpnFil.seek(0)  # Start file at the first line
+    OpnFil.seek(0, 2)  # Start file at the first line
     for line in range(1, nr_of_lines): # Equal length of file
         Search_Item = "Channel_" + str(Num_Pos_Chan) + "_1"
-        Xstring = OpnFil.readline()
+        Xstring = OpnFil.readlines()
         if re.search(Search_Item, Xstring, re.I):
            WrtFil.write (Xstring)
 
-    OpnFil.seek(0)
+    OpnFil.seek(0, 2)
     for line in range(1, nr_of_lines): # Equal length of file
         Search_Item = "Channel_" + str(Num_Pos_Chan) + "_2"
-        Xstring = OpnFil.readline()
+        Xstring = OpnFil.readlines()
         if re.search(Search_Item, Xstring, re.I):
             WrtFil.write (Xstring)
 
-    OpnFil.seek(0)
+    OpnFil.seek(0, 2)
     for line in range(1, nr_of_lines): # Equal length of file
         Search_Item = "Channel_" + str(Num_Pos_Chan) + "_3"
-        Xstring = OpnFil.readline()
+        Xstring = OpnFil.readlines()
         if re.search(Search_Item, Xstring, re.I):
             WrtFil.write (Xstring)
 
-    OpnFil.seek(0)
+    OpnFil.seek(0, 2)
     for line in range(1, nr_of_lines): # Equal length of file
         Search_Item = "Channel_" + str(Num_Pos_Chan) + "_4"
-        Xstring = OpnFil.readline()
+        Xstring = OpnFil.readlines()
         if re.search(Search_Item, Xstring, re.I):
             WrtFil.write (Xstring)
 
-    OpnFil.seek(0)
+    OpnFil.seek(0, 2)
     for line in range(1, nr_of_lines): # Equal length of file
         Search_Item = "Channel_" + str(Num_Pos_Chan) + "_rule"
-        Xstring = OpnFil.readline()
+        Xstring = OpnFil.readlines()
         if re.search(Search_Item, Xstring, re.I):
             WrtFil.write (Xstring)
 
-    OpnFil.seek(0)
+    OpnFil.seek(0, 2)
     for line in range(1, nr_of_lines): # Equal length of file
         Search_Item = "Channel_" + str(Num_Pos_Chan) + "_changed"
-        Xstring = OpnFil.readline()
+        Xstring = OpnFil.readlines()
         if re.search(Search_Item, Xstring, re.I):
             WrtFil.write (Xstring)
 
-    OpnFil.seek(0)
+    OpnFil.seek(0, 2)
     for line in range(1, nr_of_lines): # Equal length of file
         Search_Item = "Channel_" + str(Num_Pos_Chan) + "_time"
-        Xstring = OpnFil.readline()
+        Xstring = OpnFil.readlines()
         if re.search(Search_Item, Xstring, re.I):
             WrtFil.write (Xstring)
 
-    OpnFil.seek(0)
+    OpnFil.seek(0, 2)
     for line in range(1, nr_of_lines): # Equal length of file
         Search_Item = "Channel_" + str(Num_Pos_Chan) + "_SetResetTime"
-        Xstring = OpnFil.readline()
+        Xstring = OpnFil.readlines()
         if re.search(Search_Item, Xstring, re.I):
             WrtFil.write (Xstring)
 
-OpnFil.seek(0)
-for line in range(1, nr_of_lines): # Equal length of file
-    #Search_Item_A = "LastExitTime"
-    #Search_Item_B = "LastResetTime"
-    Xstring = OpnFil.readline()
-    if re.search("LastExitTime", Xstring, re.I):
-        WrtFil.write (Xstring)
-    elif re.search("LastResetTime", Xstring, re.I):
-        WrtFil.write (Xstring)
+    OpnFil.seek(0, 2)
+    for line in range(1, nr_of_lines): # Equal length of file
+        #Search_Item_A = "LastExitTime"
+        #Search_Item_B = "LastResetTime"
+        Xstring = str(OpnFil.readlines())
+        if re.search("LastExitTime", Xstring, re.I):
+            WrtFil.write (Xstring)
+        elif re.search("LastResetTime", Xstring, re.I):
+            WrtFil.write (Xstring)
 
 WrtFil.write('</settings> \n')
 
 OpnFil.close()
 WrtFil.close()
 
-os.remove (flename)
-FileAccess.rename (flenname, flename)
+# try:
+os.remove(settingsFile)
+FileAccess.rename(nsettingsFile, settingsFile)
+# except:
+    # pass
 
 if __name__ == '__main__':
     main()

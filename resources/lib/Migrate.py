@@ -679,166 +679,166 @@ class Migrate:
             channelNum = channelNum + 2
             self.logDebug('channelNum = ' + str(channelNum))
             
-            if Globals.REAL_SETTINGS.getSetting("Donor_Enabled") == "true":        
-                self.updateDialogProgress = 50
-                self.updateDialog = xbmcgui.DialogProgress()
-                self.updateDialog.create("PseudoTV Live", "Auto Tune")
-                UserPass = Globals.REAL_SETTINGS.getSetting('Donor_UP')
-                self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV...","")
-                GenericPath = (xbmc.translatePath(os.path.join(Globals.SETTINGS_LOC, 'cache', 'strms', 'Generic')) + '/')
+            # if Globals.REAL_SETTINGS.getSetting("Donor_Enabled") == "true":        
+                # self.updateDialogProgress = 50
+                # self.updateDialog = xbmcgui.DialogProgress()
+                # self.updateDialog.create("PseudoTV Live", "Auto Tune")
+                # UserPass = Globals.REAL_SETTINGS.getSetting('Donor_UP')
+                # self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV...","")
+                # GenericPath = (xbmc.translatePath(os.path.join(Globals.SETTINGS_LOC, 'cache', 'strms', 'Generic')) + '/')
         
-                if os.path.exists(GenericPath):
-                    id = 'plugin.video.tgun'
-                    try:
-                        xbmcaddon.Addon(id)
-                        installed = True
-                    except:
-                        installed = False
+                # if os.path.exists(GenericPath):
+                    # id = 'plugin.video.tgun'
+                    # try:
+                        # xbmcaddon.Addon(id)
+                        # installed = True
+                    # except:
+                        # installed = False
 
-                    if installed == True:
-                        self.log("autoTune, Adding InternetTV TGUN")
-                        self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from TGUN","")
-                        InternetTgunTVMovies = (GenericPath + 'TGUN.-.TVMovies/')
-                        InternetTgunClassicTV = (GenericPath + 'TGUN.-.ClassicTV/')
-                        for i in range(1):
-                            # add TGUN
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetTgunTVMovies+ "")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "TGUN - TV/Movies")  
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_type", "7")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_time", "0")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_1", "" +InternetTgunClassicTV+ "")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rulecount", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_id", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_opt_1", "TGUN - ClassicTV")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_changed", "true")
+                    # if installed == True:
+                        # self.log("autoTune, Adding InternetTV TGUN")
+                        # self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from TGUN","")
+                        # InternetTgunTVMovies = (GenericPath + 'TGUN.-.TVMovies/')
+                        # InternetTgunClassicTV = (GenericPath + 'TGUN.-.ClassicTV/')
+                        # for i in range(1):
+                            # # add TGUN
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetTgunTVMovies+ "")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "TGUN - TV/Movies")  
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_type", "7")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_time", "0")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_1", "" +InternetTgunClassicTV+ "")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rulecount", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_id", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_opt_1", "TGUN - ClassicTV")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_changed", "true")
 
-                    channelNum = channelNum + 2
-                    self.logDebug('channelNum = ' + str(channelNum))   
+                    # channelNum = channelNum + 2
+                    # self.logDebug('channelNum = ' + str(channelNum))   
 
-                    id = 'plugin.video.jtv.archives'            
-                    try:
-                        xbmcaddon.Addon(id)
-                        installed = True
-                    except Exception:
-                        installed = False
+                    # id = 'plugin.video.jtv.archives'            
+                    # try:
+                        # xbmcaddon.Addon(id)
+                        # installed = True
+                    # except Exception:
+                        # installed = False
 
-                    if installed == True:
-                        self.log("autoTune, Adding InternetTV JTV")
-                        self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from JTV","")
-                        InternetJTVDocumentary = (GenericPath + 'JTV.-.Documentary/')
-                        InternetJTVMovies = (GenericPath + 'JTV.-.Movies/')
-                        InternetJTVSeries = (GenericPath + 'JTV.-.Series/')
-                        for i in range(1):
-                            # add JTV
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetJTVDocumentary+ "")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "JTV - Documentary")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_type", "7")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_time", "0")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_1", "" +InternetJTVMovies+ "")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rulecount", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_id", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_opt_1", "JTV - Movies")  
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_changed", "true")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_type", "7")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_time", "0")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_1", "" +InternetJTVSeries+ "")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_rulecount", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_rule_1_id", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_rule_1_opt_1", "JTV - Series")  
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_changed", "true")
+                    # if installed == True:
+                        # self.log("autoTune, Adding InternetTV JTV")
+                        # self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from JTV","")
+                        # InternetJTVDocumentary = (GenericPath + 'JTV.-.Documentary/')
+                        # InternetJTVMovies = (GenericPath + 'JTV.-.Movies/')
+                        # InternetJTVSeries = (GenericPath + 'JTV.-.Series/')
+                        # for i in range(1):
+                            # # add JTV
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetJTVDocumentary+ "")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "JTV - Documentary")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_type", "7")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_time", "0")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_1", "" +InternetJTVMovies+ "")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rulecount", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_id", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_opt_1", "JTV - Movies")  
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_changed", "true")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_type", "7")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_time", "0")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_1", "" +InternetJTVSeries+ "")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_rulecount", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_rule_1_id", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_rule_1_opt_1", "JTV - Series")  
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 2) + "_changed", "true")
 
-                    channelNum = channelNum + 3
-                    self.logDebug('channelNum = ' + str(channelNum))
+                    # channelNum = channelNum + 3
+                    # self.logDebug('channelNum = ' + str(channelNum))
 
-                    id = 'plugin://plugin.video.F.T.V'            
-                    try:
-                        xbmcaddon.Addon(id)
-                        installed = True
-                    except Exception:
-                        installed = False
+                    # id = 'plugin://plugin.video.F.T.V'            
+                    # try:
+                        # xbmcaddon.Addon(id)
+                        # installed = True
+                    # except Exception:
+                        # installed = False
 
-                    if installed == True:
-                        self.log("autoTune, Adding InternetTV FTV")
-                        self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from FTV","")
-                        InternetFTVMovies = (GenericPath + 'FilmOn.-.Movies/')
-                        InternetFTVMusic = (GenericPath + 'FilmOn.-.Music/')
-                        for i in range(1):
-                            # add FTV
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetFTVMovies+ "")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "FTV - Movies")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_type", "7")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_time", "0")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_1", "" +InternetFTVMusic+ "")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rulecount", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_id", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_opt_1", "FTV - Music")  
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_changed", "true")
+                    # if installed == True:
+                        # self.log("autoTune, Adding InternetTV FTV")
+                        # self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from FTV","")
+                        # InternetFTVMovies = (GenericPath + 'FilmOn.-.Movies/')
+                        # InternetFTVMusic = (GenericPath + 'FilmOn.-.Music/')
+                        # for i in range(1):
+                            # # add FTV
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetFTVMovies+ "")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "FTV - Movies")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_type", "7")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_time", "0")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_1", "" +InternetFTVMusic+ "")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rulecount", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_id", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_rule_1_opt_1", "FTV - Music")  
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum + 1) + "_changed", "true")
 
-                    channelNum = channelNum + 2
-                    self.logDebug('channelNum = ' + str(channelNum))
+                    # channelNum = channelNum + 2
+                    # self.logDebug('channelNum = ' + str(channelNum))
 
-                    id = 'plugin://plugin.video.foodnetwork'            
-                    try:
-                        xbmcaddon.Addon(id)
-                        installed = True
-                    except Exception:
-                        installed = False
+                    # id = 'plugin://plugin.video.foodnetwork'            
+                    # try:
+                        # xbmcaddon.Addon(id)
+                        # installed = True
+                    # except Exception:
+                        # installed = False
 
-                    if installed == True:
-                        self.log("autoTune, Adding InternetTV FoodNetwork")
-                        self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from FoodNetwork","")
-                        InternetFoodNetwork = (GenericPath + 'Generic/Food.Network/')
-                        for i in range(1):
-                            # add FoodNetwork
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetFoodNetwork+ "")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "Food Network")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                    # if installed == True:
+                        # self.log("autoTune, Adding InternetTV FoodNetwork")
+                        # self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from FoodNetwork","")
+                        # InternetFoodNetwork = (GenericPath + 'Generic/Food.Network/')
+                        # for i in range(1):
+                            # # add FoodNetwork
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetFoodNetwork+ "")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "Food Network")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
 
-                    channelNum = channelNum + 1
-                    self.logDebug('channelNum = ' + str(channelNum))
+                    # channelNum = channelNum + 1
+                    # self.logDebug('channelNum = ' + str(channelNum))
 
-                    id = 'plugin://plugin.video.supercartoons'            
-                    try:
-                        xbmcaddon.Addon(id)
-                        installed = True
-                    except Exception:
-                        installed = False
+                    # id = 'plugin://plugin.video.supercartoons'            
+                    # try:
+                        # xbmcaddon.Addon(id)
+                        # installed = True
+                    # except Exception:
+                        # installed = False
 
-                    if installed == True:
-                        self.log("autoTune, Adding InternetTV Supercartoons")
-                        self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from Supercartoons","")
-                        InternetSupercartoons = (GenericPath + 'SuperCartoons/')
-                        for i in range(1):
-                            # add Supercartoons
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetSupercartoons+ "")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "Super Cartoons")
-                            Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
+                    # if installed == True:
+                        # self.log("autoTune, Adding InternetTV Supercartoons")
+                        # self.updateDialog.update(self.updateDialogProgress,"Auto Tune","Adding InternetTV from Supercartoons","")
+                        # InternetSupercartoons = (GenericPath + 'SuperCartoons/')
+                        # for i in range(1):
+                            # # add Supercartoons
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_type", "7")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_time", "0")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_1", "" +InternetSupercartoons+ "")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rulecount", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_id", "1")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_rule_1_opt_1", "Super Cartoons")
+                            # Globals.ADDON_SETTINGS.setSetting("Channel_" + str(channelNum) + "_changed", "true")
 
-                    channelNum = channelNum + 1
-                    self.logDebug('channelNum = ' + str(channelNum))
+                    # channelNum = channelNum + 1
+                    # self.logDebug('channelNum = ' + str(channelNum))
             
            
         Globals.ADDON_SETTINGS.writeSettings()

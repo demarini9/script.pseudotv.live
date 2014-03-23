@@ -46,10 +46,13 @@ def ascii(string):
 
     return string
 
+dlg = xbmcgui.Dialog()
+
 ADDON_ID = 'script.pseudotv.live'
 REAL_SETTINGS = xbmcaddon.Addon(id=ADDON_ID)
-ADDON_INFO = REAL_SETTINGS.getAddonInfo('path')
-VERSION = "0.3.5"
+ADDON_PATH = REAL_SETTINGS.getAddonInfo('path')
+ADDON_VERSION = REAL_SETTINGS.getAddonInfo('version')
+
 TIMEOUT = 15 * 1000
 TOTAL_FILL_CHANNELS = 20
 PREP_CHANNEL_TIME = 60 * 60 * 24 * 5
@@ -67,6 +70,11 @@ MODE_SERIAL = MODE_RESUME | MODE_ALWAYSPAUSE | MODE_ORDERAIRDATE
 MODE_STARTMODES = MODE_RANDOM | MODE_REALTIME | MODE_RESUME
 CHANNEL_SHARING = False
 
+#UPNP Clients
+IPP1 = (REAL_SETTINGS.getSetting("UPNP1_IPP"))
+IPP2 = (REAL_SETTINGS.getSetting("UPNP2_IPP"))
+IPP3 = (REAL_SETTINGS.getSetting("UPNP3_IPP"))
+
 #LOCATIONS
 SETTINGS_LOC = 'special://profile/addon_data/' + ADDON_ID
 CHANNELS_LOC = os.path.join(SETTINGS_LOC, 'cache') + '/'
@@ -74,7 +82,9 @@ GEN_CHAN_LOC = os.path.join(CHANNELS_LOC, 'generated') + '/'
 MADE_CHAN_LOC = os.path.join(CHANNELS_LOC, 'stored') + '/'
 ART_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'artwork')) + '/'
 BCT_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'bct')) + '/'
-DEFAULT_IMAGES_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'images')) + '/'
+DEFAULT_IMAGES_LOC = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', 'Default', 'images')) + '/'
+DEFAULT_MEDIA_LOC =  xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', 'Default', 'media')) + '/'
+THUMB = (DEFAULT_IMAGES_LOC + 'icon.png')
 
 LOCK_LOC = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache' + '/'))
 if REAL_SETTINGS.getSetting('ChannelSharing') == "true":
@@ -82,12 +92,12 @@ if REAL_SETTINGS.getSetting('ChannelSharing') == "true":
     LOCK_LOC = xbmc.translatePath(os.path.join(REAL_SETTINGS.getSetting('SettingsFolder'), 'cache')) + '/'
 
 
-    #SKIN SELECT
+#SKIN SELECT
 if int(REAL_SETTINGS.getSetting('SkinSelector')) == 0:
-    Skin_Select = 'default'
+    Skin_Select = 'Default'
     
 if REAL_SETTINGS.getSetting("SkinLogos") == "true":
-        REAL_SETTINGS.setSetting('ChannelLogoFolder', 'special://home/addons/script.pseudotv.live/resources/skins/default/images/')
+        REAL_SETTINGS.setSetting('ChannelLogoFolder', 'special://home/addons/script.pseudotv.live/resources/skins/Default/images/')
 
 elif int(REAL_SETTINGS.getSetting('SkinSelector')) == 1:
     Skin_Select = 'PTVL'
@@ -102,20 +112,20 @@ elif int(REAL_SETTINGS.getSetting('SkinSelector')) == 3:
 
 
 #VERIFY PATHS
-if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'images'))):
-    IMAGES_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'images')) + '/'
+if xbmcvfs.exists(xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', Skin_Select, 'images'))):
+    IMAGES_LOC = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', Skin_Select, 'images')) + '/'
 else:
-    IMAGES_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'images')) + '/'
+    IMAGES_LOC = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', 'Default', 'images')) + '/'
 
-if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media', 'epg-genres')) + '/'):
-    EPGGENRE_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media', 'epg-genres')) + '/'
+if xbmcvfs.exists(xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', Skin_Select, 'media', 'epg-genres')) + '/'):
+    EPGGENRE_LOC = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', Skin_Select, 'media', 'epg-genres')) + '/'
 else:
-    EPGGENRE_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media', 'epg-genres')) + '/'
+    EPGGENRE_LOC = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', 'Default', 'media', 'epg-genres')) + '/'
        
-if os.path.exists(xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media'))): 
-    MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', Skin_Select, 'media')) + '/'
+if xbmcvfs.exists(xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', Skin_Select, 'media'))): 
+    MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', Skin_Select, 'media')) + '/'
 else:
-    MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_INFO, 'resources', 'skins', 'default', 'media')) + '/'
+    MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', 'Default', 'media')) + '/'
  
 #SETTOP BOX
 # if REAL_SETTINGS.getSetting('EnableSettop') == 'true':
@@ -181,3 +191,5 @@ ACTION_PLAYER_PLAYPAUSE = 76
 #ACTION_MENU = 117
 ACTION_MENU = 7
 ACTION_INVALID = 999
+
+    

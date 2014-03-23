@@ -75,7 +75,7 @@ class ConfigWindow(xbmcgui.WindowXMLDialog):
         migratemaster = Migrate()
         migratemaster.migrate()
         self.prepareConfig()
-        self.myRules = AdvancedConfig("script.pseudotv.live.AdvancedConfig.xml", ADDON_INFO, "default")
+        self.myRules = AdvancedConfig("script.pseudotv.live.AdvancedConfig.xml", ADDON_PATH, "default")
         self.log("onInit return")
 
 
