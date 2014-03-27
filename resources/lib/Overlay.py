@@ -23,7 +23,6 @@ import datetime
 import sys, re, base64
 import random, traceback
 import urllib, urllib2, json
-import fanarttv
 
 from fanarttv import *
 from Playlist import Playlist
@@ -49,22 +48,22 @@ class MyPlayer(xbmc.Player):
         log('Player: ' + msg, level)
     
     
-    def onPlayBackStarted(self):
-        self.log('Playback started')
-        file = xbmc.Player().getPlayingFile()
-        file = file.replace("\\\\","\\")
-        seektime = 0
-        seektime = xbmc.Player().getTotalTime()
-        print seektime
-        if REAL_SETTINGS.getSetting("UPNP1") == "true":
-            self.log('UPNP1 Sharing')
-            UPNP1 = SendUPNP(IPP1, file, seektime)
-        if REAL_SETTINGS.getSetting("UPNP2") == "true":
-            self.log('UPNP2 Sharing')
-            UPNP2 = SendUPNP(IPP2, file, seektime)
-        if REAL_SETTINGS.getSetting("UPNP3") == "true":
-            self.log('UPNP3 Sharing')
-            UPNP3 = SendUPNP(IPP3, file, seektime)
+    # def onPlayBackStarted(self):
+        # self.log('Playback started')
+        # file = xbmc.Player().getPlayingFile()
+        # file = file.replace("\\\\","\\")
+        # seektime = 0
+        # seektime = xbmc.Player().getTotalTime()
+        # print seektime
+        # if REAL_SETTINGS.getSetting("UPNP1") == "true":
+            # self.log('UPNP1 Sharing')
+            # UPNP1 = SendUPNP(IPP1, file, seektime)
+        # if REAL_SETTINGS.getSetting("UPNP2") == "true":
+            # self.log('UPNP2 Sharing')
+            # UPNP2 = SendUPNP(IPP2, file, seektime)
+        # if REAL_SETTINGS.getSetting("UPNP3") == "true":
+            # self.log('UPNP3 Sharing')
+            # UPNP3 = SendUPNP(IPP3, file, seektime)
     
     
     def onPlayBackStopped(self):
@@ -99,7 +98,6 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         self.actionSemaphore = threading.BoundedSemaphore()
         self.channelThread = ChannelListThread()
         self.channelThread.myOverlay = self
-        self.Downloader = Downloader()
         self.timeStarted = 0
         self.infoOnChange = True
         self.infoOffset = 0
@@ -125,7 +123,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         self.log("InfoTimer = " + str(InfoTimer))
 
         for i in range(3):
-            self.channelLabel.append(xbmcgui.ControlImage(50 + (35 * i), 50, 50, 50, DEFAULT_IMAGES_LOC + 'solid.png', colorDiffuse = self.channelbugcolor))
+            self.channelLabel.append(xbmcgui.ControlImage(50 + (50 * i), 50, 50, 50, DEFAULT_IMAGES_LOC + 'solid.png', colorDiffuse = self.channelbugcolor))
             self.addControl(self.channelLabel[i])
             self.channelLabel[i].setVisible(False)
         self.doModal()
@@ -150,7 +148,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         settingsFile = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'settings2.xml'))
         nsettingsFile = xbmc.translatePath(os.path.join(SETTINGS_LOC, 'settings2.bak.xml'))
         dlg = xbmcgui.Dialog()
-        thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
+        THUMB = (DEFAULT_IMAGES_LOC + 'icon.png')
         
         # Clear Setting2 for fresh autotune
         if REAL_SETTINGS.getSetting("Autotune") == "true" and REAL_SETTINGS.getSetting("Warning1") == "true":
@@ -169,7 +167,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                     f.write('\n')
                     self.log('Autotune, Setting2 Deleted...')
                     f.close()
-                    xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Initializing Autotuning...", 4000, thumb) )
+                    xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Initializing Autotuning...", 4000, THUMB) )
                     xbmc.log('Autotune, Setting2 Deleted...')
 
         if FileAccess.exists(GEN_CHAN_LOC) == False:
@@ -389,12 +387,17 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
 
         updatedlg.update(1, "Initializing", "Copying Channels...")
         realloc = REAL_SETTINGS.getSetting('SettingsFolder')
-        FileAccess.copy(realloc + '/settings2.xml', SETTINGS_LOC + '/settings2.xml')
+        FileAccess.copy(realloc + '/settings2.xml', SETTINGS_LOC + '/settings2.xml') #copy settings2
         realloc = xbmc.translatePath(os.path.join(realloc, 'cache')) + '/'
 
-        for i in range(999):
+        for i in range(999):#sync m3u cache
             FileAccess.copy(realloc + 'channel_' + str(i) + '.m3u', CHANNELS_LOC + 'channel_' + str(i) + '.m3u')
             updatedlg.update(int(i * .07) + 1, "Initializing", "Copying Channels...")
+        
+        try:
+            self.copyanything(realloc + BCT_LOC, CHANNELS_LOC + BCT_LOC) #copy BCT
+        except:
+            pass
 
 
     def storeFiles(self):
@@ -507,6 +510,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                  self.channels[self.currentChannel - 1].setShowPosition(0)
                  tmpDate = self.channels[self.currentChannel - 1].getItemtimestamp(0)
                  self.log("overlay tmpdate " + str(tmpDate))
+                 throwaway = time.strptime('20110101','%Y%m%d')#python bug fix
                  t = time.strptime(tmpDate, '%Y-%m-%d %H:%M:%S')
                  epochBeginDate = time.mktime(t)
                  #beginDate = datetime.datetime(t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
@@ -582,18 +586,18 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         self.runActions(RULES_ACTION_OVERLAY_SET_CHANNEL_END, channel, self.channels[channel - 1])
         self.log('setChannel return')
 
-        #UPNP
-        file = self.channels[self.currentChannel - 1].getItemFilename(self.channels[self.currentChannel - 1].playlistPosition)
-        file = file.replace("\\\\","\\")
-        if REAL_SETTINGS.getSetting("UPNP1") == "true":
-            self.log('UPNP1 Sharing')
-            UPNP1 = SendUPNP(IPP1, file, seektime)
-        if REAL_SETTINGS.getSetting("UPNP2") == "true":
-            self.log('UPNP2 Sharing')
-            UPNP2 = SendUPNP(IPP2, file, seektime)
-        if REAL_SETTINGS.getSetting("UPNP3") == "true":
-            self.log('UPNP3 Sharing')
-            UPNP3 = SendUPNP(IPP3, file, seektime)
+        # #UPNP
+        # file = self.channels[self.currentChannel - 1].getItemFilename(self.channels[self.currentChannel - 1].playlistPosition)
+        # file = file.replace("\\\\","\\")
+        # if REAL_SETTINGS.getSetting("UPNP1") == "true":
+            # self.log('UPNP1 Sharing')
+            # UPNP1 = SendUPNP(IPP1, file, seektime)
+        # if REAL_SETTINGS.getSetting("UPNP2") == "true":
+            # self.log('UPNP2 Sharing')
+            # UPNP2 = SendUPNP(IPP2, file, seektime)
+        # if REAL_SETTINGS.getSetting("UPNP3") == "true":
+            # self.log('UPNP3 Sharing')
+            # UPNP3 = SendUPNP(IPP3, file, seektime)
         
     def InvalidateChannel(self, channel):
         self.log("InvalidateChannel" + str(channel))
@@ -645,6 +649,9 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
     def setShowInfo(self):
         self.log('setShowInfo')
         chtype = int(ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel) + '_type'))
+        self.Downloader = Downloader()
+        ART_CACHE = False
+        id = ''
         # if chtype == 8:
             # self.showingInfo = False
         # else:
@@ -687,34 +694,25 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
             else: #original code
                 position = xbmc.PlayList(xbmc.PLAYLIST_MUSIC).getposition() + self.infoOffset
         
-        if REAL_SETTINGS.getSetting("fandb.enabled") == "true":
-            self.apis = True
-        else:
-            self.apis = False
-            
         type = ''
         tvdbid = 0
         imdbid = 0
         dbid = 0
         
         mediapath = uni(self.channels[self.currentChannel - 1].getItemFilename(position))
-        self.logDebug('setShowInfo.mediapath.1 = ' + uni(mediapath))
-        
         genre = uni(self.channels[self.currentChannel - 1].getItemgenre(position))
         title = uni(self.channels[self.currentChannel - 1].getItemTitle(position))
-        
         LiveID = uni(self.channels[self.currentChannel - 1].getItemLiveID(position))
-        self.logDebug('setShowInfo.LiveID = ' + uni(LiveID))
         
         try:
             type1 = str(self.getControl(507).getLabel())
-            self.logDebug('setShowInfo.type1 = ' + str(type1))  
+            self.log('setShowInfo.type1 = ' + str(type1))  
         except:
             pass
         
         try:
             type2 = str(self.getControl(509).getLabel())
-            self.logDebug('setShowInfo.type2 = ' + str(type2))  
+            self.log('setShowInfo.type2 = ' + str(type2))  
         except:
             pass
         
@@ -740,42 +738,33 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         if not 'LiveID' in LiveID:
             try:
                 LiveLST = LiveID.split("|", 4)
-                self.logDebug('setShowInfo.LiveLST = ' + str(LiveLST))
                 imdbid = LiveLST[0]
-                self.logDebug('setShowInfo.LiveLST.imdbid.1 = ' + str(imdbid))
                 imdbid = imdbid.split('imdb_', 1)[-1]
-                self.logDebug('setShowInfo.LiveLST.imdbid.2 = ' + str(imdbid))
                 tvdbid = LiveLST[1]
-                self.logDebug('setShowInfo.LiveLST.tvdbid.1 = ' + str(tvdbid))
                 tvdbid = tvdbid.split('tvdb_', 1)[-1]
-                self.logDebug('setShowInfo.LiveLST.tvdbid.2 = ' + str(tvdbid))
                 SBCP = LiveLST[2]
-                self.logDebug('setShowInfo.LiveLST.SBCP = ' + str(SBCP))
                 
                 if 'dbid_' in LiveLST[3]:
                     dbidTYPE = LiveLST[3]
-                    self.logDebug('setShowInfo.LiveLST.dbidTYPE.1 = ' + str(dbidTYPE))
                     dbidTYPE = dbidTYPE.split('dbid_', 1)[-1]
-                    self.logDebug('setShowInfo.LiveLST.dbidTYPE.2 = ' + str(dbidTYPE))
                     dbid = dbidTYPE.split(',')[0]
-                    self.logDebug('setShowInfo.LiveLST.dbid = ' + str(dbid))
                     type = dbidTYPE.split(',', 1)[-1]
-                    self.logDebug('setShowInfo.LiveLST.type = ' + str(type))
-                    
+
                     if type == 'tvshow':
                         id = tvdbid
                     elif type == 'movie':
                         id = imdbid
                     
+                    if REAL_SETTINGS.getSetting("TVFileSys") == "2" and type == 'tvshow':
+                        ART_CACHE = True
+                    elif REAL_SETTINGS.getSetting("MovieFileSys") == "1" and type == 'movie':
+                        ART_CACHE = True
+                    
                 else:
                     UnairedTYPE = LiveLST[3]
-                    self.logDebug('setShowInfo.LiveLST.UnairedTYPE = ' + str(UnairedTYPE))
                     UnairedTYPE = UnairedTYPE.split('dbid_', 1)[-1]
-                    self.logDebug('setShowInfo.LiveLST.UnairedTYPE.2 = ' + str(UnairedTYPE))
                     Unaired = UnairedTYPE.split(',')[0]
-                    self.logDebug('setShowInfo.LiveLST.Unaired = ' + str(Unaired))
                     type = UnairedTYPE.split(',', 1)[-1]
-                    self.logDebug('setShowInfo.LiveLST.type = ' + str(type))
             except:
                 self.log('setShowInfo.LiveLST Failed')
                 pass     
@@ -809,51 +798,126 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         if REAL_SETTINGS.getSetting("art.enable") == "true":
             self.log('setShowInfo.Dynamic artwork enabled')
         
-            if chtype <= 7:
+            # Local Chtypes
+            if chtype <= 7:        
                 mediapathSeason, filename = os.path.split(mediapath)
                 mediapathSeries = os.path.dirname(mediapathSeason)
-                
-                mediapathSeries1 = ascii(os.path.join(mediapathSeries, type1EXT))
-                mediapathSeason1 = ascii(os.path.join(mediapathSeason, type1EXT))
-                
-                self.logDebug('setShowInfo.mediapathSeries = ' + uni(mediapathSeries1))
-                self.logDebug('setShowInfo.mediapathSeason = ' + uni(mediapathSeason1))  
-
-                if FileAccess.exists(mediapathSeries1):
-                    self.getControl(508).setImage(mediapathSeries1)
-                elif FileAccess.exists(mediapathSeason1):
-                    self.getControl(508).setImage(mediapathSeason1)
-                else:
-                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-
-                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and chtype != 7:
-                        xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype1+')')
+                            
+                if ART_CACHE:
+                    fle1 = id + '-' + type1EXT
+                    fle1Path = os.path.join(ART_LOC, fle1)
+                    if FileAccess.exists(fle1Path):
+                        self.getControl(508).setImage(fle1Path)
+                    else:
+                        self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
                         
-                    elif REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7 and self.apis == True:
-                        self.Downloader.ArtDownload(type, id, type1EXT, mediapathSeries1, mediapathSeason1)
-  
-                mediapathSeries2 = ascii(os.path.join(mediapathSeries, type2EXT))
-                mediapathSeason2 = ascii(os.path.join(mediapathSeason, type2EXT))
-                
-                if FileAccess.exists(mediapathSeries2):
-                    self.getControl(510).setImage(mediapathSeries2)
-                elif FileAccess.exists(mediapathSeason2):
-                    self.getControl(510).setImage(mediapathSeason2)
+                        if REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7:
+                            link = self.Downloader.DownloadArt(type, id, fle1, ART_LOC, ART_LOC)
+                            try:
+                                self.getControl(508).setImage(link)
+                            except:
+                                pass
                 else:
-                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
+                    #artwork type1 (508)
+                    mediapathSeries1 = ascii(os.path.join(mediapathSeries, type1EXT))
+                    mediapathSeason1 = ascii(os.path.join(mediapathSeason, type1EXT))
+                    
+                    self.log('setShowInfo.mediapathSeries1 = ' + uni(mediapathSeries1))
+                    self.log('setShowInfo.mediapathSeason1 = ' + uni(mediapathSeason1))  
+                    
+                    if FileAccess.exists(mediapathSeries1):
+                        self.getControl(508).setImage(mediapathSeries1)
+                    elif FileAccess.exists(mediapathSeason1):
+                        self.getControl(508).setImage(mediapathSeason1)
+                    else:
+                        self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
 
-                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and chtype != 7:
-                        xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype2+')')
+                        if REAL_SETTINGS.getSetting("EnableDown") == "2" and chtype != 7:
+                            xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype1+')')
+                            
+                        elif REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7:
+                            link = self.Downloader.DownloadArt(type, id, type1EXT, mediapathSeason, mediapathSeries)
+                            try:
+                                self.getControl(508).setImage(link)
+                            except:
+                                pass
                         
-                    elif REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7 and self.apis == True:
-                        self.Downloader.ArtDownload(type, id, type2EXT, mediapathSeries2, mediapathSeason2)
+                if ART_CACHE:
+                    fle2 = id + '-' + type2EXT
+                    fle2Path = os.path.join(ART_LOC, fle2)
+                    if FileAccess.exists(fle2Path):
+                        self.getControl(510).setImage(fle2Path)
+                    else:
+                        self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
+                        
+                        if REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7:
+                            link = self.Downloader.DownloadArt(type, id, fle2, ART_LOC, ART_LOC)
+                            try:
+                                self.getControl(510).setImage(link)
+                            except:
+                                pass
+                else:
+                    #artwork type2 (510)
+                    mediapathSeries2 = ascii(os.path.join(mediapathSeries, type2EXT))
+                    mediapathSeason2 = ascii(os.path.join(mediapathSeason, type2EXT))
+                
+                    self.log('setShowInfo.mediapathSeries2 = ' + uni(mediapathSeries2))
+                    self.log('setShowInfo.mediapathSeason2 = ' + uni(mediapathSeason2))  
+                    
+                    if FileAccess.exists(mediapathSeries2):
+                        self.getControl(510).setImage(mediapathSeries2)
+                    elif FileAccess.exists(mediapathSeason2):
+                        self.getControl(510).setImage(mediapathSeason2)
+                    else:
+                        self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
+
+                        if REAL_SETTINGS.getSetting("EnableDown") == "2" and chtype != 7:
+                            xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype2+')')
+                            
+                        elif REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7:
+                            link = self.Downloader.DownloadArt(type, id, type2EXT, mediapathSeason, mediapathSeries)
+                            try:
+                                self.getControl(510).setImage(link)
+                            except:
+                                pass
   
-  
-            #LiveTV w/ TVDBID via Fanart.TV        
+            #LiveTV Chtypes
             elif chtype == 8:
-                if REAL_SETTINGS.getSetting('Live.art.enable') == 'true' and self.apis == True:
+                if REAL_SETTINGS.getSetting('EnhancedLiveTV') == 'true' and REAL_SETTINGS.getSetting('Live.art.enable') == 'true':
                     self.log('LiveTV Art Enabled')
-                    self.LiveTVArtDownloader(imdbid, tvdbid, type, type1, type1EXT, type2, type2EXT)       
+                    
+                    if type == 'tvshow':
+                        id = tvdbid
+                        fle1 = tvdbid + '-' + type1EXT
+                        fle2 = tvdbid + '-' + type2EXT
+                    elif type == 'movie':
+                        id = imdbid
+                        fle1 = imdbid + '-' + type1EXT
+                        fle2 = imdbid + '-' + type2EXT
+                    
+                    flename1 = (ART_LOC + fle1)
+                    flename2 = (ART_LOC + fle2)
+                    
+                    if FileAccess.exists(flename1):
+                        self.getControl(508).setImage(flename1)
+                    else:   
+                        self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')  
+                        link = self.Downloader.DownloadArt(type, id, fle1, ART_LOC, ART_LOC)  
+                        try:
+                            self.getControl(508).setImage(link)
+                        except:
+                            pass 
+                    
+                    if FileAccess.exists(flename2):
+                        self.getControl(510).setImage(flename2)
+                    else:   
+                        self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')  
+                        link = self.Downloader.DownloadArt(type, id, fle2, ART_LOC, ART_LOC)  
+                        try:
+                            self.getControl(510).setImage(link)
+                        except:
+                            pass   
+                
                 else:#fallback all artwork because live art disabled
                     self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
                     self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
@@ -873,10 +937,14 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
             elif chtype == 13:
                 self.getControl(508).setImage(MEDIA_LOC + 'Overlay.LastFM.508.png')
                 self.getControl(510).setImage(MEDIA_LOC + 'Overlay.LastFM.510.png')    
+            
+            elif chtype == 14:
+                self.getControl(508).setImage(MEDIA_LOC + 'Overlay.Extras.508.png')
+                self.getControl(510).setImage(MEDIA_LOC + 'Overlay.Extras.510.png')  
 
-
-        self.log('setshowposition ' + str(position))
-        self.getControl(503).setLabel(self.channels[self.currentChannel - 1].getItemTitle(position))
+        self.log('setshowposition ' + str(position))        
+        ItemTitle = (self.channels[self.currentChannel - 1].getItemTitle(position)).replace("*NEW*", "")
+        self.getControl(503).setLabel(ItemTitle)
         self.getControl(504).setLabel(self.channels[self.currentChannel - 1].getItemEpisodeTitle(position))
         self.getControl(505).setLabel(self.channels[self.currentChannel - 1].getItemDescription(position))
        
@@ -947,7 +1015,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
         if xbmc.getCondVisibility('Player.ShowInfo'):
             json_query = '{"jsonrpc": "2.0", "method": "Input.Info", "id": 1}'
             self.ignoreInfoAction = True
-            self.channelList.sendJSON(json_query);
+            self.channelList.sendJSON_NEW(json_query);
             
         self.channelLabelTimer.name = "ChannelLabel"
         self.channelLabelTimer.start()
@@ -999,7 +1067,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
 
             json_query = '{"jsonrpc": "2.0", "method": "Input.Info", "id": 1}'
             self.ignoreInfoAction = True
-            self.channelList.sendJSON(json_query);
+            self.channelList.sendJSON_NEW(json_query);
             
         self.infoTimer.start()
         
@@ -1132,7 +1200,7 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                     if xbmc.getCondVisibility('Player.ShowInfo'):
                         json_query = '{"jsonrpc": "2.0", "method": "Input.Info", "id": 1}'
                         self.ignoreInfoAction = True
-                        self.channelList.sendJSON(json_query);
+                        self.channelList.sendJSON_NEW(json_query);
   
                 else:
                     self.showInfo(InfoTimer)
@@ -1255,9 +1323,9 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                     mediapath = uni(self.channels[self.currentChannel - 1].getItemFilename(nextshow))         
                     self.logDebug('notification.mediapath.1 = ' + uni(mediapath))                        
                     self.logDebug('notification.MEDIA_LOC = ' + uni(MEDIA_LOC))     
-                    chtype = int(ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type'))
+                    chtype = ADDON_SETTINGS.getSetting('Channel_' + str(self.currentChannel - 1) + '_type')
                     title = 'Coming Up Next'   
-                    thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
+                    THUMB = (DEFAULT_IMAGES_LOC + 'icon.png')
                     
                     try:
                         if REAL_SETTINGS.getSetting("ColorOverlay") == "true":
@@ -1285,7 +1353,8 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                         else:
                             type1EXT = (type + '.png')
                         self.logDebug('notification.type.ext = ' + str(type1EXT))  
-
+                        
+                        mediapathSeason = ''
                         mediapathSeason, filename = os.path.split(mediapath)                        
                         mediapathSeries = os.path.dirname(mediapathSeason)
                         
@@ -1296,32 +1365,32 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
                         self.logDebug('notification.type.mediapathSeason = ' + uni(mediapathSeason1))  
 
                         if FileAccess.exists(mediapathSeries1):
-                            thumb = mediapathSeries1
+                            THUMB = mediapathSeries1
                         elif FileAccess.exists(mediapathSeason1):
-                            thumb = mediapathSeason1
+                            THUMB = mediapathSeason1
                         elif FileAccess.exists(ChannelLogo):
-                            thumb = ChannelLogo
+                            THUMB = ChannelLogo
                         else: 
-                            thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
+                            THUMB = (DEFAULT_IMAGES_LOC + 'icon.png')
+                            
 
                     elif chtype >= 8:
-                    
                         if FileAccess.exists(ChannelLogo):
-                            thumb = ChannelLogo
+                            THUMB = ChannelLogo
                         elif mediapathSeason[0:6] == 'plugin':
                             id = mediapathSeason
                             id = id.replace("/?path=/root", "")
                             id = id.split('plugin://', 1)[-1]
                             id = 'special://home/addons/'+ id + '/icon.png'
                             self.log("notification.plugin.id = " + id)
-                            thumb = id
+                            THUMB = id
                         else: 
-                            thumb = (DEFAULT_IMAGES_LOC + 'icon.png')          
+                            THUMB = (DEFAULT_IMAGES_LOC + 'icon.png')          
                     else: 
-                        thumb = (DEFAULT_IMAGES_LOC + 'icon.png')
+                        THUMB = (DEFAULT_IMAGES_LOC + 'icon.png')
                     
-                    xbmc.executebuiltin('XBMC.Notification(%s, %s, %s, %s)' % (title, self.channels[self.currentChannel - 1].getItemTitle(nextshow).replace(',', ''), str(NOTIFICATION_DISPLAY_TIME * 1000), thumb))
-                    self.logDebug("thumb = " + str(thumb))
+                    xbmc.executebuiltin('XBMC.Notification(%s, %s, %s, %s)' % (title, self.channels[self.currentChannel - 1].getItemTitle(nextshow).replace(',', ''), str(NOTIFICATION_DISPLAY_TIME * 1000), THUMB))
+                    self.logDebug("THUMB = " + str(THUMB))
                     self.notificationShowedNotif = True
 
         self.startNotificationTimer()
@@ -1354,146 +1423,6 @@ class TVOverlay(xbmcgui.WindowXMLDialog):
             self.playerTimer.name = "PlayerTimer"
             self.playerTimer.start()
 
-
-    def LiveTVArtDownloader(self, imdbid, tvdbid, type, type1, type1EXT, type2, type2EXT):
-        self.log('LiveTVArtDownloader')
-        tvdb = True
-        imdb = True
-        Artpath = xbmc.translatePath(os.path.join(ART_LOC))
-        self.logDebug('LiveTVArtDownloader.Artpath = ' + uni(Artpath))
-        
-        if tvdbid == 'NA' or tvdbid == 0:
-            tvdb = False
-        
-        if imdbid == 'NA' or imdbid == 0:
-            imdb = False
-        
-        if tvdb and type == 'tvshow':  
-            self.log('LiveTVArtDownloader.TV')
-            print tvdbid
-            fanartTV = fanarttv.FTV_TVProvider()
-            URLLST = fanartTV.get_image_list(tvdbid)
-            print URLLST
-            if URLLST:
-                URLLST = str(URLLST)
-                URLLST = URLLST.split("{'art_type': ")
-                print URLLST
-                try:
-                    Art1 = [s for s in URLLST if type1 in s]
-                    Art1 = Art1[0]
-                    Art1 = Art1[Art1.find("'url': '")+len("'url': '"):Art1.rfind("',")]
-                    Art1 = Art1.split("',")[0]
-                    fle1 = tvdbid + '-' + type1EXT
-                    flename1 = xbmc.translatePath(os.path.join(ART_LOC) + fle1)
-                    
-                    if FileAccess.exists(flename1):
-                        self.getControl(508).setImage(flename1)
-                    else:
-                        if not os.path.exists(os.path.join(Artpath)):
-                            os.makedirs(os.path.join(Artpath))
-                        
-                        resource = urllib.urlopen(Art1)
-                        output = open(flename1,"wb")
-                        output.write(resource.read())
-                        output.close()
-                        self.getControl(508).setImage(flename1)
-                except:
-                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-                    pass
-                
-                try:
-                    Art2 = [s for s in URLLST if type2 in s]
-                    Art2 = Art2[0]
-                    Art2 = Art2[Art2.find("'url': '")+len("'url': '"):Art2.rfind("',")]
-                    Art2 = Art2.split("',")[0]
-                    fle2 = tvdbid + '-' + type2EXT
-                    flename2 = xbmc.translatePath(os.path.join(ART_LOC) + fle2)
-                    
-                    if FileAccess.exists(flename2):
-                        self.getControl(510).setImage(flename2)
-                    else:
-                        if not os.path.exists(os.path.join(Artpath)):
-                            os.makedirs(os.path.join(Artpath))
-                        
-                        resource = urllib.urlopen(Art2)
-                        output = open(flename2,"wb")
-                        output.write(resource.read())
-                        output.close()
-                        self.getControl(510).setImage(flename2)
-                except:
-                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
-                    pass
-
-            else:#fallback all artwork because there is no id
-                self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-                self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
-                
-        elif imdb and type == 'movie':
-            self.log('LiveTVArtDownloader.Movie')    
-            fanartTV = fanarttv.FTV_MovieProvider()
-            URLLST = fanartTV.get_image_list(imdbid)
-            print URLLST
-            if URLLST:
-                URLLST = str(URLLST)
-                URLLST = URLLST.split("{'art_type': ")
-                try:#Type1 Art
-                    Art1 = [s for s in URLLST if type1 in s]
-                    print Art1
-                    Art1 = Art1[0]
-                    print Art1
-                    Art1 = Art1[Art1.find("'url': '")+len("'url': '"):Art1.rfind("',")]
-                    print Art1
-                    Art1 = Art1.split("',")[0]      
-                    print Art1          
-                    fle1 = imdbid + '-' + type1EXT
-                    flename1 = xbmc.translatePath(os.path.join(ART_LOC) + fle1) 
-                    if FileAccess.exists(flename1):
-                        self.getControl(508).setImage(flename1)
-                    else:
-                        if not os.path.exists(os.path.join(Artpath)):
-                            os.makedirs(os.path.join(Artpath))
-                    
-                        resource = urllib.urlopen(Art1)# Replace with urlretrieve todo
-                        output = open(flename1,"wb")
-                        output.write(resource.read())
-                        output.close()
-                        self.getControl(508).setImage(flename1)
-                except:
-                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-                    pass
-                
-                try:#Type2 Art
-                    Art2 = [s for s in URLLST if type2 in s]
-                    print Art2
-                    Art2 = Art2[0]
-                    print Art2
-                    Art2 = Art2[Art2.find("'url': '")+len("'url': '"):Art2.rfind("',")]
-                    print Art2
-                    Art2 = Art2.split("',")[0]
-                    print Art2
-                    fle2 = imdbid + '-' + type2EXT
-                    flename2 = xbmc.translatePath(os.path.join(ART_LOC) + fle2)
-                    
-                    if FileAccess.exists(flename2):
-                        self.getControl(510).setImage(flename2)
-                    else:
-                        if not os.path.exists(os.path.join(Artpath)):
-                            os.makedirs(os.path.join(Artpath))
-                        
-                        resource = urllib.urlopen(Art2)# Replace with urlretrieve todo
-                        output = open(flename2,"wb")
-                        output.write(resource.read())
-                        output.close()
-                        self.getControl(510).setImage(flename2)  
-                except:
-                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
-                    pass
-            else:
-                self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-                self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')         
-        else:
-            self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-            self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')            
             
     # cleanup and end
     def end(self):

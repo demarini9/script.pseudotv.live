@@ -35,45 +35,12 @@ import xbmc, xbmcgui, xbmcaddon, xbmcvfs
 from resources.lib.Globals import *
 from resources.lib.FileAccess import *
 
-xbmc.log('script.pseudotv.live-VideoWindow.Patcher Started')
-
-# Find Addon Path
-AddonPath = 'special://home/addons/script.pseudotv.live/resources/skins/'
-MasterPath = 'special://home/addons/script.pseudotv.live-master/resources/skins/'
-
-if xbmcvfs.exists(AddonPath):
-    fleMasterPath = (AddonPath)
-else:
-    fleMasterPath = (MasterPath)
-xbmc.log('script.pseudotv.live-VideoWindow.fleMasterPath = ' + fleMasterPath)
-
-
-# Find PseudoTV Skin Path
-PseudoSkin = (os.path.join(fleMasterPath, Skin_Select, '720p')) + '/'
-
-if xbmcvfs.exists(PseudoSkin):
-    PseudoSkinfle = xbmc.translatePath(os.path.join(fleMasterPath, Skin_Select, '720p', 'script.pseudotv.live.EPG.xml'))
-else:
-    PseudoSkinfle = xbmc.translatePath(os.path.join(fleMasterPath, Skin_Select, '1080i', 'script.pseudotv.live.EPG.xml'))
-xbmc.log('script.pseudotv.live-VideoWindow.PseudoSkinfle = ' + PseudoSkinfle)
+xbmc.log('script.pseudotv.live-VideoWindow: Patcher Started')
+xbmc.log('script.pseudotv.live-VideoWindow: fleMasterPath = ' + fleMasterPath)
+xbmc.log('script.pseudotv.live-VideoWindow: PseudoSkinfle = ' + PseudoSkinfle)
+xbmc.log('script.pseudotv.live-VideoWindow: SkinPath = ' + skinPath)
     
-    
-# Find XBMC Skin Path
-Found = False
-skin = ('special://skin')
-fle = 'Custom_PTVL_9506.xml'
 
-if xbmcvfs.exists(os.path.join(skin ,'1080i')):
-    skinPath = (os.path.join(skin ,'1080i', fle))
-    Found = True
-else:
-    skinPath = (os.path.join(skin ,'720p', fle))
-    Found = True
-xbmc.log('script.pseudotv.live-VideoWindow.SkinPath = ' + skinPath)
-
-Path = (os.path.join(fleMasterPath, 'default', '720p'))
-flePath = (os.path.join(Path, fle))
-  
 a = '<!-- PATCH START -->'
 b = '<!-- PATCH START --> <!--'
 c = '<!-- PATCH END -->'
@@ -81,21 +48,34 @@ d = '--> <!-- PATCH END -->'
 
 Install = False
 Installed = False
-Reapply = False
-Patched = False
-Error = False
 Uninstall = False
+
+Patch = False
+Patched = False
 UnPatch = False
 
+SeekPatch = False
+SeekPatched = True
+
+Error = False
+MSG = ''
+
+Path = (os.path.join(fleMasterPath, 'default', '720p'))
+fle = 'Custom_PTVL_9506.xml'
+fle1 = 'dialogseekbar.xml'
+VWPath = (os.path.join(skinPath, fle))
+DSPath = xbmc.translatePath(os.path.join(skinPath, fle1))
+flePath = (os.path.join(Path, fle)) 
+
 # Delete Old VideoWindow Patch
-if xbmcvfs.exists(skinPath):
+if xbmcvfs.exists(VWPath):
     if dlg.yesno("PseudoTV Live", "VideoWindow Patch Found!\nRemove Patch?"):
         try:
-            xbmcvfs.delete(skinPath) 
+            xbmcvfs.delete(VWPath)
             Uninstall = True
-            xbmc.log('script.pseudotv.live-VideoWindow, Uninstall')
+            xbmc.log('script.pseudotv.live-VideoWindow: Uninstall')
         except:
-            xbmc.log('script.pseudotv.live-VideoWindow, Delete Patch Failed')
+            xbmc.log('script.pseudotv.live-VideoWindow: Delete Patch Failed')
             Error = True
             pass
             
@@ -108,36 +88,36 @@ if xbmcvfs.exists(skinPath):
                 lines = linesLST[i]
                 if a in lines:
                     replaceAll(PseudoSkinfle,a,b)
-                elif c in lines:
+                if c in lines:
                     replaceAll(PseudoSkinfle,c,d)
             UnPatch = True
-            xbmc.log('script.pseudotv.live-VideoWindow, UnPatch')
+            xbmc.log('script.pseudotv.live-VideoWindow: UnPatch')
         except:
-            xbmc.log('script.pseudotv.live-VideoWindow, Remove Patch Failed')
+            xbmc.log('script.pseudotv.live-VideoWindow: Remove Patch Failed')
             Error = True
             pass
     else:
-        if dlg.yesno("PseudoTV Live", "VideoWindow Patch Found!\nReapply Patch?"):
-            Reapply = True
+        if dlg.yesno("PseudoTV Live", "VideoWindow Patch Found!\n Reapply Patch?"):
+            Patch = True
 else:
     Install = True
   
 
   
 # Copy VideoWindow Patch  
-if Found and Install:
+if Install:
     try:
-        xbmcvfs.copy(flePath, skinPath)
-        if xbmcvfs.exists(skinPath):
+        xbmcvfs.copy(flePath, VWPath)
+        if xbmcvfs.exists(VWPath):
             Installed = True
-            xbmc.log('script.pseudotv.live-VideoWindow, Installed')
-            Reapply = True
+            Patch = True
+            xbmc.log('script.pseudotv.live-VideoWindow: Installed')
     except:
-        xbmc.log('script.pseudotv.live-VideoWindow, Intall Failed')
+        xbmc.log('script.pseudotv.live-VideoWindow: Intall Failed')
         Error = True
         pass
     
-if Reapply:
+if Patch:
     try:
         f = FileAccess.open(PseudoSkinfle, "r")
         linesLST = f.readlines()            
@@ -147,25 +127,35 @@ if Reapply:
             lines = linesLST[i]
             if b in lines:
                 replaceAll(PseudoSkinfle,b,a)
-            elif d in lines:
+            if d in lines:
                 replaceAll(PseudoSkinfle,d,c)            
-        xbmc.log('script.pseudotv.live-VideoWindow, Patched')
+        xbmc.log('script.pseudotv.live-VideoWindow: script.pseudotv.live.EPG.xml Patched')
         Patched = True
+        SeekPatch = True
     except:
-        xbmc.log('script.pseudotv.live-VideoWindow, Reapply Failed')
+        xbmc.log('script.pseudotv.live-VideoWindow: script.pseudotv.live.EPG.xml Patch Failed')
         Error = True
         pass
     
-    
-if Installed or Patched:
+# if SeekPatch:
+    # # try:
+    # x = ' Window.IsActive(FullscreenVideo)'
+    # y = ' Window.IsActive(FullscreenVideo) + !Window.IsActive(script.pseudotv.live.TVOverlay.xml)'
+    # replaceAll(DSPath,x,y)
+    # xbmc.log('script.pseudotv.live-VideoWindow: DialogSeekBar Patched')
+    # SeekPatched = True
+    # # except:
+        # # xbmc.log('script.pseudotv.live-VideoWindow: DialogSeekBar Patched')
+        # # Error = True
+        # # pass
+        
+        
+        
+if (Installed and Patched and SeekPatched) or (Patched and SeekPatched):
     MSG = "VideoWindow Patched!\nXBMC Restart Required"
-else:
-    MSG = "VideoWindow Patch Not Installed"
-    
+
 if Uninstall or UnPatch:
     MSG = "VideoWindow Patch Removed!\nXBMC Restart Required"
-else:
-    MSG = "VideoWindow Patch Not Uninstalled"
 
 if Error:
     MSG = "VideoWindow Patch Error!"

@@ -53,6 +53,10 @@ REAL_SETTINGS = xbmcaddon.Addon(id=ADDON_ID)
 ADDON_PATH = REAL_SETTINGS.getAddonInfo('path')
 ADDON_VERSION = REAL_SETTINGS.getAddonInfo('version')
 
+TVDB_API_KEY = '078845CE15BC08A7'
+TMDB_API_KEY = '9c47d05a3f5f3a00104f6586412306af'
+FANARTTV_API_KEY = '7bc4161cc4add99b14e51eddcdd5b985'
+
 TIMEOUT = 15 * 1000
 TOTAL_FILL_CHANNELS = 20
 PREP_CHANNEL_TIME = 60 * 60 * 24 * 5
@@ -127,6 +131,31 @@ if xbmcvfs.exists(xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skin
 else:
     MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', 'Default', 'media')) + '/'
  
+# Find Real Addon Path
+AddonPath = 'special://home/addons/script.pseudotv.live/resources/skins/'
+MasterPath = 'special://home/addons/script.pseudotv.live-master/resources/skins/'
+
+if xbmcvfs.exists(AddonPath):
+    fleMasterPath = (AddonPath)
+else:
+    fleMasterPath = (MasterPath)
+ 
+# Find PseudoTV Skin Path
+PseudoSkin = (os.path.join(fleMasterPath, Skin_Select, '720p')) + '/'
+
+if xbmcvfs.exists(PseudoSkin):
+    PseudoSkinfle = xbmc.translatePath(os.path.join(fleMasterPath, Skin_Select, '720p', 'script.pseudotv.live.EPG.xml'))
+else:
+    PseudoSkinfle = xbmc.translatePath(os.path.join(fleMasterPath, Skin_Select, '1080i', 'script.pseudotv.live.EPG.xml'))
+
+# Find XBMC SKin patch
+skin = ('special://skin')
+
+if xbmcvfs.exists(os.path.join(skin ,'1080i')):
+    skinPath = (os.path.join(skin ,'1080i'))
+else:
+    skinPath = (os.path.join(skin ,'720p'))
+
 #SETTOP BOX
 # if REAL_SETTINGS.getSetting('EnableSettop') == 'true':
     # REAL_SETTINGS.setSetting('Auto_Start', 'true')

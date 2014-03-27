@@ -22,6 +22,20 @@ import urllib2
 import json
 from Globals import *
 
+# Commoncache plugin import
+try:
+    import StorageServer
+except:
+    import storageserverdummy as StorageServer
+
+# import libraries
+from urllib2 import HTTPError, URLError
+
+# Cache bool
+CACHE_ON = True
+cache = StorageServer.StorageServer("plugin://script.pseudotv.live/",240)
+
+
 class SickBeard(object):
     def __init__(self, base_url='http://localhost:8081', api_key='cf6a9873e3f6dd25abbb654c7e362d9d'):
         self.apikey = api_key
@@ -34,17 +48,28 @@ class SickBeard(object):
         parmsCopy = parms.copy()
         parmsCopy.update({'cmd' : cmd})
         url = '%s/api/%s/?%s' % (self.baseurl, self.apikey, urllib.urlencode(parmsCopy))
-        #self.log(url)
+        #self.xbmc.log(url)
         return url
 
     def isShowManaged(self, tvdbid):
+        xbmc.log("isShowManaged Cache")
+        if CACHE_ON:
+            result = cache.cacheFunction(self.isShowManaged_NEW, tvdbid)
+        else:
+            result = self.isShowManaged_NEW(tvdbid)    
+        if not result:
+            result = 'Empty'
+        return result      
+        
+    def isShowManaged_NEW(self, tvdbid):
+        xbmc.log("isShowManaged Creating Cache")
         response = json.load(urllib.urlopen(self._buildUrl('show', {'tvdbid' : tvdbid})))
         return response['result'] == 'success'
 
     def addNewShow(self, tvdbid, flatten=0, status='skipped'):
         if not self.isShowManaged(tvdbid):
             response = json.load(urllib.urlopen(self._buildUrl('show.addnew', {'tvdbid' : tvdbid, 'flatten_folders' : flatten, 'status' : status})))
-            #self.log('tvdbid=%s, flatten=%s, status=%s, result=%s' % (tvdbid, flatten, status, response['result']))
+            #self.xbmc.log('tvdbid=%s, flatten=%s, status=%s, result=%s' % (tvdbid, flatten, status, response['result']))
             return response['result'] == 'success'
         else:
             return False
@@ -151,7 +176,7 @@ class SickBeard(object):
     # Set the status of an episode
     def setEpisodeStatus(self, tvdbid, season, episode, status):
         result = json.load(urllib.urlopen(self._buildUrl('episode.setstatus', {'tvdbid' : tvdbid, 'season' : season, 'episode' : episode, 'status' : status})))
-        #self.log('tvdbid=%s, season=%s, episode=%s, status=%s, result=%s' % (tvdbid, season, episode, status, result))
+        #self.xbmc.log('tvdbid=%s, season=%s, episode=%s, status=%s, result=%s' % (tvdbid, season, episode, status, result))
         return result['result'] == 'success'   
 
     # Return a list of the last 20 snatched/downloaded episodes    

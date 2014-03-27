@@ -23,7 +23,6 @@ import datetime, traceback
 import sys, re
 import urllib
 import urllib2
-import fanarttv
 
 from Playlist import Playlist
 from Globals import *
@@ -31,7 +30,6 @@ from Channel import Channel
 from ChannelList import ChannelList
 from FileAccess import FileLock, FileAccess
 from xml.etree import ElementTree as ET
-from fanarttv import *
 from Downloader import *
 
 class EPGWindow(xbmcgui.WindowXMLDialog):
@@ -57,7 +55,6 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         self.showingInfo = False
         self.infoOffset = 0
         self.infoOffsetV = 0
-        self.Downloader = Downloader()        
         self.log('Using EPG Coloring = ' + str(REAL_SETTINGS.getSetting('EPGcolor_enabled')))
         self.textureButtonFocus = MEDIA_LOC + BUTTON_FOCUS
         self.textureButtonNoFocus = MEDIA_LOC + BUTTON_NO_FOCUS
@@ -114,15 +111,26 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         
         ### Skin labels, Set textcolor, focusedcolor and font. Rowcount todo ###
         try:
-            textcolor = int(self.getControl(100).getLabel(), 16)
-            focusedcolor = int(self.getControl(100).getLabel2(), 16)
-            self.textfont =  self.getControl(105).getLabel()          
+            textcolor = int(self.getControl(100).getLabel(), 16)            
+
             if textcolor > 0:
                 self.textcolor = hex(textcolor)[2:]
                 self.logDebug("onInit.Self.textcolor = " + str(self.textcolor))
-            
+        except:
+            pass
+        
+        try:
+            focusedcolor = int(self.getControl(99).getLabel(), 16)
+
             if focusedcolor > 0:
                 self.focusedcolor = hex(focusedcolor)[2:]
+                self.logDebug("onInit.Self.focusedcolor = " + str(self.focusedcolor))
+        except:
+            pass
+        
+        try:    
+            self.textfont = self.getControl(105).getLabel()
+            self.logDebug("onInit.Self.textfont = " + str(self.textfont))
 
         except:
             pass
@@ -172,13 +180,11 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                 endtime = starttime + (width / (basew / 5400.0))
                 self.focusTime = int(starttime + 30)
                 self.focusEndTime = endtime
-
             self.focusRow = 2
             self.setShowInfo()
         except:
             self.log("Unknown EPG Initialization Exception", xbmc.LOGERROR)
             self.log(traceback.format_exc(), xbmc.LOGERROR)
-
             try:
                 self.close()
             except:
@@ -261,10 +267,13 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     self.removeControl(cntrl)
                 except:
                     pass
-
-        self.addControls(myadds)
-        self.toRemove = []
-        self.log('setChannelButtons return')
+        try:
+            self.addControls(myadds)
+            self.toRemove = []
+            self.log('setChannelButtons return')
+        except:
+            xbmc.log('self.addControls(myadds) in use')
+            pass
 
 
     # round the given time down to the nearest half hour
@@ -321,6 +330,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                        #episodetitle is actually the start time of each show that the playlist gets from channellist.py
                        tmpDate = self.MyOverlayWindow.channels[curchannel - 1].getItemtimestamp(playlistpos)
                        self.logDebug("setButtons.setbuttonnowtime2 " + str(tmpDate))
+                       throwaway = datetime.datetime.strptime('20110101','%Y%m%d')
                        t = time.strptime(tmpDate, '%Y-%m-%d %H:%M:%S')
                        epochBeginDate = time.mktime(t)
                        #beginDate = datetime.datetime(t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
@@ -773,6 +783,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
     def setShowInfo(self):
         self.log('setShowInfo')
         self.showingInfo = True
+        ART_CACHE = False
         basex, basey = self.getControl(111 + self.focusRow).getPosition()
         baseh = self.getControl(111 + self.focusRow).getHeight()
         basew = self.getControl(111 + self.focusRow).getWidth()
@@ -783,7 +794,9 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         starttime = self.shownTime + (left / (basew / 5400.0))
         chnoffset = self.focusRow - 2
         newchan = self.centerChannel
-
+        self.Downloader = Downloader()   
+        id = ''
+        
         while chnoffset != 0:
             if chnoffset > 0:
                 newchan = self.MyOverlayWindow.fixChannel(newchan + 1, True)
@@ -797,27 +810,20 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         if plpos == -1:
             self.log('Unable to find the proper playlist to set from EPG')
             return
-        
-        if REAL_SETTINGS.getSetting("tvdb.enabled") == "true" and REAL_SETTINGS.getSetting("tmdb.enabled") == "true" and REAL_SETTINGS.getSetting("fandb.enabled") == "true":
-            self.apis = True
-        else:
-            self.apis = False
+
         
         #Check if VideoWindow Patch found, change label.
-        skin = ('special://skin')
-        fle = 'Custom_PTVL_9506.xml'
-        if FileAccess.exists(os.path.join(skin ,'1080i')):
-            skinPath = (os.path.join(skin ,'1080i', fle))
-        else:
-            skinPath = (os.path.join(skin ,'720p', fle))
-            
-        if FileAccess.exists(skinPath):
+        if FileAccess.exists(os.path.join(skinPath, 'Custom_PTVL_9506.xml')):
             try:
                 self.getControl(523).setLabel('NOW WATCHING:')
+                Patched = True
             except:
                 pass
+        else:
+            Patched = False
 
-        if REAL_SETTINGS.getSetting("art.enable") == "true" or REAL_SETTINGS.getSetting("Live.art.enable") == "true":        
+        #Change Label when Dynamic artwork enabled
+        if REAL_SETTINGS.getSetting("art.enable") == "true":        
             
             if self.infoOffset > 0:
                 self.getControl(522).setLabel('COMING UP:')
@@ -831,35 +837,29 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                 self.getControl(522).setLabel('ON NOW:')
             elif self.infoOffset == 0 and self.infoOffsetV == 0:
                 self.getControl(522).setLabel('NOW WATCHING:')
-        else: 
+        else:
             self.getControl(522).setLabel('NOW WATCHING:')
-
+        
+        type = ''
         tvdbid = 0
         imdbid = 0
         dbid = 0
-        
-        Artpath = xbmc.translatePath(os.path.join(ART_LOC))
-        self.logDebug('setShowInfo.Artpath.1 = ' + uni(Artpath))
-        
-        mediapath = uni(self.MyOverlayWindow.channels[newchan - 1].getItemFilename(plpos))
-        self.logDebug('setShowInfo.mediapath.1 = ' + uni(mediapath))
-        
+
+        mediapath = uni(self.MyOverlayWindow.channels[newchan - 1].getItemFilename(plpos))        
         chtype = int(ADDON_SETTINGS.getSetting('Channel_' + str(newchan) + '_type'))
         genre = uni(self.MyOverlayWindow.channels[newchan - 1].getItemgenre(plpos))
         title = uni(self.MyOverlayWindow.channels[newchan - 1].getItemTitle(plpos))
-        
         LiveID = uni(self.MyOverlayWindow.channels[newchan - 1].getItemLiveID(plpos))
-        self.logDebug('setShowInfo.LiveID.1 = ' + uni(LiveID))  
         
         try:
             type1 = str(self.getControl(507).getLabel())
-            self.logDebug('setShowInfo.type1 = ' + str(type1))  
+            self.log('setShowInfo.type1 = ' + str(type1))  
         except:
             pass
         
         try:
             type2 = str(self.getControl(509).getLabel())
-            self.logDebug('setShowInfo.type2 = ' + str(type2))  
+            self.log('setShowInfo.type2 = ' + str(type2))  
         except:
             pass
         
@@ -885,42 +885,33 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         if not 'LiveID' in LiveID:
             try:
                 LiveLST = LiveID.split("|", 4)
-                self.logDebug('setShowInfo.LiveLST = ' + str(LiveLST))
                 imdbid = LiveLST[0]
-                self.logDebug('setShowInfo.LiveLST.imdbid.1 = ' + str(imdbid))
                 imdbid = imdbid.split('imdb_', 1)[-1]
-                self.logDebug('setShowInfo.LiveLST.imdbid.2 = ' + str(imdbid))
                 tvdbid = LiveLST[1]
-                self.logDebug('setShowInfo.LiveLST.tvdbid.1 = ' + str(tvdbid))
                 tvdbid = tvdbid.split('tvdb_', 1)[-1]
-                self.logDebug('setShowInfo.LiveLST.tvdbid.2 = ' + str(tvdbid))
                 SBCP = LiveLST[2]
-                self.logDebug('setShowInfo.LiveLST.SBCP = ' + str(SBCP))
                 
                 if 'dbid_' in LiveLST[3]:
                     dbidTYPE = LiveLST[3]
-                    self.logDebug('setShowInfo.LiveLST.dbidTYPE.1 = ' + str(dbidTYPE))
                     dbidTYPE = dbidTYPE.split('dbid_', 1)[-1]
-                    self.logDebug('setShowInfo.LiveLST.dbidTYPE.2 = ' + str(dbidTYPE))
                     dbid = dbidTYPE.split(',')[0]
-                    self.logDebug('setShowInfo.LiveLST.dbid = ' + str(dbid))
                     type = dbidTYPE.split(',', 1)[-1]
-                    self.logDebug('setShowInfo.LiveLST.type = ' + str(type))
 
                     if type == 'tvshow':
                         id = tvdbid
                     elif type == 'movie':
                         id = imdbid
                     
+                    if REAL_SETTINGS.getSetting("TVFileSys") == "2" and type == 'tvshow':
+                        ART_CACHE = True
+                    elif REAL_SETTINGS.getSetting("MovieFileSys") == "1" and type == 'movie':
+                        ART_CACHE = True
+
                 else:
                     UnairedTYPE = LiveLST[3]
-                    self.logDebug('setShowInfo.LiveLST.UnairedTYPE = ' + str(UnairedTYPE))
                     UnairedTYPE = UnairedTYPE.split('dbid_', 1)[-1]
-                    self.logDebug('setShowInfo.LiveLST.UnairedTYPE.2 = ' + str(UnairedTYPE))
                     Unaired = UnairedTYPE.split(',')[0]
-                    self.logDebug('setShowInfo.LiveLST.Unaired = ' + str(Unaired))
                     type = UnairedTYPE.split(',', 1)[-1]
-                    self.logDebug('setShowInfo.LiveLST.type = ' + str(type))
             except:
                 self.log('setShowInfo.LiveLST Failed')
                 pass     
@@ -954,55 +945,131 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         if REAL_SETTINGS.getSetting("art.enable") == "true":
             self.log('setShowInfo.Dynamic artwork enabled')
         
+            # Local Chtypes
             if chtype <= 7:
                 mediapathSeason, filename = os.path.split(mediapath)
                 mediapathSeries = os.path.dirname(mediapathSeason)
                 
-                mediapathSeries1 = ascii(os.path.join(mediapathSeries, type1EXT))
-                mediapathSeason1 = ascii(os.path.join(mediapathSeason, type1EXT))
+                if ART_CACHE:
+                    fle1 = id + '-' + type1EXT
+                    fle1Path = os.path.join(ART_LOC, fle1)
+                    if FileAccess.exists(fle1Path):
+                        self.getControl(508).setImage(fle1Path)
+                    else:
+                        self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
+                        
+                        if REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7:
+                            link = self.Downloader.DownloadArt(type, id, fle1, ART_LOC, ART_LOC)
+                            try:
+                                self.getControl(508).setImage(link)
+                            except:
+                                pass
+                else:                    
+                    #artwork type1 (508)
+                    mediapathSeries1 = ascii(os.path.join(mediapathSeries, type1EXT))
+                    mediapathSeason1 = ascii(os.path.join(mediapathSeason, type1EXT))
+                    
+                    self.log('setShowInfo.mediapathSeries1 = ' + uni(mediapathSeries1))
+                    self.log('setShowInfo.mediapathSeason1 = ' + uni(mediapathSeason1))  
                 
-                self.logDebug('setShowInfo.mediapathSeries = ' + uni(mediapathSeries1))
-                self.logDebug('setShowInfo.mediapathSeason = ' + uni(mediapathSeason1))  
+                    if FileAccess.exists(mediapathSeries1):
+                        self.getControl(508).setImage(mediapathSeries1)
+                    elif FileAccess.exists(mediapathSeason1):
+                        self.getControl(508).setImage(mediapathSeason1)
+                    else:
+                        self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
 
-                if FileAccess.exists(mediapathSeries1):
-                    self.getControl(508).setImage(mediapathSeries1)
-                elif FileAccess.exists(mediapathSeason1):
-                    self.getControl(508).setImage(mediapathSeason1)
-                else:
-                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-
-                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and chtype != 7:
-                        xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype1+')')
+                        if REAL_SETTINGS.getSetting("EnableDown") == "2" and chtype != 7:
+                            xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype1+')')
+                            
+                        elif REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7:
+                            link = self.Downloader.DownloadArt(type, id, type1EXT, mediapathSeason, mediapathSeries)                        
+                            try:
+                                self.getControl(508).setImage(link)
+                            except:
+                                pass
                         
-                    elif REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7 and self.apis == True:
-                        self.Downloader.ArtDownload(type, id, type1EXT, mediapathSeries1, mediapathSeason1)
-  
-                mediapathSeries2 = ascii(os.path.join(mediapathSeries, type2EXT))
-                mediapathSeason2 = ascii(os.path.join(mediapathSeason, type2EXT))
+                if ART_CACHE:
+                    fle2 = id + '-' + type2EXT
+                    fle2Path = os.path.join(ART_LOC, fle2)
+                    if FileAccess.exists(fle2Path):
+                        self.getControl(510).setImage(fle2Path)
+                    else:
+                        self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
+                        
+                        if REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7:
+                            link = self.Downloader.DownloadArt(type, id, fle2, ART_LOC, ART_LOC)
+                            try:
+                                self.getControl(510).setImage(link)
+                            except:
+                                pass
+                else:
+                    #artwork type2 (510)
+                    mediapathSeries2 = ascii(os.path.join(mediapathSeries, type2EXT))
+                    mediapathSeason2 = ascii(os.path.join(mediapathSeason, type2EXT))
+                        
+                    self.log('setShowInfo.mediapathSeries2 = ' + uni(mediapathSeries2))
+                    self.log('setShowInfo.mediapathSeason2 = ' + uni(mediapathSeason2))  
                 
-                if FileAccess.exists(mediapathSeries2):
-                    self.getControl(510).setImage(mediapathSeries2)
-                elif FileAccess.exists(mediapathSeason2):
-                    self.getControl(510).setImage(mediapathSeason2)
-                else:
-                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
+                    if FileAccess.exists(mediapathSeries2):
+                        self.getControl(510).setImage(mediapathSeries2)
+                    elif FileAccess.exists(mediapathSeason2):
+                        self.getControl(510).setImage(mediapathSeason2)
+                    else:
+                        self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
 
-                    if REAL_SETTINGS.getSetting("EnableDown") == "2" and chtype != 7:
-                        xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype2+')')
-                        
-                    elif REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7 and self.apis == True:
-                        self.Downloader.ArtDownload(type, id, type2EXT, mediapathSeries2, mediapathSeason2)
+                        if REAL_SETTINGS.getSetting("EnableDown") == "2" and chtype != 7:
+                            xbmc.executebuiltin('XBMC.runscript(script.artwork.downloader, silent=true, mediatype='+type+', dbid='+dbid+', '+arttype2+')')
+                            
+                        elif REAL_SETTINGS.getSetting("EnableDown") == "1" and chtype != 7:
+                            link = self.Downloader.DownloadArt(type, id, type2EXT, mediapathSeason, mediapathSeries)
+                            try:
+                                self.getControl(510).setImage(link)
+                            except:
+                                pass
   
                         
-            #LiveTV w/ TVDBID via Fanart.TV        
+            #LiveTV Chtypes
             elif chtype == 8:
-                if REAL_SETTINGS.getSetting('Live.art.enable') == 'true' and self.apis == True:
+                if REAL_SETTINGS.getSetting('EnhancedLiveTV') == 'true' and REAL_SETTINGS.getSetting('Live.art.enable') == 'true':
                     self.log('LiveTV Art Enabled')
-                    self.LiveTVArtDownloader(imdbid, tvdbid, type, type1, type1EXT, type2, type2EXT)       
+                    
+                    if type == 'tvshow':
+                        id = tvdbid
+                        fle1 = tvdbid + '-' + type1EXT
+                        fle2 = tvdbid + '-' + type2EXT
+                    elif type == 'movie':
+                        id = imdbid
+                        fle1 = imdbid + '-' + type1EXT
+                        fle2 = imdbid + '-' + type2EXT
+                    
+                    flename1 = (ART_LOC + fle1)
+                    flename2 = (ART_LOC + fle2)
+                    
+                    if FileAccess.exists(flename1):
+                        self.getControl(508).setImage(flename1)
+                    else:   
+                        self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')  
+                        link = self.Downloader.DownloadArt(type, id, fle1, ART_LOC, ART_LOC)
+                        try:
+                            self.getControl(508).setImage(link)
+                        except:
+                            pass
+                    
+                    if FileAccess.exists(flename2):
+                        self.getControl(510).setImage(flename2)
+                    else:   
+                        self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')  
+                        link = self.Downloader.DownloadArt(type, id, fle2, ART_LOC, ART_LOC)
+                        try:
+                            self.getControl(510).setImage(link)
+                        except:
+                            pass         
+                
                 else:#fallback all artwork because live art disabled
                     self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
                     self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
-
+                    
             elif chtype == 9:
                 self.getControl(508).setImage(MEDIA_LOC + 'EPG.Internet.508.png')
                 self.getControl(510).setImage(MEDIA_LOC + 'EPG.Internet.510.png')
@@ -1018,12 +1085,13 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
             elif chtype == 13:
                 self.getControl(508).setImage(MEDIA_LOC + 'EPG.LastFM.508.png')
                 self.getControl(510).setImage(MEDIA_LOC + 'EPG.LastFM.510.png')  
+            
+            elif chtype == 14:
+                self.getControl(508).setImage(MEDIA_LOC + 'EPG.Extras.508.png')
+                self.getControl(510).setImage(MEDIA_LOC + 'EPG.Extras.510.png')  
 
-        self.getControl(500).setLabel(self.MyOverlayWindow.channels[newchan - 1].getItemTitle(plpos))
-        #code to display "Live TV" instead of date (date does confirm sync)
-        #if chtype == 8:
-        #   self.getControl(501).setLabel("LiveTV")
-        #else:
+        ItemTitle = (self.MyOverlayWindow.channels[newchan - 1].getItemTitle(plpos)).replace("*NEW*", "")
+        self.getControl(500).setLabel(ItemTitle)
         self.getControl(501).setLabel(self.MyOverlayWindow.channels[newchan - 1].getItemEpisodeTitle(plpos))
         self.getControl(502).setLabel(self.MyOverlayWindow.channels[newchan - 1].getItemDescription(plpos))
         
@@ -1120,148 +1188,8 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
 
         self.MyOverlayWindow.newChannel = newchan
         self.log('selectShow return')
+        
 
-    
-    def LiveTVArtDownloader(self, imdbid, tvdbid, type, type1, type1EXT, type2, type2EXT):
-        self.log('LiveTVArtDownloader')
-        tvdb = True
-        imdb = True
-        Artpath = xbmc.translatePath(os.path.join(ART_LOC))
-        self.logDebug('LiveTVArtDownloader.Artpath = ' + uni(Artpath))
-        
-        if tvdbid == 'NA' or tvdbid == 0:
-            tvdb = False
-        
-        if imdbid == 'NA' or imdbid == 0:
-            imdb = False
-        
-        if tvdb and type == 'tvshow':  
-            self.log('LiveTVArtDownloader.TV')
-            print tvdbid
-            fanartTV = fanarttv.FTV_TVProvider()
-            URLLST = fanartTV.get_image_list(tvdbid)
-            print URLLST
-            if URLLST:
-                URLLST = str(URLLST)
-                URLLST = URLLST.split("{'art_type': ")
-                print URLLST
-                try:
-                    Art1 = [s for s in URLLST if type1 in s]
-                    Art1 = Art1[0]
-                    Art1 = Art1[Art1.find("'url': '")+len("'url': '"):Art1.rfind("',")]
-                    Art1 = Art1.split("',")[0]
-                    fle1 = tvdbid + '-' + type1EXT
-                    flename1 = xbmc.translatePath(os.path.join(ART_LOC) + fle1)
-                    
-                    if FileAccess.exists(flename1):
-                        self.getControl(508).setImage(flename1)
-                    else:
-                        if not os.path.exists(os.path.join(Artpath)):
-                            os.makedirs(os.path.join(Artpath))
-                        
-                        resource = urllib.urlopen(Art1)
-                        output = open(flename1,"wb")
-                        output.write(resource.read())
-                        output.close()
-                        self.getControl(508).setImage(flename1)
-                except:
-                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-                    pass
-                
-                try:
-                    Art2 = [s for s in URLLST if type2 in s]
-                    Art2 = Art2[0]
-                    Art2 = Art2[Art2.find("'url': '")+len("'url': '"):Art2.rfind("',")]
-                    Art2 = Art2.split("',")[0]
-                    fle2 = tvdbid + '-' + type2EXT
-                    flename2 = xbmc.translatePath(os.path.join(ART_LOC) + fle2)
-                    
-                    if FileAccess.exists(flename2):
-                        self.getControl(510).setImage(flename2)
-                    else:
-                        if not os.path.exists(os.path.join(Artpath)):
-                            os.makedirs(os.path.join(Artpath))
-                        
-                        resource = urllib.urlopen(Art2)
-                        output = open(flename2,"wb")
-                        output.write(resource.read())
-                        output.close()
-                        self.getControl(510).setImage(flename2)
-                except:
-                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
-                    pass
-
-            else:#fallback all artwork because there is no id
-                self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-                self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
-                
-        elif imdb and type == 'movie':
-            self.log('LiveTVArtDownloader.Movie')    
-            fanartTV = fanarttv.FTV_MovieProvider()
-            URLLST = fanartTV.get_image_list(imdbid)
-            print URLLST
-            if URLLST:
-                URLLST = str(URLLST)
-                URLLST = URLLST.split("{'art_type': ")
-                try:#Type1 Art
-                    Art1 = [s for s in URLLST if type1 in s]
-                    print Art1
-                    Art1 = Art1[0]
-                    print Art1
-                    Art1 = Art1[Art1.find("'url': '")+len("'url': '"):Art1.rfind("',")]
-                    print Art1
-                    Art1 = Art1.split("',")[0]      
-                    print Art1          
-                    fle1 = imdbid + '-' + type1EXT
-                    flename1 = xbmc.translatePath(os.path.join(ART_LOC) + fle1) 
-                    if FileAccess.exists(flename1):
-                        self.getControl(508).setImage(flename1)
-                    else:
-                        if not os.path.exists(os.path.join(Artpath)):
-                            os.makedirs(os.path.join(Artpath))
-                    
-                        resource = urllib.urlopen(Art1)# Replace with urlretrieve todo
-                        output = open(flename1,"wb")
-                        output.write(resource.read())
-                        output.close()
-                        self.getControl(508).setImage(flename1)
-                except:
-                    self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-                    pass
-                
-                try:#Type2 Art
-                    Art2 = [s for s in URLLST if type2 in s]
-                    print Art2
-                    Art2 = Art2[0]
-                    print Art2
-                    Art2 = Art2[Art2.find("'url': '")+len("'url': '"):Art2.rfind("',")]
-                    print Art2
-                    Art2 = Art2.split("',")[0]
-                    print Art2
-                    fle2 = imdbid + '-' + type2EXT
-                    flename2 = xbmc.translatePath(os.path.join(ART_LOC) + fle2)
-                    
-                    if FileAccess.exists(flename2):
-                        self.getControl(510).setImage(flename2)
-                    else:
-                        if not os.path.exists(os.path.join(Artpath)):
-                            os.makedirs(os.path.join(Artpath))
-                        
-                        resource = urllib.urlopen(Art2)# Replace with urlretrieve todo
-                        output = open(flename2,"wb")
-                        output.write(resource.read())
-                        output.close()
-                        self.getControl(510).setImage(flename2)  
-                except:
-                    self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')
-                    pass
-            else:
-                self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-                self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')         
-        else:
-            self.getControl(508).setImage(MEDIA_LOC + type1 + '.png')
-            self.getControl(510).setImage(MEDIA_LOC + type2 + '.png')            
-            
 
     def determinePlaylistPosAtTime(self, starttime, channel):
         self.log('determinePlaylistPosAtTime ' + str(starttime) + ', ' + str(channel))
@@ -1294,9 +1222,9 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                        videotime = time.time() - epochBeginDate
                        reftime = time.time()
                     else:
-                       playlistpos = int(xbmc.PlayList(xbmc.PLAYLIST_VIDEO).getposition())
-                       videotime = xbmc.Player().getTime()
-                       reftime = time.time()
+                        playlistpos = int(xbmc.PlayList(xbmc.PLAYLIST_VIDEO).getposition())
+                        videotime = xbmc.Player().getTime()
+                        reftime = time.time()
                    
             else:
                     #Live TV pull date from the playlist entry

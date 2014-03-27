@@ -104,12 +104,12 @@
             </control>
             <control type="label" id="502">
                 <posx>-15</posx>
-                <posy>650</posy>
+                <posy>653</posy>
                 <description>Now watching Label</description>
-                <width min="100" max="300">auto</width>
+                <width>300</width>
                 <height>30</height>
                 <label>Now Playing</label>
-                <font>font14</font>
+                <font>font12</font>
                 <align>center</align>
                 <textcolor>C0C0C0C0</textcolor>
             </control>  
@@ -117,7 +117,7 @@
             <control type="grouplist">
                 <posx>285</posx>
                 <posy>525</posy>
-                <width>1000</width>
+                <width>950</width>
                 <height>40</height>
                 <align>left</align>
                 <aligny>bottom</aligny>
@@ -128,7 +128,7 @@
                     <width min="55" max="600">auto</width>
                     <height>30</height>
                     <label>Show Name</label>
-                    <font>font12</font>
+                    <font>font14</font>
                     <textcolor>FF0297eb</textcolor>
                     <scroll>true</scroll>
                     <wrapmultiline>false</wrapmultiline>
@@ -140,7 +140,7 @@
                     <width>10</width>
                     <height>30</height>
                     <label>•</label>
-                    <font>font12</font>
+                    <font>font14</font>
                     <textcolor>FF0297eb</textcolor>
                     <visible>!VideoPlayer.Content(movie)</visible>
                 </control>
@@ -149,40 +149,39 @@
                     <width min="55" max="600">auto</width>
                     <height>30</height>
                     <label>Show Title</label>
-                    <font>font12</font>
+                    <font>font14</font>
                     <textcolor>FFFFFFFF</textcolor>
                     <scroll>true</scroll>
                     <wrapmultiline>false</wrapmultiline>
                     <scrollspeed>50</scrollspeed>
                     <scrollsuffix> - </scrollsuffix>
                 </control>
-    <!--chan bug?-->				
-                <control type="label">
-                    <description>Show Name Label</description>
-                    <width min="10" max="50">auto</width>
-                    <height>30</height>
-                    <label></label>
-                    <font>font14</font>
-                    <align>left</align>
-                    <textcolor>FF0297eb</textcolor>
-                </control>
             </control>
-<!--
-<control type="label" id="300">
-<description>Channel Name</description>
-<width min="5" max="600">auto</width>
-<height>30</height>
-<label>Channel Name</label>
-<font>font14</font>
-<align>left</align>
-<aligny>center</aligny>
-<textcolor>FFFFFFFF</textcolor>
-</control> -->
+            <!--
+            <control type="label" id="300">
+                <description>Channel Name</description>
+                <width min="5" max="600">auto</width>
+                <height>30</height>
+                <label>Channel Name</label>
+                <font>font14</font>
+                <align>left</align>
+                <aligny>center</aligny>
+                <textcolor>FFFFFFFF</textcolor>
+            </control> 
+            -->                     
+        <control type="image">
+            <description>Info Background Image</description>
+            <posx>285</posx>
+            <posy>560</posy>
+            <width>950</width>
+            <height>2</height>
+            <texture>pstvlButtonFocus.png</texture>
+        </control>  
         <control type="label" id="505">
             <description>Show Description</description>
             <posx>285</posx>
-            <posy>550</posy>
-            <width min="100" max="750">auto</width>
+            <posy>570</posy>
+            <width>950</width>
             <height>100</height>
             <align>left</align>
             <aligny>top</aligny>
@@ -301,9 +300,33 @@
                 <texture>hulu.png</texture>
                 <visible>[substring(Player.FilenameAndPath,hulu)]</visible>
             </control>-->
+            
+        <control type="progress">
+            <posx>0</posx>
+            <posy>675</posy>
+            <width>1280</width>
+            <height>70</height>
+            <texturebg>seek/progress_back.png</texturebg>
+            <lefttexture border="0">seek/progresscache_left.png</lefttexture>
+            <midtexture border="0">seek/progresscache_mid.png</midtexture>
+            <righttexture border="0">seek/progresscache_right.png</righttexture>
+            <info>Player.ProgressCache</info>
+        </control>
+        <control type="progress">
+            <posx>0</posx>
+            <posy>675</posy>
+            <width>1280</width>
+            <height>70</height>
+            <texturebg>seek/progresscache_back.png</texturebg>
+            <lefttexture border="0">seek/progress_left.png</lefttexture>
+            <midtexture border="0">seek/progress_mid.png</midtexture>
+            <righttexture border="0">seek/progress_right.png</righttexture>
+            <info>Player.Progress</info>
+        </control>
+        
         <control type="grouplist">
             <posx>20</posx>
-            <posy>680</posy>
+            <posy>675</posy>
             <width>1280</width>
             <height>50</height>
             <align>left</align>
@@ -325,7 +348,7 @@
                     <align>left</align>
                     <aligny>center</aligny>
                     <aspectratio>keep</aspectratio>
-                    <texture>$INFO[VideoPlayer.VideoResolution,flags\resolution\,.png]</texture>
+                    <texture>$INFO[VideoPlayer.VideoResolution,flags/resolution/,.png]</texture>
                     <colordiffuse>white</colordiffuse>
                     <visible>!IsEmpty(VideoPlayer.VideoResolution)</visible>
                 </control>  
@@ -336,7 +359,7 @@
                     <align>left</align>
                     <aligny>center</aligny>
                     <aspectratio>keep</aspectratio>
-                    <texture>$INFO[VideoPlayer.VideoCodec,flags\source\,.png]</texture>
+                    <texture>$INFO[VideoPlayer.VideoCodec,flags/source/,.png]</texture>
                     <colordiffuse>white</colordiffuse>
                     <visible>![substring(VideoPlayer.VideoCodec,div,left) | stringcompare(VideoPlayer.VideoCodec,dx50)]</visible>
                 </control>
@@ -347,13 +370,13 @@
                     <align>left</align>
                     <aligny>center</aligny>
                     <aspectratio>keep</aspectratio>
-                    <texture>$INFO[VideoPlayer.AudioChannels,flags\audio\,.png]</texture>
+                    <texture>$INFO[VideoPlayer.AudioCodec,flags/audio/,.png]</texture>
                     <colordiffuse>white</colordiffuse>
                     <visible>!IsEmpty(VideoPlayer.AudioChannels)</visible>
                 </control>
         </control>  
-            
-        <control type="label">
+        
+        <!-- <control type="label">
             <description>startime</description>
             <posx>285</posx>
             <posy>688</posy>
@@ -363,28 +386,6 @@
             <font>font12</font>
             <align>left</align>
             <textcolor>C0C0C0C0</textcolor>
-        </control>
-        <control type="progress" id="20">
-            <posx>360</posx>
-            <posy>690</posy>
-            <width>675</width>
-            <height>20</height>
-            <texturebg>osd/seek/progress_back.png</texturebg>
-            <lefttexture border="1">osd/seek/progresscache_left.png</lefttexture>
-            <midtexture border="1">osd/seek/progresscache_mid.png</midtexture>
-            <righttexture border="1">osd/seek/progresscache_right.png</righttexture>
-            <info>Player.ProgressCache</info>
-        </control>
-        <control type="progress" id="20">
-            <posx>360</posx>
-            <posy>690</posy>
-            <width>675</width>
-            <height>20</height>
-            <texturebg>osd/seek/progresscache_back.png</texturebg>
-            <lefttexture border="1">osd/seek/progress_left.png</lefttexture>
-            <midtexture border="1">osd/seek/progress_mid.png</midtexture>
-            <righttexture border="1">osd/seek/progress_right.png</righttexture>
-            <info>Player.Progress</info>
         </control>
         <control type="label">
             <description>remtime</description>
@@ -407,7 +408,7 @@
             <font>font12</font>
             <align>right</align>
             <textcolor>C0C0C0C0</textcolor>
-        </control>     
+        </control>      -->
     </control>
     </controls>      
 </window>

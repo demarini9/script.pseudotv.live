@@ -20,7 +20,7 @@ import requests
 config = {}
 
 def configure(api_key, language='en'):
-    config['apikey'] = api_key
+    config['apikey'] = TMDB_API_KEY
     config['language'] = language
     config['urls'] = {}
     config['urls']['movie.search'] = "https://api.themoviedb.org/3/search/movie?query=%%s&api_key=%(apikey)s&page=%%s" % (config)

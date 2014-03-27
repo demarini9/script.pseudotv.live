@@ -28,7 +28,6 @@ import warnings
 import logging
 import datetime
 import zipfile
-import Globals
 import ChannelList
 
 try:
@@ -43,10 +42,11 @@ except ImportError:
 
 
 from tvdb_cache import CacheHandler
-
+from Globals import *
 from tvdb_ui import BaseUI, ConsoleUI
-from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound,
-    tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
+from tvdb_exceptions import (tvdb_error, tvdb_userabort, tvdb_shownotfound, tvdb_seasonnotfound, tvdb_episodenotfound, tvdb_attributenotfound)
+
+
 
 lastTimeout = None
 
@@ -306,7 +306,7 @@ class Tvdb:
                 custom_ui = None,
                 language = None,
                 search_all_languages = False,
-                apikey = Globals.REAL_SETTINGS.getSetting('tvdb.apikey'),
+                apikey = TVDB_API_KEY,
                 forceConnect=False,
                 useZip=False,
                 dvdorder=False):
@@ -397,7 +397,7 @@ class Tvdb:
         if apikey is not None:
             self.config['apikey'] = apikey
         else:
-            self.config['apikey'] = "0629B785CE550C8D" # tvdb_api's API key
+            self.config['apikey'] = TVDB_API_KEY # tvdb_api's API key
 
         self.config['debug_enabled'] = debug # show debugging messages
 

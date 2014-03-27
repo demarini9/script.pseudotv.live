@@ -1,11 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-#     Copyright (C) 2011-2013 Lunatixz
+#     Copyright (C) 2011-2014 Tommy Winther, Lunatixz, Martijn Kaijser
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
+#    the Free Software Foundation, either version 2 of the License, or
 #    (at your option) any later version.
 #
 #    This program is distributed in the hope that it will be useful,
@@ -35,36 +35,46 @@ if sys.version_info < (2, 7):
     import simplejson as json
 else:
     import json
+
 # Commoncache plugin import
 try:
     import StorageServer
 except:
     import storageserverdummy as StorageServer
 
-### import libraries
+# import libraries
 from urllib2 import HTTPError, URLError
 
-API_KEY = REAL_SETTINGS.getSetting('fandb.apikey')
+# Cache bool
+CACHE_ON = True
+cache = StorageServer.StorageServer("plugin://script.pseudotv.live/",240)
+
+API_KEY = FANARTTV_API_KEY
 API_URL_TV = 'http://api.fanart.tv/webservice/series/%s/%s/json/all/1/2'
 API_URL_MOVIE = 'http://api.fanart.tv/webservice/movie/%s/%s/json/all/1/2/'
 
 IMAGE_TYPES = ['clearlogo',
                'hdtvlogo',
+               'tvposter',
+               'showbackground',
                'clearart',
                'hdclearart',
                'tvthumb',
-               'seasonthumb',
+               # 'seasonthumb',
                'characterart',
                'tvbanner',
-               'seasonbanner',
+               # 'seasonbanner',
                'movielogo',
-               'hdmovielogo',
-               'movieart',
                'moviedisc',
+               'movieart',
+               'movieposter',
+               'moviebackground',
+               'hdmovielogo',
                'hdmovieclearart',
-               'moviethumb',
-               'moviebanner']
+               'moviebanner',
+               'moviethumb']
 
+               
 class FTV_TVProvider():
 
     def __init__(self):
@@ -83,16 +93,16 @@ class FTV_TVProvider():
                         for item in value[art]:
                             # Check on what type and use the general tag
                             arttypes = {'clearlogo': 'logo',
-                                        'hdtvlogo': 'clearlogo',
+                                        'hdtvlogo': 'logo',
                                         'tvposter': 'poster',
-                                        'showbackground': 'fanart',
+                                        'showbackground': 'tvfanart',
                                         'clearart': 'clearart',
                                         'hdclearart': 'clearart',
                                         'tvthumb': 'landscape',
-                                        'seasonthumb': 'seasonlandscape',
-                                        'characterart': 'characterart',
+                                        # 'seasonthumb': 'seasonlandscape',
+                                        'characterart': 'character',
                                         'tvbanner': 'banner',
-                                        'seasonbanner': 'seasonbanner',
+                                        # 'seasonbanner': 'seasonbanner',
                                         }
                             if art in ['hdtvlogo', 'hdclearart']:
                                 size = 'HD'
@@ -109,18 +119,29 @@ class FTV_TVProvider():
                                                'language': item.get('lang'),
                                                'votes': item.get('likes')})
             if image_list == []:
-                raise NoFanartError(media_id)
+                pass
             else:
                 # Sort the list before return. Last sort method is primary
                 image_list = sorted(image_list, key=itemgetter('votes'), reverse=True)
                 image_list = sorted(image_list, key=itemgetter('size'), reverse=False)
-                image_list = sorted(image_list, key=itemgetter('language'))
+                # image_list = sorted(image_list, key=itemgetter('language'))
                 return image_list
-            # Retrieve JSON data from site
     
-    
-    def get_data(self, url, data_type):
-        log('Cache expired. Retrieving new data')
+      
+    # Retrieve JSON data from cache function
+    def get_data(self, url, data_type ='json'):
+        xbmc.log('API: %s'% url)
+        if CACHE_ON:
+            result = cache.cacheFunction(self.get_data_new, url, data_type)
+        else:
+            result = self.get_data_new(url, data_type)    
+        if not result:
+            result = 'Empty'
+        return result             
+                   
+    # Retrieve JSON data from site
+    def get_data_new(self, url, data_type):
+        xbmc.log('Cache expired. Retrieving new data')
         data = []
         try:
             request = urllib2.Request(url)
@@ -150,9 +171,9 @@ class FTV_TVProvider():
             raise HTTPTimeout(url)
         except:
             data = 'Empty'
-        return data
-        
-        
+        return data       
+
+    
 class FTV_MovieProvider():
 
     def __init__(self):
@@ -171,10 +192,10 @@ class FTV_MovieProvider():
                         for item in value[art]:
                             # Check on what type and use the general tag
                             arttypes = {'movielogo': 'logo',
-                                        'moviedisc': 'discart',
+                                        'moviedisc': 'disc',
                                         'movieart': 'clearart',
                                         'movieposter': 'poster',
-                                        'moviebackground':'fanart',
+                                        'moviebackground':'moviefanart',
                                         'hdmovielogo': 'logo',
                                         'hdmovieclearart': 'clearart',
                                         'moviebanner': 'banner',
@@ -196,16 +217,29 @@ class FTV_MovieProvider():
                                                'disctype': item.get('disc_type','n/a'),
                                                'discnumber': item.get('disc','n/a')})
             if image_list == []:
-                raise NoFanartError(media_id)
+                pass
             else:
                 # Sort the list before return. Last sort method is primary
                 image_list = sorted(image_list, key=itemgetter('votes'), reverse=True)
                 image_list = sorted(image_list, key=itemgetter('size'), reverse=False)
-                image_list = sorted(image_list, key=itemgetter('language'))
+                # image_list = sorted(image_list, key=itemgetter('language'))
                 return image_list
-                
-    def get_data(self, url, data_type):
-        log('Cache expired. Retrieving new data')
+                    
+      
+    # Retrieve JSON data from cache function
+    def get_data(self, url, data_type ='json'):
+        xbmc.log('API: %s'% url)
+        if CACHE_ON:
+            result = cache.cacheFunction(self.get_data_new, url, data_type)
+        else:
+            result = self.get_data_new(url, data_type)    
+        if not result:
+            result = 'Empty'
+        return result             
+                   
+    # Retrieve JSON data from site
+    def get_data_new(self, url, data_type):
+        xbmc.log('Cache expired. Retrieving new data')
         data = []
         try:
             request = urllib2.Request(url)
@@ -235,5 +269,6 @@ class FTV_MovieProvider():
             raise HTTPTimeout(url)
         except:
             data = 'Empty'
-        return data
-        
+        return data       
+
+    

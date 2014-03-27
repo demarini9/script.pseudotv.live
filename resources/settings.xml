@@ -58,10 +58,9 @@
         <setting id="ChannelDelay" type="enum" label="30302" default="0" values="None|0.25|0.5|0.75|1.0|1.25|1.5|1.75|2.0"/>
         <setting id="SUPchannel" type="enum"  label="30303" values="Last Channel|Preferred Channel" default="0"/>
         <setting id="CurrentChannel" type="text" label="30304" subsetting="true" visible="eq(-1,1)" default="1"/>
-    	<setting id="EnableDown" type="enum" label="30305" values="Disabled|Direct Download (Coming Soon)|script.artwork.downloader" default="0" /> 
-        <!-- <setting id="EnableDownSilent" type="bool" label="30306" subsetting="true" visible="eq(-1,2)" default="true"/> -->
-        <setting id="TVFileSys" type="enum" subsetting="true" label="30307" visible="eq(-2,1)" values="\Title\Season\Media.ext|\Title\Media.ext" default="0"/>
-    	<setting id="MovieFileSys" type="enum" subsetting="true" label="30308" visible="eq(-3,1)" values="\Movies\Title\Media.ext|\Movies\Media.ext" default="0"/>
+    	<setting id="EnableDown" type="enum" label="30305" values="Disabled|Direct Download|Artwork Downloader Script" default="0" /> 
+        <setting id="TVFileSys" type="enum" subsetting="true" label="30307" visible="eq(-1,1)" values="Title\Season\File.ext|\Title\File.ext|Artwork Cache" default="2"/>
+    	<setting id="MovieFileSys" type="enum" subsetting="true" label="30308" visible="eq(-2,1)" values="Title\File.ext|Artwork Cache" default="1"/>
     	<setting id="ATLimit" label="30310" type="enum" values="25|50|100|250|500|1000|Unlimited" default="6"/>
     </category>
 <!--Live Features-->
@@ -71,7 +70,13 @@
         <setting id="EnhancedLiveTV" type="bool" label="30405" default="false" />
         <setting id="Live.art.enable" subsetting="true" visible="eq(-1,true)" label="30219" type="bool" default="false" /> 
         <setting id="PVR_Enabled" label="30801" type="bool" default="false"/>
-        <setting id="PVR_Folder" subsetting="true" label="30802" visible="eq(-1,true)" type="text" default="" />
+        <setting id="PVR_Folder" subsetting="true" label="30802" visible="eq(-1,true)" type="text" default="" />        
+        <setting id="sickbeard.enabled" label="30708" type="bool" default="false" />
+        <setting id="sickbeard.baseurl" subsetting="true" label="30709" visible="eq(-1,true)" type="text" default="http://localhost:8081"/>
+        <setting id="sickbeard.apikey" subsetting="true" label="30710" visible="eq(-2,true)" type="text" default="Enter API KEY"/>
+        <setting id="couchpotato.enabled" label="30711" type="bool" default="false" />
+        <setting id="couchpotato.baseurl" subsetting="true" label="30709" visible="eq(-1,true)" type="text" default="http://localhost:5050"/>
+        <setting id="couchpotato.apikey" subsetting="true" label="30710" visible="eq(-2,true)" type="text" default="Enter API KEY"/>
     </category>
 <!--Autotune-->
     <category label="30070">
@@ -130,23 +135,17 @@
         <setting label="30903" type="lsep" default="" /> 
     </category>
     <!--APIs-->
-    <category label="30700">  
+<!--     <category label="30700">  
         <setting id="tvdb.enabled" label="30702" type="bool" default="false" />
         <setting id="tvdb.apikey" subsetting="true" label="30703" visible="eq(-1,true)" type="text" default="Enter API KEY" />
         <setting id="tmdb.enabled" label="30704" type="bool" default="false" />
         <setting id="tmdb.apikey" subsetting="true" label="30705" visible="eq(-1,true)" type="text" default="Enter API KEY"/>
         <setting id="fandb.enabled" label="30706" type="bool" default="false" />
         <setting id="fandb.apikey" subsetting="true" label="30707" visible="eq(-1,true)" type="text" default="Enter API KEY"/>
-        <setting id="sickbeard.enabled" label="30708" type="bool" default="false" />
-        <setting id="sickbeard.baseurl" subsetting="true" label="30709" visible="eq(-1,true)" type="text" default="http://localhost:8081"/>
-        <setting id="sickbeard.apikey" subsetting="true" label="30710" visible="eq(-2,true)" type="text" default="Enter API KEY"/>
-        <setting id="couchpotato.enabled" label="30711" type="bool" default="false" />
-        <setting id="couchpotato.baseurl" subsetting="true" label="30709" visible="eq(-1,true)" type="text" default="http://localhost:5050"/>
-        <setting id="couchpotato.apikey" subsetting="true" label="30710" visible="eq(-2,true)" type="text" default="Enter API KEY"/>
         <setting id="VMoviePoster.enabled" label="30713" type="bool" default="false" />
         <setting id="VMoviePoster.baseurl" subsetting="true" label="30709" visible="eq(-1,true)" type="text" default="http://localhost:90"/>
         <setting label="30712" type="lsep"/>
-    </category> 
+    </category>  -->
     <!--MISC-->
     <category label="30900">
         <setting id="Donor_Enabled" label="30901" type="bool" default="false"/>
@@ -163,9 +162,10 @@
         <setting id="IncludeIceLib" type="bool" label="30997" default="true"/>
         <setting id="EnableSettop" type="bool" label="30998" default="false"/>
         <setting id="Refresh_Int" subsetting="true"  visible="eq(-1,true)" type="enum" label="31000" values="6|12|24" default="0"/>
+        <setting id="Cache_On" label="39999" type="bool" default="true" />
+        <setting type="action" label="30999" action="RunScript($CWD/defrag.py)"/>
         <setting id="Offair" type="enum" label="30407" values="Local|Plugin" default="1" />
         <setting id="Offair_Local" subsetting="true" visible="eq(-1,0)" label="30408" type="file" default="Select Video" /> 
         <setting id="Offair_Youtube" subsetting="true" visible="eq(-2,1)" label="30409" type="text" default="plugin://plugin.video.youtube/?path=/root/video&action=play_video&videoid=-2GXT8bLe04"/>
-        <setting type="action" label="30999" action="RunScript($CWD/defrag.py)"/>
     </category>
 </settings>

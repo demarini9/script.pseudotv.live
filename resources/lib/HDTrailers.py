@@ -21,6 +21,19 @@ import json
 import urllib2
 from BeautifulSoup import BeautifulSoup
 
+# Commoncache plugin import
+try:
+    import StorageServer
+except:
+    import storageserverdummy as StorageServer
+
+# import libraries
+from urllib2 import HTTPError, URLError
+
+# Cache bool
+CACHE_ON = True
+cache = StorageServer.StorageServer("plugin://script.pseudotv.live/",240)
+
 MAIN_URL = 'http://www.hd-trailers.net/'
 NEXT_IMG = 'http://static.hd-trailers.net/images/mobile/next.png'
 PREV_IMG = 'http://static.hd-trailers.net/images/mobile/prev.png'
@@ -36,7 +49,6 @@ SOURCES = (
     'hd-trailers.net',
     'aol.com'
 )
-
 
 class NetworkError(Exception):
     pass
@@ -75,6 +87,16 @@ def get_by_initial(initial='0'):
 def get_initials():
     return list('0ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
+
+# def get_videos(self, movie_id):
+    # if CACHE_ON:
+        # result = cache.cacheFunction(self.get_videos_NEW, movie_id)
+    # else:
+        # result = self.get_videos_NEW(movie_id)    
+    # if not result:
+        # result = 'Empty'
+    # return result             
+               
 
 def get_videos(movie_id):
     url = MAIN_URL + 'movie/%s' % movie_id
@@ -120,6 +142,16 @@ def get_videos(movie_id):
             })
     return movie, trailers, clips
 
+
+# def get_yahoo_url(self, vid, res):
+    # if CACHE_ON:
+        # result = cache.cacheFunction(self.get_yahoo_url_NEW, vid, res)
+    # else:
+        # result = self.get_yahoo_url_NEW(vid, res)    
+    # if not result:
+        # result = 'Empty'
+    # return result             
+               
 
 def get_yahoo_url(vid, res):
     data_url = (
@@ -191,6 +223,16 @@ def __get_json(url):
 def log(msg):
     print(u'%s scraper: %s' % (USER_AGENT, msg))
 
+
+# def get_playable_url(self, source, raw_url):
+    # if CACHE_ON:
+        # result = cache.cacheFunction(self.get_playable_url_NEW, source, raw_url)
+    # else:
+        # result = self.get_playable_url_NEW(source, raw_url)    
+    # if not result:
+        # result = 'Empty'
+    # return result             
+               
 
 def get_playable_url(source, raw_url):
     print source

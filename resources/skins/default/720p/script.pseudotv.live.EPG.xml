@@ -95,7 +95,7 @@
                 <aspectratio>keep</aspectratio>
             </control>
             <!-- #### Skinners Include Everything for videowindow patch to work #### -->
-            <!-- PATCH START --> <!-- 
+            <!-- PATCH START --> <!--
             <control type="videowindow">
                 <description>video</description>
                 <width>285</width>
@@ -292,7 +292,7 @@
         </control>                 
         <control type="button" id="100">  
             <label>FFFFFFFF</label><!--textcolor-->
-            <label2>FF7d7d7d</label2><!--focusedcolor-->
+            <label2>FFFFFFFF</label2><!--focusedcolor-->
             <visible>false</visible>
         </control>
         <control type="label" id="101">  

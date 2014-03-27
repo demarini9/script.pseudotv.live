@@ -20,6 +20,20 @@
 import urllib, urllib2
 import json
 
+# Commoncache plugin import
+try:
+    import StorageServer
+except:
+    import storageserverdummy as StorageServer
+
+# import libraries
+from urllib2 import HTTPError, URLError
+
+# Cache bool
+CACHE_ON = True
+cache = StorageServer.StorageServer("plugin://script.pseudotv.live/",240)
+
+
 class CouchPotato(object):
     def __init__(self, base_url='http://localhost:5050', api_key='71e9ea6a3e16430389450eb88e93a8a1'):
         self.apikey = api_key
@@ -28,17 +42,27 @@ class CouchPotato(object):
         
     def _buildUrl(self, cmd, parms={}):
         url = '%s/api/%s/%s/?%s' % (self.baseurl, self.apikey, cmd, urllib.urlencode(parms))
-        #self.log(url)
+        #xbmc.log(url)
         return url
 
     
     def addMovie(self, imdbid):
         response = json.load(urllib.urlopen(self._buildUrl('movie.add', {'identifier' : imdbid})))
-        #self.log('imdbid=%s, result=%s' % (imdbid, response['added']))
+        #xbmc.log('imdbid=%s, result=%s' % (imdbid, response['added']))
         return response['added'] == 'true'
 
-    
     def getMoviebyTitle(self, title):
+        xbmc.log("getMoviebyTitle Cache")
+        if CACHE_ON:
+            result = cache.cacheFunction(self.getMoviebyTitle_NEW, title)
+        else:
+            result = self.getMoviebyTitle_NEW(title)
+        if not result:
+            result = 'Empty'
+        return result    
+    
+    def getMoviebyTitle_NEW(self, title):
+        xbmc.log("getMoviebyTitle Creating Cache")
         response = json.load(urllib.urlopen(self._buildUrl('movie.list', {'search' : title})))
         return response
         #return self._api_call('movie.list', params).get('movies', [])
