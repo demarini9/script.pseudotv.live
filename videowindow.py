@@ -60,7 +60,7 @@ SeekPatched = True
 Error = False
 MSG = ''
 
-Path = (os.path.join(fleMasterPath, 'default', '720p'))
+Path = (os.path.join(fleMasterPath, 'Default', '720p'))
 fle = 'Custom_PTVL_9506.xml'
 fle1 = 'dialogseekbar.xml'
 VWPath = (os.path.join(skinPath, fle))
@@ -139,9 +139,9 @@ if Patch:
     
 # if SeekPatch:
     # # try:
-    # x = ' Window.IsActive(FullscreenVideo)'
-    # y = ' Window.IsActive(FullscreenVideo) + !Window.IsActive(script.pseudotv.live.TVOverlay.xml)'
-    # replaceAll(DSPath,x,y)
+    # y = '<visible>'
+    # z = ('<visible>!Window.IsActive(script.pseudotv.live.TVOverlay.xml) + ')
+    # replaceAll(DSPath,y,z)
     # xbmc.log('script.pseudotv.live-VideoWindow: DialogSeekBar Patched')
     # SeekPatched = True
     # # except:

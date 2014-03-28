@@ -80,9 +80,9 @@ class TVDB(object):
             if match:
                 return match.group(1)
             else:
-                return 0
+                return 'Empty'
         except:
-            return 0
+            return 'Empty'
 
     def getIdByIMDB(self, imdb_id):
         xbmc.log("getIdByIMDB Cache")
@@ -104,9 +104,9 @@ class TVDB(object):
             if match:
                 return match.group(1)
             else:
-                return 0
+                return 'Empty'
         except:
-            return 0
+            return 'Empty'
 
     def getEpisodeByAirdate(self, tvdbid, airdate):
         xbmc.log("getEpisodeByAirdate Cache")
@@ -164,9 +164,9 @@ class TVDB(object):
             if match:
                 return match.group(1)
             else:
-                return 0
+                return 'Empty'
         except:
-            return 0
+            return 'Empty'
 
     def getBannerByID(self, tvdbid, type):
         xbmc.log("getIdByZap2it Cache")
@@ -203,7 +203,7 @@ class TVDB(object):
                     # images.append((banner_url, banner_type, banner_type2, banner_season))
             return images
         except:
-            return 0
+            return 'Empty'
 
     def getIMDBbyShowName(self, showName):
         xbmc.log("getIMDBbyShowName Cache")
@@ -225,9 +225,9 @@ class TVDB(object):
             if match:
                 return match.group(1)
             else:
-                return 0
+                return 'Empty'
         except:
-            return 0
+            return 'Empty'
 
     def get_image_list(self, media_id):
         log('Downloader: get_image_list, ' + str(media_id))

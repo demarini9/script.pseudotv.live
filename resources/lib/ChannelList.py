@@ -1985,7 +1985,7 @@ class ChannelList:
                                     pass
                                 
                                 #Find TVDBID
-                                if tvdbid == 0:
+                                if (tvdbid == 0 or tvdbid == 'Empty' or tvdbid == None) :
                                     tvdbid = self.getTVDBID(title)
 
                                 #Find IMDBID via TVDBID
@@ -1993,7 +1993,7 @@ class ChannelList:
                                     imdbid = self.getIMDBIDtv(title)
                                     
                                 #Find TVDBID via IMDBID, Last chance lookup
-                                if tvdbid == 0 and imdbid != 0 and imdbid[0:2] == 'tt':
+                                if (tvdbid == 0 or tvdbid == 'Empty' or tvdbid == None) and imdbid != 0 and imdbid[0:2] == 'tt':
                                     tvdbid = self.getTVDBIDbyIMDB(imdbid)
 
                                 #Find Episode info by air date.
@@ -3687,7 +3687,7 @@ class ChannelList:
         except:
             pass     
         
-        if tvdbid == 0:
+        if (tvdbid == 0 or tvdbid == 'Empty' or tvdbid == None) :
         
             try:
                 tvdbid = int(t[title]['id'])

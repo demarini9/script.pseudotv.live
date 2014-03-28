@@ -75,7 +75,7 @@ class ConfigWindow(xbmcgui.WindowXMLDialog):
         migratemaster = Migrate()
         migratemaster.migrate()
         self.prepareConfig()
-        self.myRules = AdvancedConfig("script.pseudotv.live.AdvancedConfig.xml", ADDON_PATH, "default")
+        self.myRules = AdvancedConfig("script.pseudotv.live.AdvancedConfig.xml", ADDON_PATH, "Default")
         self.log("onInit return")
 
 
@@ -649,5 +649,5 @@ class ConfigWindow(xbmcgui.WindowXMLDialog):
 __cwd__ = REAL_SETTINGS.getAddonInfo('path')
 
 
-mydialog = ConfigWindow("script.pseudotv.live.ChannelConfig.xml", __cwd__, "default")
+mydialog = ConfigWindow("script.pseudotv.live.ChannelConfig.xml", __cwd__, "Default")
 del mydialog
