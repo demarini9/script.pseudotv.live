@@ -99,12 +99,13 @@ if REAL_SETTINGS.getSetting('ChannelSharing') == "true":
 #SKIN SELECT
 if int(REAL_SETTINGS.getSetting('SkinSelector')) == 0:
     Skin_Select = 'Default'
-    
-if REAL_SETTINGS.getSetting("SkinLogos") == "true":
+    if REAL_SETTINGS.getSetting("SkinLogos") == "true":
         REAL_SETTINGS.setSetting('ChannelLogoFolder', 'special://home/addons/script.pseudotv.live/resources/skins/Default/images/')
 
 elif int(REAL_SETTINGS.getSetting('SkinSelector')) == 1:
     Skin_Select = 'PTVL'
+    if REAL_SETTINGS.getSetting("SkinLogos") == "true":
+        REAL_SETTINGS.setSetting('ChannelLogoFolder', 'special://home/addons/script.pseudotv.live/resources/skins/Default/images/')
 
 elif int(REAL_SETTINGS.getSetting('SkinSelector')) == 2:
     Skin_Select = 'Aurora'
@@ -113,7 +114,13 @@ elif int(REAL_SETTINGS.getSetting('SkinSelector')) == 2:
 
 elif int(REAL_SETTINGS.getSetting('SkinSelector')) == 3:
     Skin_Select = 'ConCast'
+    if REAL_SETTINGS.getSetting("SkinLogos") == "true":
+        REAL_SETTINGS.setSetting('ChannelLogoFolder', 'special://home/addons/script.pseudotv.live/resources/skins/Default/images/')
 
+else:
+    Skin_Select = 'Default'
+    if REAL_SETTINGS.getSetting("SkinLogos") == "true":
+        REAL_SETTINGS.setSetting('ChannelLogoFolder', 'special://home/addons/script.pseudotv.live/resources/skins/Default/images/')
 
 #VERIFY PATHS
 if xbmcvfs.exists(xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', Skin_Select, 'images'))):
