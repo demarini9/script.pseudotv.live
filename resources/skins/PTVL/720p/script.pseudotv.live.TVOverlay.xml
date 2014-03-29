@@ -168,15 +168,7 @@
                 <aligny>center</aligny>
                 <textcolor>FFFFFFFF</textcolor>
             </control> 
-            -->                     
-        <control type="image">
-            <description>Info Background Image</description>
-            <posx>285</posx>
-            <posy>560</posy>
-            <width>950</width>
-            <height>2</height>
-            <texture>pstvlButtonFocus.png</texture>
-        </control>  
+            -->       
         <control type="label" id="505">
             <description>Show Description</description>
             <posx>285</posx>
@@ -302,10 +294,10 @@
             </control>-->
             
         <control type="progress">
-            <posx>0</posx>
-            <posy>675</posy>
-            <width>1280</width>
-            <height>70</height>
+            <posx>285</posx>
+            <posy>560</posy>
+            <width>950</width>
+            <height>2</height>
             <texturebg>seek/progress_back.png</texturebg>
             <lefttexture border="0">seek/progresscache_left.png</lefttexture>
             <midtexture border="0">seek/progresscache_mid.png</midtexture>
@@ -313,15 +305,22 @@
             <info>Player.ProgressCache</info>
         </control>
         <control type="progress">
-            <posx>0</posx>
-            <posy>675</posy>
-            <width>1280</width>
-            <height>70</height>
+            <posx>285</posx>
+            <posy>560</posy>
+            <width>950</width>
+            <height>2</height>
             <texturebg>seek/progresscache_back.png</texturebg>
             <lefttexture border="0">seek/progress_left.png</lefttexture>
             <midtexture border="0">seek/progress_mid.png</midtexture>
             <righttexture border="0">seek/progress_right.png</righttexture>
             <info>Player.Progress</info>
+        </control>              
+        <control type="image" id="524">
+            <description>Info Playback bar Coverup</description>
+            <posx>285</posx>
+            <posy>560</posy>
+            <width>950</width>
+            <height>2</height>
         </control>
         
         <control type="grouplist">

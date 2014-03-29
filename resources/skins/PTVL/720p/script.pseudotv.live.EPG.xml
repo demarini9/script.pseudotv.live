@@ -544,14 +544,6 @@
                 <scrollsuffix> - </scrollsuffix>
             </control>
         </control>
-        <control type="image">
-            <description>Info Background Image</description>
-            <posx>285</posx>
-            <posy>560</posy>
-            <width>950</width>
-            <height>2</height>
-            <texture>pstvlButtonFocus.png</texture>
-        </control>  
         <control type="label" id="502">
             <description>Show Description</description>
             <posx>285</posx>
@@ -954,7 +946,36 @@
             <textcolor>C0C0C0C0</textcolor>
         </control>  
         
-        <!--Channel Logo-->  
+        <control type="progress">
+            <posx>285</posx>
+            <posy>560</posy>
+            <width>950</width>
+            <height>2</height>
+            <texturebg>seek/progress_back.png</texturebg>
+            <lefttexture border="0">seek/progresscache_left.png</lefttexture>
+            <midtexture border="0">seek/progresscache_mid.png</midtexture>
+            <righttexture border="0">seek/progresscache_right.png</righttexture>
+            <info>Player.ProgressCache</info>
+        </control>
+        <control type="progress">
+            <posx>285</posx>
+            <posy>560</posy>
+            <width>950</width>
+            <height>2</height>
+            <texturebg>seek/progresscache_back.png</texturebg>
+            <lefttexture border="0">seek/progress_left.png</lefttexture>
+            <midtexture border="0">seek/progress_mid.png</midtexture>
+            <righttexture border="0">seek/progress_right.png</righttexture>
+            <info>Player.Progress</info>
+        </control>
+        <control type="image" id="524">
+            <description>Info Playback bar Coverup</description>
+            <posx>285</posx>
+            <posy>560</posy>
+            <width>950</width>
+            <height>2</height>
+        </control>
+        
         <control type="grouplist">
             <posx>20</posx>
             <posy>675</posy>
@@ -963,48 +984,48 @@
             <align>left</align>
             <aligny>center</aligny>
             <orientation>horizontal</orientation>
-            <itemgap>900</itemgap>
-            <control type="image" id="506">
-                <description>Show Channel Icon</description>
-                <width>50</width>
+            <itemgap>8</itemgap>
+                <control type="image" id="506">
+                    <description>Show Channel Icon</description>
+                    <width>50</width>
+                    <height>50</height>
+                    <align>left</align>
+                    <aligny>center</aligny>
+                    <aspectratio>keep</aspectratio>
+                </control>
+        </control>             
+        <!--Time/Weather-->   
+        <control type="grouplist">
+            <posx>1100</posx>
+            <posy>675</posy>
+            <align>left</align>
+            <aligny>center</aligny>
+            <orientation>horizontal</orientation>
+            <itemgap>8</itemgap>
+            <control type="label">
+                <description>Time</description>
+                <width>180</width>
                 <height>50</height>
-                <align>left</align>
-                <aligny>center</aligny>
-                <aspectratio>keep</aspectratio>
-            </control>     
-            <!--Time/Weather-->   
-            <control type="grouplist">
-                <width>280</width>
-                <height>60</height>
+                <label>$INFO[System.Time]</label>
+                <font>font12</font>
                 <align>right</align>
-                <aligny>center</aligny>
-                <orientation>horizontal</orientation>
-                <itemgap>10</itemgap>
-                <control type="label">
-                    <description>Time</description>
-                    <width>200</width>
-                    <height>60</height>
-                    <label>$INFO[System.Time]</label>
-                    <font>font12</font>
-                    <align>right</align>
-                    <textcolor>FFFFFFFF</textcolor>
-                </control>
-                <control type="label" id="800">
-                    <width>60</width>
-                    <height>60</height>
-                    <label>|</label>
-                    <font>font12</font>
-                    <textcolor>FFFFFFFF</textcolor>
-                </control>
-                <!--Weather-->
-                <control type="image">
-                    <width>60</width>
-                    <height>60</height>
-                    <font>font12</font>
-                    <aspectratio align="center">keep</aspectratio>
-                    <label>$INFO[Window(weather).Property(Current.Temperature)] $INFO[System.TemperatureUnits]</label>
-                </control>   
+                <textcolor>FFFFFFFF</textcolor>
+            </control>
+            <control type="label" id="800">
+                <width>180</width>
+                <height>50</height>
+                <label>|</label>
+                <font>font12</font>
+                <textcolor>FFFFFFFF</textcolor>
+            </control>
+            <!--Weather-->
+            <control type="label">
+                <width>180</width>
+                <height>50</height>
+                <font>font12</font>
+                <aspectratio align="center">keep</aspectratio>
+                <label>$INFO[Window(weather).Property(Current.Temperature)] $INFO[System.TemperatureUnits]</label>
             </control>   
-        </control>         
+        </control>       
 </controls>
 </window>
