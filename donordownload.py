@@ -31,59 +31,52 @@ from resources.lib.Globals import *
 xbmc.log("script.pseudotv.live-PseudoTV Live, Donor Download Started")
 
 UserPass = REAL_SETTINGS.getSetting('Donor_UP')
-
-CachePath = (xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache')) + '/')
-StrmsPath = (xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'strms')) + '/')
-GenericPath = (xbmc.translatePath(os.path.join(SETTINGS_LOC, 'cache', 'strms', 'Generic')) + '/')
-
-DonorFle = 'Donor.pyo'
-GenericFle = 'Generic.zip'
-
 BaseURL = ('http://'+UserPass+'@ptvl.comeze.com/PTVL/')
-DonorURLPath = (BaseURL + DonorFle)   
-GenericURLPath = (BaseURL + GenericFle) 
-GenericURLFlePath = (CachePath + GenericFle) 
+
+DonorURLPath = (BaseURL + 'Donor.py')
+DonorPath = (os.path.join(fleMasterPath, 'resources', 'lib', 'Donor.pyo'))
+DL_DonorPath = (os.path.join(fleMasterPath, 'resources', 'lib', 'Donor.py'))
 
 DonorDownload = False
 Installed = False
 Error = False
 
-AddonPath = (xbmc.translatePath(os.path.join('special://home/addons/script.pseudotv.live/resources/lib/')))
-MasterPath = (xbmc.translatePath(os.path.join('special://home/addons/script.pseudotv.live-master/resources/lib/')))
-
 if REAL_SETTINGS.getSetting("Donor_Enabled") == "true": 
-    # Find Addon Path
-    if xbmcvfs.exists(AddonPath):
-        fleMasterPath = (AddonPath + DonorFle)
-    else:
-        fleMasterPath = (MasterPath + DonorFle)
-    
-    xbmc.log('script.pseudotv.live-donordownload.fleMasterPath = ' + fleMasterPath)
-
     # Find Donor.pyo, Activate/Update
-    if xbmcvfs.exists(fleMasterPath):
+    if xbmcvfs.exists(DonorPath):
         if dlg.yesno("PseudoTV Live", "Update Donor Features?"):
             try:
-                os.remove(fleMasterPath)
+                os.remove(xbmc.translatePath(DonorPath))
                 DonorDownload = True    
-            except:
+            except Exception,e:
+                xbmc.log(str(e))
                 Error = True
-                pass       
+                pass  
+    elif xbmcvfs.exists(DL_DonorPath):
+        if dlg.yesno("PseudoTV Live", "Update Donor Features?"):
+            try: 
+                os.remove(xbmc.translatePath(DL_DonorPath))
+                DonorDownload = True   
+            except Exception,e:
+                xbmc.log(str(e))
+                Error = True
+                pass  
     else:
-        DonorDownload = True    
+        DonorDownload = True   
         
 if DonorDownload:
-    # Download Donor.pyo
+    # Download Donor.py
     try:
-        urllib.urlretrieve(DonorURLPath, fleMasterPath)
+        urllib.urlretrieve(DonorURLPath, (xbmc.translatePath(DL_DonorPath)))
         xbmc.log('script.pseudotv.live-donordownload.Downloading Donor.pyo')
         REAL_SETTINGS.setSetting('Donor_Update', "false")
-        if xbmcvfs.exists(fleMasterPath):
+        if xbmcvfs.exists(DL_DonorPath):
             Installed = True
         else:
             Error = True
             Installed = False
-    except:
+    except Exception,e:
+        xbmc.log(str(e))
         xbmc.log('script.pseudotv.live-Downloading Donor.pyo Failed: EXCEPTION', xbmc.LOGERROR)
         Error = True
         pass
@@ -92,8 +85,8 @@ if Error:
     MSG = "Donor Features Activated\Update Failed!\nTry Again Later..."
 
 if Installed:
-    MSG = "Donor Features Activated\Updated\nXBMC Restart Required..."
+    MSG = "Donor Features Activated\Updated"
 else:
     MSG = "Donor Features Not Updated..."
     
-xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", MSG, 4000, THUMB) )
+xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", MSG, 1000, THUMB) )

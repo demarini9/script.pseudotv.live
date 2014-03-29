@@ -116,7 +116,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
             if textcolor > 0:
                 self.textcolor = hex(textcolor)[2:]
                 self.logDebug("onInit.Self.textcolor = " + str(self.textcolor))
-        except:
+        except Exception,e:
             pass
         
         try:
@@ -125,20 +125,20 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
             if focusedcolor > 0:
                 self.focusedcolor = hex(focusedcolor)[2:]
                 self.logDebug("onInit.Self.focusedcolor = " + str(self.focusedcolor))
-        except:
+        except Exception,e:
             pass
         
         try:    
             self.textfont = self.getControl(105).getLabel()
             self.logDebug("onInit.Self.textfont = " + str(self.textfont))
 
-        except:
+        except Exception,e:
             pass
         
         # try: 
             # self.rowCount = self.getControl(106).getLabel()
             # self.logDebug("onInit, Self.rowCount = " + str(self.rowCount))       
-        # except:
+        # except Exception,e:
             # pass
 
         ##################################################################
@@ -182,12 +182,12 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                 self.focusEndTime = endtime
             self.focusRow = 2
             self.setShowInfo()
-        except:
+        except Exception,e:
             self.log("Unknown EPG Initialization Exception", xbmc.LOGERROR)
             self.log(traceback.format_exc(), xbmc.LOGERROR)
             try:
                 self.close()
-            except:
+            except Exception,e:
                 self.log("Error closing", xbmc.LOGERROR)
 
             self.MyOverlayWindow.sleepTimeValue = 1
@@ -235,7 +235,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         for i in range(self.rowCount): 
             try:
                 self.getControl(311 + i).setLabel(str(curchannel))
-            except:
+            except Exception,e:
                 pass
 
             try:        
@@ -243,7 +243,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     self.getControl(321 + i).setImage(self.channelLogos + self.MyOverlayWindow.channels[curchannel - 1].name + '_c.png')
                 else:
                     self.getControl(321 + i).setImage(self.channelLogos + self.MyOverlayWindow.channels[curchannel - 1].name + '.png')
-            except:
+            except Exception,e:
                 pass
 
             curchannel = self.MyOverlayWindow.fixChannel(curchannel + 1)
@@ -261,17 +261,17 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
 
         try:
             self.removeControls(self.toRemove)
-        except:
+        except Exception,e:
             for cntrl in self.toRemove:
                 try:
                     self.removeControl(cntrl)
-                except:
+                except Exception,e:
                     pass
         try:
             self.addControls(myadds)
             self.toRemove = []
             self.log('setChannelButtons return')
-        except:
+        except Exception,e:
             xbmc.log('self.addControls(myadds) in use')
             pass
 
@@ -457,7 +457,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                 # If there were no buttons added, show some default button
                 if len(self.channelButtons[row]) == 0:
                     self.channelButtons[row].append(xbmcgui.ControlButton(basex, basey, basew, baseh, self.MyOverlayWindow.channels[curchannel - 1].name, focusTexture=self.textureButtonFocus, noFocusTexture=self.textureButtonNoFocus, alignment=4, textColor=self.textcolor, focusedColor=self.focusedcolor))
-        except:
+        except Exception,e:
             self.log("Exception in setButtons", xbmc.LOGERROR)
             self.log(traceback.format_exc(), xbmc.LOGERROR)
 
@@ -533,13 +533,13 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
             elif action == ACTION_PAGEUP:
                 self.GoPgUp()
 
-        except:
+        except Exception,e:
             self.log("Unknown EPG Exception", xbmc.LOGERROR)
             self.log(traceback.format_exc(), xbmc.LOGERROR)
 
             try:
                 self.close()
-            except:
+            except Exception,e:
                 self.log("Error closing", xbmc.LOGERROR)
 
             self.MyOverlayWindow.sleepTimeValue = 1
@@ -556,7 +556,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         try:
             self.removeControl(self.currentTimeBar)
             self.MyOverlayWindow.startSleepTimer()
-        except:
+        except Exception,e:
             pass
 
         self.close()
@@ -579,7 +579,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         if lastaction >= 2:
             try:
                 selectedbutton = self.getControl(controlid)
-            except:
+            except Exception,e:
                 self.actionSemaphore.release()
                 self.log('onClick unknown controlid ' + str(controlid))
                 return
@@ -817,28 +817,56 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
             try:
                 self.getControl(523).setLabel('NOW WATCHING:')
                 Patched = True
-            except:
+            except Exception,e:
                 pass
         else:
             Patched = False
 
+            
         #Change Label when Dynamic artwork enabled
         if REAL_SETTINGS.getSetting("art.enable") == "true":        
             
             if self.infoOffset > 0:
-                self.getControl(522).setLabel('COMING UP:')
+                self.getControl(522).setLabel('COMING UP:')            
+                try:
+                    self.getControl(524).setImage(MEDIA_LOC + 'pstvlButtonFocus.png')
+                except:
+                    pass
             elif self.infoOffset < 0:
-                self.getControl(522).setLabel('ALREADY SEEN:')
+                self.getControl(522).setLabel('ALREADY SEEN:')            
+                try:
+                    self.getControl(524).setImage(MEDIA_LOC + 'pstvlButtonFocus.png')
+                except:
+                    pass
             elif self.infoOffset == 0 and self.infoOffsetV == 0:
-                self.getControl(522).setLabel('NOW WATCHING:')
+                self.getControl(522).setLabel('NOW WATCHING:')            
+                try:
+                    self.getControl(524).setImage(MEDIA_LOC + 'NA.png')
+                except:
+                    pass
             elif self.infoOffsetV < 0 and self.infoOffset == 0:
-                self.getControl(522).setLabel('ON NOW:')
-            elif self.infoOffsetV > 0 and self.infoOffset == 0:
-                self.getControl(522).setLabel('ON NOW:')
+                self.getControl(522).setLabel('ON NOW:')            
+                try:
+                    self.getControl(524).setImage(MEDIA_LOC + 'pstvlButtonFocus.png')
+                except:
+                    pass
+            elif self.infoOffsetV > 0 and self.infoOffset == 0:            
+                try:
+                    self.getControl(524).setImage(MEDIA_LOC + 'pstvlButtonFocus.png')
+                except:
+                    pass
             elif self.infoOffset == 0 and self.infoOffsetV == 0:
-                self.getControl(522).setLabel('NOW WATCHING:')
+                self.getControl(522).setLabel('NOW WATCHING:')            
+                try:
+                    self.getControl(524).setImage(MEDIA_LOC + 'NA.png')
+                except:
+                    pass
         else:
-            self.getControl(522).setLabel('NOW WATCHING:')
+            self.getControl(522).setLabel('NOW WATCHING:')            
+            try:
+                self.getControl(524).setImage(MEDIA_LOC + 'NA.png')
+            except:
+                    pass
         
         type = ''
         tvdbid = 0
@@ -854,13 +882,13 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
         try:
             type1 = str(self.getControl(507).getLabel())
             self.log('setShowInfo.type1 = ' + str(type1))  
-        except:
+        except Exception,e:
             pass
         
         try:
             type2 = str(self.getControl(509).getLabel())
             self.log('setShowInfo.type2 = ' + str(type2))  
-        except:
+        except Exception,e:
             pass
         
         jpg = ['banner', 'fanart', 'folder', 'landscape', 'poster']
@@ -912,7 +940,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     UnairedTYPE = UnairedTYPE.split('dbid_', 1)[-1]
                     Unaired = UnairedTYPE.split(',')[0]
                     type = UnairedTYPE.split(',', 1)[-1]
-            except:
+            except Exception,e:
                 self.log('setShowInfo.LiveLST Failed')
                 pass     
             
@@ -925,7 +953,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     self.getControl(511).setImage(DEFAULT_IMAGES_LOC + 'CP.png')
                 else:
                     self.getControl(511).setImage(DEFAULT_IMAGES_LOC + 'NA.png')
-            except:
+            except Exception,e:
                 self.getControl(511).setImage(DEFAULT_IMAGES_LOC + 'NA.png')
                 pass     
 
@@ -938,7 +966,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     self.getControl(512).setImage(MEDIA_LOC + 'OLD.png')                  
                 else:
                     self.getControl(512).setImage(MEDIA_LOC + 'NA.png')
-            except:
+            except Exception,e:
                 self.getControl(512).setImage(MEDIA_LOC + 'NA.png')
                 pass     
 
@@ -962,7 +990,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                             link = self.Downloader.DownloadArt(type, id, fle1, ART_LOC, ART_LOC)
                             try:
                                 self.getControl(508).setImage(link)
-                            except:
+                            except Exception,e:
                                 pass
                 else:                    
                     #artwork type1 (508)
@@ -986,7 +1014,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                             link = self.Downloader.DownloadArt(type, id, type1EXT, mediapathSeason, mediapathSeries)                        
                             try:
                                 self.getControl(508).setImage(link)
-                            except:
+                            except Exception,e:
                                 pass
                         
                 if ART_CACHE:
@@ -1001,7 +1029,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                             link = self.Downloader.DownloadArt(type, id, fle2, ART_LOC, ART_LOC)
                             try:
                                 self.getControl(510).setImage(link)
-                            except:
+                            except Exception,e:
                                 pass
                 else:
                     #artwork type2 (510)
@@ -1025,7 +1053,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                             link = self.Downloader.DownloadArt(type, id, type2EXT, mediapathSeason, mediapathSeries)
                             try:
                                 self.getControl(510).setImage(link)
-                            except:
+                            except Exception,e:
                                 pass
   
                         
@@ -1053,7 +1081,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                         link = self.Downloader.DownloadArt(type, id, fle1, ART_LOC, ART_LOC)
                         try:
                             self.getControl(508).setImage(link)
-                        except:
+                        except Exception,e:
                             pass
                     
                     if FileAccess.exists(flename2):
@@ -1063,7 +1091,7 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                         link = self.Downloader.DownloadArt(type, id, fle2, ART_LOC, ART_LOC)
                         try:
                             self.getControl(510).setImage(link)
-                        except:
+                        except Exception,e:
                             pass         
                 
                 else:#fallback all artwork because live art disabled
@@ -1212,13 +1240,10 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     #Live TV pull date from the playlist entry
                     if chtype == 8:
                        playlistpos = int(xbmc.PlayList(xbmc.PLAYLIST_VIDEO).getposition())
-                       #episodetitle is actually the start time of each show that the playlist gets from channellist.py
                        tmpDate = self.MyOverlayWindow.channels[channel - 1].getItemtimestamp(playlistpos)
                        self.log("setbuttonnowtime2 " + str(tmpDate))
                        t = time.strptime(tmpDate, '%Y-%m-%d %H:%M:%S')
                        epochBeginDate = time.mktime(t)
-                       #beginDate = datetime.datetime(t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
-                       #videotime = (nowDate - beginDate).seconds
                        videotime = time.time() - epochBeginDate
                        reftime = time.time()
                     else:
@@ -1230,14 +1255,10 @@ class EPGWindow(xbmcgui.WindowXMLDialog):
                     #Live TV pull date from the playlist entry
                     if chtype == 8:
                        playlistpos = self.MyOverlayWindow.channels[channel - 1].playlistPosition
-                       #playlistpos = int(xbmc.PlayList(xbmc.PLAYLIST_VIDEO).getposition())
-                       #episodetitle is actually the start time of each show that the playlist gets from channellist.py
                        tmpDate = self.MyOverlayWindow.channels[channel - 1].getItemtimestamp(playlistpos)
                        self.log("setbuttonnowtime2 " + str(tmpDate))
                        t = time.strptime(tmpDate, '%Y-%m-%d %H:%M:%S')
                        epochBeginDate = time.mktime(t)
-                       #beginDate = datetime.datetime(t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec)
-                       #videotime = (nowDate - beginDate).seconds
                        while epochBeginDate + self.MyOverlayWindow.channels[channel - 1].getItemDuration(playlistpos) <  time.time():
                             epochBeginDate += self.MyOverlayWindow.channels[channel - 1].getItemDuration(playlistpos)
                             playlistpos = self.MyOverlayWindow.channels[channel - 1].fixPlaylistIndex(playlistpos + 1)

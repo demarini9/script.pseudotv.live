@@ -27,7 +27,7 @@ from FileAccess import FileLock
 def log(msg, level = xbmc.LOGDEBUG):
     try:
         xbmc.log(ADDON_ID + '-' + ascii(msg), level)
-    except:
+    except Exception,e:
         pass
 
 
@@ -139,21 +139,23 @@ else:
     MEDIA_LOC = xbmc.translatePath(os.path.join(ADDON_PATH, 'resources', 'skins', 'Default', 'media')) + '/'
  
 # Find Real Addon Path
-AddonPath = 'special://home/addons/script.pseudotv.live/resources/skins/'
-MasterPath = 'special://home/addons/script.pseudotv.live-master/resources/skins/'
+AddonPath = 'special://home/addons/script.pseudotv.live'
+MasterPath = 'special://home/addons/script.pseudotv.live-master'
 
 if xbmcvfs.exists(AddonPath):
-    fleMasterPath = (AddonPath)
+    fleMasterPath = AddonPath
+    SkinMasterPath = os.path.join(AddonPath, 'resources', 'skins') + '/'
 else:
-    fleMasterPath = (MasterPath)
+    fleMasterPath = MasterPath
+    SkinMasterPath = os.path.join(MasterPath, 'resources', 'skins') + '/'
  
 # Find PseudoTV Skin Path
-PseudoSkin = (os.path.join(fleMasterPath, Skin_Select, '720p')) + '/'
+PseudoSkin = (os.path.join(SkinMasterPath, Skin_Select, '720p')) + '/'
 
 if xbmcvfs.exists(PseudoSkin):
-    PseudoSkinfle = xbmc.translatePath(os.path.join(fleMasterPath, Skin_Select, '720p', 'script.pseudotv.live.EPG.xml'))
+    PseudoSkinfle = xbmc.translatePath(os.path.join(SkinMasterPath, Skin_Select, '720p', 'script.pseudotv.live.EPG.xml'))
 else:
-    PseudoSkinfle = xbmc.translatePath(os.path.join(fleMasterPath, Skin_Select, '1080i', 'script.pseudotv.live.EPG.xml'))
+    PseudoSkinfle = xbmc.translatePath(os.path.join(SkinMasterPath, Skin_Select, '1080i', 'script.pseudotv.live.EPG.xml'))
 
 # Find XBMC SKin patch
 skin = ('special://skin')
@@ -192,6 +194,8 @@ RULES_ACTION_OVERLAY_SET_CHANNEL_END = 256
 # Maximum is 10 for this
 RULES_PER_PAGE = 7
 
+#https://github.com/xbmc/xbmc/blob/master/xbmc/guilib/Key.h
+
 ACTION_MOVE_LEFT = 1
 ACTION_MOVE_RIGHT = 2
 ACTION_MOVE_UP = 3
@@ -228,4 +232,6 @@ ACTION_PLAYER_PLAYPAUSE = 76
 ACTION_MENU = 7
 ACTION_INVALID = 999
 
-    
+#define ACTION_SHOW_SUBTITLES         25 #turn subtitles on/off. 
+#define ACTION_AUDIO_NEXT_LANGUAGE    56 #Select next language in movie
+#define ACTION_RECORD                 170 #PVR Backend Record

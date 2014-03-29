@@ -18,6 +18,7 @@
 
 import os, sys, re, shutil
 import xbmc, xbmcgui, xbmcaddon, xbmcvfs
+
 from resources.lib.Globals import *
 from resources.lib.FileAccess import *
 
@@ -35,7 +36,7 @@ if xbmcgui.Window(10000).getProperty("PseudoTVRunning") != "True":
     shouldrestart = False
 
     if shouldrestart == False:
-    
+
         # Clear BCT Folder
         if REAL_SETTINGS.getSetting("ClearBCT") == "true":
             if FileAccess.exists(BCT_LOC):

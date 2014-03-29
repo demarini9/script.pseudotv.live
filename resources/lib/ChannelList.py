@@ -17,7 +17,7 @@
 # along with PseudoTV.  If not, see <http://www.gnu.org/licenses/>.
 
 import xbmc, xbmcgui, xbmcaddon, xbmcvfs
-import subprocess, os, sys, re
+import subprocess, os, sys, re, threading
 import time, datetime, threading
 import httplib, urllib, urllib2, feedparser
 import base64, shutil, random, errno
@@ -41,7 +41,7 @@ from tmdb import *
 # Commoncache plugin import
 try:
     import StorageServer
-except:
+except Exception,e:
     import storageserverdummy as StorageServer
 
 # import libraries
@@ -58,11 +58,21 @@ if REAL_SETTINGS.getSetting("Donor_Enabled") == "true":
         from Donor import *
         Donor_Enabled = True
         # xbmc.log("Importing Donor Version " + str(DONOR_VERSION)
-    except:
+    except Exception,e:
         Donor_Enabled = False
-        xbmc.log("Donor Import Failed, Temporarily Disabling Donor Features")
+        xbmc.log("Donor Import Failed, Temporarily Disabling Donor Features" + str(e))
         xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Donor Import Failed\nTemporarily Disabling Donor Features", 4000, THUMB) )
         pass
+    
+    # Clear Donor
+    DonorPath = (os.path.join(fleMasterPath, 'resources', 'lib', 'Donor.pyo'))
+    DL_DonorPath = (os.path.join(fleMasterPath, 'resources', 'lib', 'Donor.py'))
+    if xbmcvfs.exists(DonorPath):
+        if xbmcvfs.exists(DL_DonorPath):
+            try:
+                os.remove(xbmc.translatePath(DL_DonorPath))
+            except:
+                pass             
 else:
     Donor_Enabled = False
         
@@ -90,7 +100,13 @@ class ChannelList:
         random.seed()
         self.cached_json_detailed_TV = []
         self.cached_json_detailed_Movie = []
-        self.cached_json_detailed_trailers = []
+        self.cached_json_detailed_trailers = []      
+
+        if REAL_SETTINGS.getSetting('EnableSettop') == 'true':
+            self.refreshChannelListTimer = threading.Timer(43200.0, self.refreshChannels)
+            self.refreshChannelListTimer.name = "RefreshChannels"
+            self.refreshChannelListTimer.start()
+
 
     def readConfig(self):
         self.channelResetSetting = int(REAL_SETTINGS.getSetting("ChannelResetSetting"))
@@ -112,12 +128,12 @@ class ChannelList:
 
         try:
             self.lastResetTime = int(ADDON_SETTINGS.getSetting("LastResetTime"))
-        except:
+        except Exception,e:
             self.lastResetTime = 0
 
         try:
             self.lastExitTime = int(ADDON_SETTINGS.getSetting("LastExitTime"))
-        except:
+        except Exception,e:
             self.lastExitTime = int(time.time())
 
 
@@ -170,6 +186,62 @@ class ChannelList:
         return self.channels
 
         
+    def refreshChannels(self):
+        print 'refreshChannels'
+        self.readConfig()
+        self.updateDialog.create("PseudoTV Live", "Updating channel list")
+        self.updateDialog.update(0, "Updating channel list")
+        self.updateDialogProgress = 0
+        foundvalid = False
+        makenewlists = True
+        self.background = False
+
+        if self.backgroundUpdating > 0:
+            makenewlists = True
+
+        # Go through all channels, create their arrays, and setup the new playlist
+        for i in range(self.maxChannels):
+            self.updateDialogProgress = i * 100 // self.enteredChannelCount
+            self.updateDialog.update(self.updateDialogProgress, "Loading channel " + str(i + 1), "waiting for file lock")
+            self.channels.append(Channel())
+
+            # If the user pressed cancel, stop everything and exit
+            if self.updateDialog.iscanceled():
+                self.log('Update channels cancelled')
+                self.updateDialog.close()
+                return None
+
+            self.setupChannel(i + 1, False, makenewlists, False)
+
+            if self.channels[i].isValid:
+                foundvalid = True
+
+        if makenewlists == True:
+            REAL_SETTINGS.setSetting('ForceChannelReset', 'false')
+            daily.delete("%"); # Purge Cache for clean channel build.
+
+        if foundvalid == False and makenewlists == False:
+            for i in range(self.maxChannels):
+                self.updateDialogProgress = i * 100 // self.enteredChannelCount
+                self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(i + 1), "waiting for file lock", '')
+                self.setupChannel(i + 1, False, True, False)
+
+                if self.channels[i].isValid:
+                    foundvalid = True
+                    break
+
+        self.updateDialog.update(100, "Update complete")
+        self.updateDialog.close()
+
+        # xbmc.executebuiltin("Notification( %s, %s, %d, %s)" % ("PseudoTV Live", "Channel Update Complete", 1000, THUMB) )
+
+        self.refreshChannelListTimer = threading.Timer(43200.0, self.refreshChannels)
+        self.refreshChannelListTimer.name = "RefreshChannels"
+        self.refreshChannelListTimer.start()
+      
+        return self.channels
+        
+        
     def log(self, msg, level = xbmc.LOGDEBUG):
         log('ChannelList: ' + msg, level)
 
@@ -199,7 +271,7 @@ class ChannelList:
                 chsetting2 = ADDON_SETTINGS.getSetting('Channel_' + str(i + 1) + '_2')
                 chsetting3 = ADDON_SETTINGS.getSetting('Channel_' + str(i + 1) + '_3')
                 chsetting4 = ADDON_SETTINGS.getSetting('Channel_' + str(i + 1) + '_4')
-            except:
+            except Exception,e:
                 pass
 
             if chtype == 0:
@@ -229,14 +301,14 @@ class ChannelList:
 
         try:
             xml = FileAccess.open(fle, "r")
-        except:
+        except Exception,e:
             self.log("determineWebServer Unable to open the settings file", xbmc.LOGERROR)
             self.httpJSON = False
             return
 
         try:
             dom = parse(xml)
-        except:
+        except Exception,e:
             self.log('determineWebServer Unable to parse settings file', xbmc.LOGERROR)
             self.httpJSON = False
             return
@@ -258,7 +330,7 @@ class ChannelList:
                 plname = dom.getElementsByTagName('webserverpassword')
                 self.webPassword = plname[0].childNodes[0].nodeValue
                 self.log('determineWebServer password is ' + self.webPassword)
-        except:
+        except Exception,e:
             return
 
     
@@ -285,7 +357,8 @@ class ChannelList:
         if self.httpJSON == True:
             try:
                 payload = command.encode('utf-8')
-            except:
+            except Exception,e:
+                xbmc.log(str(e))
                 return data
 
             headers = {'Content-Type': 'application/json-rpc; charset=utf-8'}
@@ -304,7 +377,7 @@ class ChannelList:
                     usedhttp = True
 
                 conn.close()
-            except:
+            except Exception,e:
                 self.log("Exception when getting JSON data")
 
         if usedhttp == False:
@@ -338,7 +411,7 @@ class ChannelList:
             chsetting3 = ADDON_SETTINGS.getSetting('Channel_' + str(channel) + '_3')
             chsetting4 = ADDON_SETTINGS.getSetting('Channel_' + str(channel) + '_4')
 
-        except:
+        except Exception,e:
             pass
 
         while len(self.channels) < channel:
@@ -364,7 +437,7 @@ class ChannelList:
             
             if needsreset:
                 self.channels[channel - 1].isSetup = False
-        except:
+        except Exception,e:
             pass
 
         # If possible, use an existing playlist
@@ -404,7 +477,7 @@ class ChannelList:
 
                     if self.channelResetSetting == 4:
                         createlist = False
-            except:
+            except Exception,e:
                 pass
 
         if createlist or needsreset:
@@ -413,7 +486,7 @@ class ChannelList:
             if makenewlist:
                 try:#remove old playlist
                     os.remove(CHANNELS_LOC + 'channel_' + str(channel) + '.m3u')
-                except:
+                except Exception,e:
                     pass
 
                 append = False
@@ -504,7 +577,7 @@ class ChannelList:
         if self.channels[channel - 1].totalTimePlayed > (60 * 60 * 24 * 2):
             try:
                 fle = FileAccess.open(CHANNELS_LOC + 'channel_' + str(channel) + '.m3u', 'w')
-            except:
+            except Exception,e:
                 self.log("clearPlaylistHistory Unable to open the smart playlist", xbmc.LOGERROR)
                 return
 
@@ -566,13 +639,13 @@ class ChannelList:
 
         try:
             xml = FileAccess.open(fle, "r")
-        except:
+        except Exception,e:
             self.log("getSmartPlaylisyName Unable to open the smart playlist " + fle, xbmc.LOGERROR)
             return ''
 
         try:
             dom = parse(xml)
-        except:
+        except Exception,e:
             self.log('getSmartPlaylistName Problem parsing playlist ' + fle, xbmc.LOGERROR)
             xml.close()
             return ''
@@ -583,7 +656,7 @@ class ChannelList:
             plname = dom.getElementsByTagName('name')
             self.log('getSmartPlaylistName return ' + plname[0].childNodes[0].nodeValue)
             return plname[0].childNodes[0].nodeValue
-        except:
+        except Exception,e:
             self.log("Unable to get the playlist name.", xbmc.LOGERROR)
             return ''
     
@@ -763,14 +836,14 @@ class ChannelList:
 
             try:
                 xml = FileAccess.open(fle, "r")
-            except:
+            except Exception,e:
                 self.log("makeChannelList Unable to open the smart playlist " + fle, xbmc.LOGERROR)
                 return False
 
 
             try:
                 dom = parse(xml)
-            except:
+            except Exception,e:
                 self.log('makeChannelList Problem parsing playlist ' + fle, xbmc.LOGERROR)
                 xml.close()
                 return False
@@ -808,7 +881,7 @@ class ChannelList:
 
                 if order[0].childNodes[0].nodeValue.lower() == 'random':
                     israndom = True
-            except:
+            except Exception,e:
                 pass
 
         try:
@@ -817,7 +890,7 @@ class ChannelList:
                 channelplaylist.seek(0, 2)
             else:
                 channelplaylist = FileAccess.open(CHANNELS_LOC + "channel_" + str(channel) + ".m3u", "w")
-        except:
+        except Exception,e:
             self.log('Unable to open the cache file ' + CHANNELS_LOC + 'channel_' + str(channel) + '.m3u', xbmc.LOGERROR)
             return False
 
@@ -913,7 +986,7 @@ class ChannelList:
         
         try:
             fle = FileAccess.open(flename, "w")
-        except:
+        except Exception,e:
             self.Error('Unable to open the cache file ' + flename, xbmc.LOGERROR)
             return ''
 
@@ -948,14 +1021,14 @@ class ChannelList:
 
             if setting & MODE_ORDERAIRDATE > 0:
                 order = 'airdate'
-        except:
+        except Exception,e:
             pass
 
         flename = xbmc.makeLegalFilename(GEN_CHAN_LOC + 'Show_' + show + '_' + order + '.xsp')
 
         try:
             fle = FileAccess.open(flename, "w")
-        except:
+        except Exception,e:
             self.Error('Unable to open the cache file ' + flename, xbmc.LOGERROR)
             return ''
 
@@ -998,7 +1071,7 @@ class ChannelList:
 
         try:
             fle = FileAccess.open(flename, "w")
-        except:
+        except Exception,e:
             self.Error('Unable to open the cache file ' + flename, xbmc.LOGERROR)
             return ''
 
@@ -1017,7 +1090,7 @@ class ChannelList:
 
         try:
             fle = FileAccess.open(flename, "w")
-        except:
+        except Exception,e:
             self.Error('Unable to open the cache file ' + flename, xbmc.LOGERROR)
             return ''
 
@@ -1034,7 +1107,7 @@ class ChannelList:
 
         try:
             fle = FileAccess.open(flename, "w")
-        except:
+        except Exception,e:
             self.Error('Unable to open the cache file ' + flename, xbmc.LOGERROR)
             return ''
 
@@ -1123,7 +1196,7 @@ class ChannelList:
     def writeFileList(self, channel, fileList):
         try:
             channelplaylist = open("channel_" + str(channel) + ".m3u", "w")
-        except:
+        except Exception,e:
             self.Error('writeFileList: Unable to open the cache file ' + CHANNELS_LOC + 'channel_' + str(channel) + '.m3u', xbmc.LOGERROR)
 
         # get channel name from settings
@@ -1578,8 +1651,8 @@ class ChannelList:
             self.log("buildGenreLiveID, GenreLiveID = " + str(GenreLiveID))
             return GenreLiveID
             
-        except:
-            self.log('buildGenreLiveID, GenreLiveID failed...')
+        except Exception,e:
+            self.log('buildGenreLiveID, GenreLiveID failed...' + str(e))
             return 'Unknown'
     
     
@@ -1619,7 +1692,7 @@ class ChannelList:
 
                     try:
                         dur = int(duration.group(1))
-                    except:
+                    except Exception,e:
                         self.log("Json Duration Failed, Trying Runtime")
                         dur = 0
 
@@ -1629,7 +1702,7 @@ class ChannelList:
 
                         try:
                             dur = int(duration.group(1))
-                        except:
+                        except Exception,e:
                             self.log("Json Runtime Failed, defaulting to 0")
                             dur = 0
 
@@ -1667,8 +1740,8 @@ class ChannelList:
                             
                             try:
                                 theplot = uni(self.trim(theplot, 300, '...'))
-                            except:
-                                self.log("Plot Trim failed")
+                            except Exception,e:
+                                self.log("Plot Trim failed" + str(e))
                                 theplot = uni(theplot[:300])
                             
                             # This is a TV show
@@ -1688,8 +1761,8 @@ class ChannelList:
                                     else:
                                         swtitle = (('0' if seasonval < 10 else '') + str(seasonval) + 'x' + ('0' if epval < 10 else '') + str(epval) + ' - '+ swtitle)
                                     
-                                except:
-                                    self.log("Season/Episode formating failed")
+                                except Exception,e:
+                                    self.log("Season/Episode formating failed" + str(e))
                                     seasonval = -1
                                     epval = -1
                                     
@@ -1761,10 +1834,6 @@ class ChannelList:
                                         LiveID = self.buildLiveID(imdbid, tvdbid, sbManaged, cpManaged, dbid, 'movie', '')
                                         self.logDebug('buildFileList.LiveID = ' + str(LiveID))
                                                                             
-                                        # tmpstr = ascii(tmpstr)
-                                        # theplot = ascii(theplot)
-                                        # genre = ascii(genre)
-                                        
                                         if (REAL_SETTINGS.getSetting('EPGcolor_MovieGenre') == "true" and REAL_SETTINGS.getSetting('EPGcolor_enabled') == "1"):
                                             tmpstr += "//" + theplot + "//" + genre + "////" + LiveID
                                         else:
@@ -1783,8 +1852,8 @@ class ChannelList:
                                 seasoneplist.append([seasonval, epval, tmpstr])                        
                             else:
                                 fileList.append(tmpstr)
-                    except:
-                        self.log('buildFileList, failed...')
+                    except Exception,e:
+                        self.log('buildFileList, failed...' + str(e))
                         pass
             else:
                 continue
@@ -1810,7 +1879,7 @@ class ChannelList:
         try:
             rules = dom1.getElementsByTagName('rule')
             order = dom1.getElementsByTagName('order')
-        except:
+        except Exception,e:
             self.log('buildMixedFileList Problem parsing playlist ' + filename, xbmc.LOGERROR)
             xml.close()
             return fileList
@@ -1877,7 +1946,7 @@ class ChannelList:
                         try:
                             title = title.split("*")[0] #Remove "*" from title
                             Unaired = True
-                        except:
+                        except Exception,e:
                             Unaired = False
                             pass
                         description = elem.findtext("desc")
@@ -1981,7 +2050,7 @@ class ChannelList:
                                     tvdbid = tvdbAPI.getIdByZap2it(dd_progid)
                                     if tvdbid == None:
                                         tvdbid = 0
-                                except:
+                                except Exception,e:
                                     pass
                                 
                                 #Find TVDBID
@@ -2013,7 +2082,7 @@ class ChannelList:
                                             episodeNumber = int(episode.findtext("EpisodeNumber"))
                                             episodeDesc = episode.findtext("Overview")
                                             episodeName = episode.findtext("EpisodeName")
-                                        except:
+                                        except Exception,e:
                                             pass
                                             
                                     #Find Episode info by subtitle (ie Episode Name).
@@ -2025,7 +2094,7 @@ class ChannelList:
                                             episode = episode.split('x')
                                             seasonNumber = int(episode[0].split('Episode ')[1])
                                             episodeNumber = int(episode[1].split(' -')[0])
-                                        except:
+                                        except Exception,e:
                                             pass
                                     # Find Episode info by SeasonNum x EpisodeNum
                                     if (seasonNumber != 0 and episodeNumber != 0):
@@ -2036,7 +2105,7 @@ class ChannelList:
                                             episodeGenre = t[title]['genre']
                                             # Output ex. Comedy|Talk Show|
                                             episodeGenre = episodeGenre.split('|')[1]
-                                        except:
+                                        except Exception,e:
                                             pass
                                     
                                     if episodeName:
@@ -2064,7 +2133,7 @@ class ChannelList:
                                     genres = genres.split("'}")[0]
                                     if imdbid == None:
                                         imdbid = 0
-                                except:
+                                except Exception,e:
                                     pass
 
                                 if tagline:
@@ -2079,10 +2148,6 @@ class ChannelList:
                                         
                                 cpManaged = self.cpManaged(movieTitle, imdbid)
                             
-                            # title = ascii(title)
-                            # subtitle = ascii(subtitle)
-                            # description = ascii(description)
-
                             self.logDebug("buildLiveTVFileList.PostEnhancedParse = " + title + ' - ' + subtitle + ' - ' + category)
                             self.logDebug("buildLiveTVFileList.PostEnhancedParse = " + description)
 
@@ -2107,14 +2172,14 @@ class ChannelList:
                         
                         try:
                             description = uni(self.trim(description, 200, '...'))
-                        except:
-                            self.log("description Trim failed")
+                        except Exception,e:
+                            self.log("description Trim failed" + str(e))
                             description = uni(description[:200])
                             
                         try:
                             subtitle = uni(self.trim(subtitle, 100, ''))
-                        except:
-                            self.log("subtitle Trim failed")
+                        except Exception,e:
+                            self.log("subtitle Trim failed" + str(e))
                             subtitle = uni(subtitle[:100])
                             
                         genre = category
@@ -2134,7 +2199,7 @@ class ChannelList:
                                 dur = ((stopDate - startDate).seconds)
                                 self.log("buildLiveTVFileList, CHANNEL: " + str(self.settingChannel) + "  NOW PLAYING: " + title + "  DUR: " + str(dur))
                                 self.logDebug("Unaired = " + str(Unaired) + ", tvdbid = " + str(tvdbid) + ", imdbid = " + str(imdbid) + ", seasonNumber = " + str(seasonNumber) + ", episodeNumber = " + str(episodeNumber) + ", category = " + str(category) + ", sbManaged = " + str(sbManaged) + ", cpManaged = " + str(cpManaged))           
-                            except:
+                            except Exception,e:
                                 dur = 3600  #60 minute default
                                 self.log("buildLiveTVFileList, CHANNEL: " + str(self.settingChannel) + " - Error calculating show duration (defaulted to 60 min)")
                                 raise
@@ -2145,7 +2210,7 @@ class ChannelList:
                                 dur = (stopDate - startDate).seconds
                                 self.log("buildLiveTVFileList, CHANNEL: " + str(self.settingChannel) + "  UPCOMING: " + title + "  DUR: " + str(dur))
                                 self.logDebug("Unaired = " + str(Unaired) + ", tvdbid = " + str(tvdbid) + ", imdbid = " + str(imdbid) + ", seasonNumber = " + str(seasonNumber) + ", episodeNumber = " + str(episodeNumber) + ", category = " + str(category) + ", sbManaged = " + str(sbManaged) + ", cpManaged = " + str(cpManaged))          
-                            except:
+                            except Exception,e:
                                 dur = 3600  #60 minute default
                                 self.log("buildLiveTVFileList, CHANNEL: " + str(self.settingChannel) + " - Error calculating show duration (default to 60 min)")
                                 raise
@@ -2154,9 +2219,9 @@ class ChannelList:
                             
                             if not movie: #TV
                                 if self.showSeasonEpisode:
-                                    episodetitle = ('S' + ('0' if seasonNumber < 10 else '') + str(seasonNumber) + 'E' + ('0' if episodeNumber < 10 else '') + str(episodeNumber) + ' - '+ ascii(subtitle))
+                                    episodetitle = ('S' + ('0' if seasonNumber < 10 else '') + str(seasonNumber) + 'E' + ('0' if episodeNumber < 10 else '') + str(episodeNumber) + ' - '+ str(subtitle))
                                 else:
-                                    episodetitle = (('0' if seasonNumber < 10 else '') + str(seasonNumber) + 'x' + ('0' if episodeNumber < 10 else '') + str(episodeNumber) + ' - '+ ascii(subtitle))
+                                    episodetitle = (('0' if seasonNumber < 10 else '') + str(seasonNumber) + 'x' + ('0' if episodeNumber < 10 else '') + str(episodeNumber) + ' - '+ str(subtitle))
                                 
                                 if str(episodetitle[0:6]) == 'S00E00':
                                     episodetitle = episodetitle.split("- ", 1)[-1]
@@ -2199,7 +2264,7 @@ class ChannelList:
    
         try:
             self.ninstance = xbmc.translatePath(os.path.join(Globals.SETTINGS_LOC, 'settings.xml'))
-        except:
+        except Exception,e:
             self.log("buildInternetTVFileList, Could not find settings.xml. Run configuration first...")
             return   
             
@@ -2228,7 +2293,7 @@ class ChannelList:
                         try:
                             dur = setting1
                             self.log("buildInternetTVFileList, CHANNEL: " + str(self.settingChannel) + ", " + title + "  DUR: " + str(dur))
-                        except:
+                        except Exception,e:
                             dur = 5400  #90 minute default
                             self.log("buildInternetTVFileList, CHANNEL: " + str(self.settingChannel) + " - Error calculating show duration (defaulted to 90 min)")
                             raise
@@ -2297,7 +2362,7 @@ class ChannelList:
                 try:
                     safe = setting1.split('|')[0]
                     setting1 = setting1.split('|')[1]
-                except:
+                except Exception,e:
                     safe = 'none'
                 youtubesearchVideo = 'https://gdata.youtube.com/feeds/api/videos?q=' +setting1+ '&start-index=' +str(startIndex)+ '&max-results=25&safeSearch=' +safe+ '&v=2'
                 youtube = youtubesearchVideo    
@@ -2314,13 +2379,13 @@ class ChannelList:
                     
                     try:
                         genre = (feed.entries[0].tags[1]['term'])
-                    except:
+                    except Exception,e:
                         self.log("createYoutubeFilelist, Invalid genre")
                         genre = 'Youtube'
                     
                     try:
                         thumburl = feed.entries[i].media_thumbnail[0]['url']
-                    except:
+                    except Exception,e:
                         self.log("createYoutubeFilelist, Invalid media_thumbnail")
                         pass 
                     
@@ -2343,7 +2408,7 @@ class ChannelList:
                         showepisodenuma = str(showepisodenuma)
                         showepisodenuma = showepisodenuma.replace("['tm_hour=", "")
                         showepisodenuma = showepisodenuma.replace(",']", "")
-                    except:
+                    except Exception,e:
                         pass
                 
                     try:
@@ -2351,33 +2416,33 @@ class ChannelList:
                         eptitle = re.sub('[!@#$/:]', '', eptitle)
                         eptitle = uni(eptitle)
                         eptitle = re.sub("[\W]+", " ", eptitle.strip()) 
-                    except:
+                    except Exception,e:
                         eptitle = setting1
                         eptitle = eptitle.replace('+',', ')
                     
                     try:
                         showtitle = uni(self.trim(showtitle, 100, ''))
-                    except:
-                        self.log("showtitle Trim failed")
+                    except Exception,e:
+                        self.log("showtitle Trim failed" + str(e))
                         showtitle = uni(showtitle[:100])
                    
                     try:
                         eptitle = uni(self.trim(eptitle, 100, ''))
-                    except:
-                        self.log("eptitle Trim failed")
+                    except Exception,e:
+                        self.log("eptitle Trim failed" + str(e))
                         eptitle = uni(eptitle[:100])  
                     
                     try:
                         summary = feed.entries[i].summary
                         summary = uni(summary)
                         summary = re.sub("[\W]+", " ", summary.strip())                       
-                    except:
+                    except Exception,e:
                         summary = showtitle +' - '+ eptitle
                     
                     try:
                         summary = uni(self.trim(summary, 300, '...'))
-                    except:
-                        self.log("summary Trim failed")
+                    except Exception,e:
+                        self.log("summary Trim failed" + str(e))
                         summary = uni(summary[:300])
                         
                     try:
@@ -2386,7 +2451,7 @@ class ChannelList:
                         runtime = int(runtime)
                         # runtime = round(runtime/60.0)
                         # runtime = int(runtime)
-                    except:
+                    except Exception,e:
                         runtime = 0
  
                     
@@ -2410,7 +2475,7 @@ class ChannelList:
                     tmpstr = tmpstr.replace("\\n", " ").replace("\\r", " ").replace("\\\"", "\"")
                     self.log("createYoutubeFilelist, CHANNEL: " + str(self.settingChannel) + ", " + eptitle + "  DUR: " + str(duration))
                     showList.append(tmpstr)
-                except:
+                except Exception,e:
                     pass
         
         return showList
@@ -2465,14 +2530,14 @@ class ChannelList:
                         
                         try:
                             showtitle = uni(self.trim(showtitle, 100, ''))
-                        except:
-                            self.log("showtitle Trim failed")
+                        except Exception,e:
+                            self.log("showtitle Trim failed" + str(e))
                             showtitle = uni(showtitle[:100])
                        
                         try:
                             eptitle = uni(self.trim(eptitle, 100, ''))
-                        except:
-                            self.log("eptitle Trim failed")
+                        except Exception,e:
+                            self.log("eptitle Trim failed" + str(e))
                             eptitle = uni(eptitle[:100])
                             
                         if 'author_detail' in feed.entries[i]:
@@ -2497,8 +2562,8 @@ class ChannelList:
                             
                         try:
                             epdesc = uni(self.trim(epdesc, 300, '...'))
-                        except:
-                            self.log("epdesc Trim failed")
+                        except Exception,e:
+                            self.log("epdesc Trim failed" + str(e))
                             epdesc = uni(epdesc[:300])
                         
                         if 'media_content' in feed.entries[i]:
@@ -2508,14 +2573,14 @@ class ChannelList:
                         
                         try:
                             runtimex = feed.entries[i]['itunes_duration']
-                        except:
+                        except Exception,e:
                             runtimex = 1350
                             pass
                         
                         try:
                             summary = feed.channel.subtitle
                             summary = summary.replace(":", "")
-                        except:
+                        except Exception,e:
                             pass
                         
                         if feed.channel.has_key("tags"):
@@ -2552,7 +2617,7 @@ class ChannelList:
                                 runtimex = int(runtimex)
                                 runtime = round(runtimex/60.0)
                                 runtime = int(runtime)
-                        except:
+                        except Exception,e:
                             pass
                         
                         if runtime >= 1:
@@ -2580,7 +2645,7 @@ class ChannelList:
                             if inSet == True:
                                 self.log("createRSSFileList, CHANNEL: " + str(self.settingChannel) + ", DONE")
                                 break         
-                    except:
+                    except Exception,e:
                         pass
 
         return showList
@@ -2676,7 +2741,7 @@ class ChannelList:
                 eptitle = uni(artist + ' - ' + track)
                 epdesc = uni('Rated ' + rating + '/5.00')
                         
-            except:
+            except Exception,e:
                 self.log("User hasn't listened to enough artists on Last.fm yet. Using Default User...")
                 api = 'http://api.tv.timbormans.com/user/por/topartists.xml'
                 file = urllib2.urlopen(api)
@@ -2737,7 +2802,7 @@ class ChannelList:
                 if self.myOverlay.isExiting == True:
                     self.log("IsExiting")
                     return False
-            except:
+            except Exception,e:
                 pass
 
         return True
@@ -2758,7 +2823,7 @@ class ChannelList:
         try:
             pltype = dom.getElementsByTagName('smartplaylist')
             return pltype[0].attributes['type'].value
-        except:
+        except Exception,e:
             self.log("Unable to get the playlist type.", xbmc.LOGERROR)
             return ''
     
@@ -2820,7 +2885,7 @@ class ChannelList:
                 f.write(fallback)
                 f.close()
                 self.strmValid = True          
-        except:
+        except Exception,e:
             pass
         
         return self.strmValid        
@@ -2966,7 +3031,7 @@ class ChannelList:
         try:
             xbmcaddon.Addon(id)
             self.PluginFound = True
-        except:
+        except Exception,e:
             self.PluginFound = False 
         self.log("PluginFound = " + str(self.PluginFound))
         
@@ -2982,7 +3047,7 @@ class ChannelList:
                     self.log('json_folder_detail = ' + str(json_folder_detail))
                     self.log('file_detail = ' + str(file_detail))
                     self.Pluginvalid = True        
-                except:
+                except Exception,e:
                     self.Pluginvalid = False
         else:
             self.Pluginvalid = False     
@@ -3301,7 +3366,7 @@ class ChannelList:
                             self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Commercials")
                         CommercialLST = self.Donor.InternetCommercial(CommercialCachePath)
                         self.writeCache(CommercialLST, CommercialCachePath, CommercialInternetCache)
-                    except:
+                    except Exception,e:
                         self.log("Donor Code Unavailable")
                         pass
 
@@ -3340,7 +3405,7 @@ class ChannelList:
             filename = (filename.split('.'))
             chname = (filename[0])
         else:
-            chname = ascii(ADDON_SETTINGS.getSetting("Channel_" + str(channel) + "_1"))
+            chname = str(ADDON_SETTINGS.getSetting("Channel_" + str(channel) + "_1"))
             
         if chtype == '3' or chtype == '4' or chtype == '5':
             GenreChtype = True
@@ -3471,7 +3536,7 @@ class ChannelList:
                             self.updateDialog.update(self.updateDialogProgress, "Updating channel " + str(channel), "Parsing Internet Trailers")
                         TrailerLST = self.InternetTrailer(TrailerCachePath)
                         self.writeCache(TrailerLST, TrailerCachePath, TrailerInternetCache)
-                    except:
+                    except Exception,e:
                         self.log("Donor Code Unavailable")
                         pass
 
@@ -3540,7 +3605,7 @@ class ChannelList:
             fle.write("%s\n" % now)
             for item in thelist:
                 fle.write("%s\n" % item)
-        except:
+        except Exception,e:
             pass
         
     
@@ -3557,7 +3622,7 @@ class ChannelList:
             self.logDebug("readCache, thelist.count = " + str(len(thelist)))
             fle.close()
             return thelist
-        except:
+        except Exception,e:
             pass
     
     
@@ -3581,7 +3646,7 @@ class ChannelList:
                     CacheExpired = True      
             else:
                 CacheExpired = True         
-        except:
+        except Exception,e:
             self.logDebug("Cache_ok, exception")
             
         self.log("Cache_ok, CacheExpired = " + str(CacheExpired))
@@ -3597,7 +3662,7 @@ class ChannelList:
                 sbAPI = SickBeard(REAL_SETTINGS.getSetting('sickbeard.baseurl'),REAL_SETTINGS.getSetting('sickbeard.apikey'))
                 if sbAPI.isShowManaged(tvdbid):
                     sbManaged = True
-            except:
+            except Exception,e:
                 self.logDebug("sbManaged, exception")
         return sbManaged
 
@@ -3614,7 +3679,7 @@ class ChannelList:
                 match = [s for s in r if imdbid in s][1]
                 if imdbid in match:    
                     cpManaged = True
-            except:
+            except Exception,e:
                 self.logDebug("cpManaged, exception")
         return cpManaged 
         
@@ -3660,7 +3725,7 @@ class ChannelList:
                     
                     showList = self.Donor.Bringpopcorn(setting2, setting3, setting4, channel)
                     return showList
-            except:
+            except Exception,e:
                 self.log("Donor Code Unavailable")
                 pass
     
@@ -3684,7 +3749,7 @@ class ChannelList:
             tvdbid = int(tvdbAPI.getIdByShowName(title))
             if tvdbid == None:
                 tvdbid = 0
-        except:
+        except Exception,e:
             pass     
         
         if (tvdbid == 0 or tvdbid == 'Empty' or tvdbid == None) :
@@ -3693,7 +3758,7 @@ class ChannelList:
                 tvdbid = int(t[title]['id'])
                 if tvdbid == None:
                     tvdbid = 0
-            except:
+            except Exception,e:
                 pass
             
         return tvdbid
@@ -3709,7 +3774,7 @@ class ChannelList:
             imdbid = tvdbAPI.getIMDBbyShowName(title)
             if imdbid == None:
                 imdbid = 0
-        except:
+        except Exception,e:
             pass
         
         if imdbid == 0: 
@@ -3717,7 +3782,7 @@ class ChannelList:
                 imdbid = t[title]['imdb_id']
                 if imdbid == None:
                     imdbid = 0
-            except:
+            except Exception,e:
                 pass
         
         return imdbid
@@ -3732,7 +3797,7 @@ class ChannelList:
             tvdbid = tvdbAPI.getIdByIMDB(imdbid)
             if tvdbid == None:
                 tvdbid = 0
-        except:
+        except Exception,e:
             pass 
         return tvdbid
         
@@ -3744,6 +3809,6 @@ class ChannelList:
         try:
             movieInfo = tmdbAPI.getMovie(movieTitle, movieYear)
             imdbid = movieInfo['imdb_id']
-        except:
+        except Exception,e:
             pass
         return imdbid
